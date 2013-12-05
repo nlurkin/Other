@@ -2,18 +2,34 @@
 %%There is just one section and two subsections.
 \documentclass{article}
 
+\title{A tutorial for NA62Analysis: creating the VertexCDA and
+Pi0Reconstruction analyzers.}
+
 \begin{document}
 
+\maketitle
 
-\section{Title}
+This document will describe the process of creating the VertexCDA and
+Pi0Reconstruction analyzers within the NA62Analysis framework. It is intended to
+guide future analyzer authors by describing the complete procedure.
 
-\subsection{Subtitle}
+\section{VertexCDA}
+The aim of this analyzer is to implement an algorithm that will compute the Kaon
+decay vertex and make it available to further analyzers. Though different
+methods are available for this purpose, the focus is given on a closest distance
+of approach (CDA) algorithm. The algoritm implemented by this analyzer can be
+used for the class of processes $K^\pm\to C^\pm+\ldots$ where $K^\pm$ is the
+incoming charged kaon measured in GigaTracker and $C^\pm$ is a charged particle
+measured in the Spectrometer. Even if the tracks are supposed to originate from
+the same point they are in practice never intersecting because of the
+finite measurement precision. The CDA will find the unique point
+$v=(v_x,v_y,v_z)$ where $d(v,t_1)$ and $d(v,t_2)$, the distance between $v$ and
+the first track $t_1$ and the distance between $v$ and the second track $t_2$
+respectively, are minimum.
 
-Plain text.
-
-\subsection{Another subtitle}
-
-More plain text.
+\subsection{Description of the CDA algorithm}
+ Even if the GigaTracker and Spectrometer
+tracks are supposed to be part of a single event The closest distance of approach algorithm computes
 
 
 \end{document}
