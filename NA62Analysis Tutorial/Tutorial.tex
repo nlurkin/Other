@@ -2,6 +2,8 @@
 %%There is just one section and two subsections.
 \documentclass{article}
 
+\usepackage{amsmath}
+
 \title{A tutorial for NA62Analysis: creating the VertexCDA and
 Pi0Reconstruction analyzers.}
 
@@ -23,13 +25,55 @@ incoming charged kaon measured in GigaTracker and $C^\pm$ is a charged particle
 measured in the Spectrometer. Even if the tracks are supposed to originate from
 the same point they are in practice never intersecting because of the
 finite measurement precision. The CDA will find the unique point
-$v=(v_x,v_y,v_z)$ where $d(v,t_1)$ and $d(v,t_2)$, the distance between $v$ and
-the first track $t_1$ and the distance between $v$ and the second track $t_2$
-respectively, are minimum.
+$\vec{v}=(v_x,v_y,v_z)$ where the distance between $v$ and the first track and
+the distance between $v$ and the second track are minimums. For this point only,
+the line $l$ passing through $v$ and joining both tracks is perpendicular to them.
 
-\subsection{Description of the CDA algorithm}
- Even if the GigaTracker and Spectrometer
-tracks are supposed to be part of a single event The closest distance of approach algorithm computes
+\newcommand{\p}[1]{\vec{p}_{#1}}
+\newcommand{\ap}[1]{|\vec{p}_{#1}|^2}
+\newcommand{\lv}{\vec{l}}
+\newcommand{\lz}{\vec{l}_{0}}
+\newcommand{\C}[1]{\vec{C}_{#1}}
+\newcommand{\x}[1]{\vec{x}_{#1}}
+
+We define $\vec{x}_{1,2}$ being the track origin and $\p{1,2}$ the
+momentum of the track. Any point $\C{1,2}$ on track can be described by a
+single parameter $s_{1,2}$.
+\begin{equation}
+	\C{1,2} = \x{1,2} + s_{1,2} \p{1,2}
+\end{equation}
+
+The vector joining $\C{1}$ and $\C{2}$ is then
+\begin{eqnarray}
+	\lv(s_1,s_2)=\C{1}-\C{2} &=& \x{1}+s_1\p{1} - \x{2} - s_2\p{2}\\
+	&=& \x{1}-\x{2} + s_1\p{1} - s_2\p{2}\\
+	&=& \lz + s_1\p{1} - s_2\p{2}
+\end{eqnarray}
+with $\lz = \x{1}-\x{2}$. Using the property that $\lv$ is perpendicular to
+$\p{1}$ and $\p{2}$ when it's length is minimum gives the following
+equations:
+
+\begin{align}
+	\lv(s_{1c},s_{2c})\cdot\p{1} &= \lz\cdot\p{1} + s_{1c}\ap{1} -
+	s_{2c}(\p{1}\cdot\p{2}) &= 0
+	\\
+	\lv(s_{1c},s_{2c})\cdot\p{2} &= \lz\cdot\p{2} + s_{1c}(\p{2}\cdot\p{1}) -
+	s_{2c}\ap{2} &= 0
+\end{align}
+That we solve for $s_{1c}$ and $s_{2c}$:
+
+\begin{align}
+	s_{1c} &= \frac{(\p{1}\cdot\p{2})(\lz\cdot\p{2}) -
+	(\lz\cdot\p{1})\ap{2}}{\ap{1}\ap{2} - (\p{1}\cdot\p{2})^2}\\
+	s_{2c} &= \frac{\ap{1}(\lz\cdot\p{2}) -
+	(\p{1}\cdot\p{2})(\lz\cdot\p{1})}{\ap{1}\ap{2} - (\p{1}\cdot\p{2})^2}
+\end{align}
+
+The vertex being in the middle of the $\lv(s_{1c},s{2c})$ vector:
+\begin{equation}
+	v = \C{1} + 0.5\lv(s_{1c},s_{2c})
+\end{equation}
+
 
 
 \end{document}
