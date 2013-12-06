@@ -3,6 +3,49 @@
 \documentclass{article}
 
 \usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{color}
+
+\lstset{ %
+  backgroundcolor=\color{white},   % choose the background color; you must add \usepackage{color} or \usepackage{xcolor}
+  basicstyle=\tiny,        % the size of the fonts that are used for
+  % the code
+  breakatwhitespace=false,         % sets if automatic breaks should only happen at whitespace
+  breaklines=true,                 % sets automatic line breaking
+  %captionpos=b,                    % sets the caption-position to bottom
+  commentstyle=\color{green},    % comment style
+  %deletekeywords={...},            % if you want to delete keywords from the
+  % given language
+  %escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+  %extendedchars=true,              % lets you use non-ASCII characters; for
+  % 8-bits encodings only, does not work with UTF-8
+  frame=L,                    % adds a frame around the code : L, single
+  keepspaces=true,                 % keeps spaces in text, useful for keeping indentation of code (possibly needs columns=flexible)
+  keywordstyle=\color{blue},       % keyword style
+  language=C++,                 % the language of the code
+  %morekeywords={*,...},            % if you want to add more keywords to the
+  % set
+  %numbers=left,                    % where to put the line-numbers; possible
+  % values are (none, left, right)
+  %numbersep=5pt,                   % how far the line-numbers are from the code
+%  numberstyle=\tiny\color{mygray}, % the style that is used for the
+  % line-numbers
+  rulecolor=\color{black},         % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. comments (green here))
+  showspaces=false,                % show spaces everywhere adding particular underscores; it overrides 'showstringspaces'
+  showstringspaces=false,          % underline spaces within strings only
+  showtabs=false,                  % show tabs within strings adding particular underscores
+  stepnumber=2,                    % the step between two line-numbers. If it's 1, each line will be numbered
+%  stringstyle=\color{mymauve},     % string literal style
+  tabsize=2,                       % sets default tabsize to 2 spaces
+  title=\lstname                   % show the filename of files included with \lstinputlisting; also try caption instead of title
+}
+
+\renewcommand{\path}[1]{\textbf{#1}}
+\newcommand{\method}[1]{\textbf{#1}}
+\newcommand{\var}[1]{\textit{#1}}
+\newcommand{\class}[1]{\textbf{#1}}
+\newcommand{\refcode}[1]{``\textit{#1}''}
 
 \title{A tutorial for NA62Analysis: creating the VertexCDA and
 Pi0Reconstruction analyzers.}
@@ -10,21 +53,28 @@ Pi0Reconstruction analyzers.}
 \begin{document}
 
 \maketitle
-
+\footnotesize
 This document will describe the process of creating the VertexCDA and
 Pi0Reconstruction analyzers within the NA62Analysis framework. It is intended to
-guide future analyzer authors by describing the complete procedure.
+guide future analyzer authors by describing the complete procedure. Assumption
+is done that the environment is already configured, NA62Analysis is installed
+and the User directory has been created. The installation and configuration
+procedure is described at
+\url{http://sergiant.web.cern.ch/sergiant/NA62FW/html/analysis.html}.
+Before starting the framework environment should be set by sourcing the
+env.(c)sh file in the \path{scripts/} folder of the user directory. Every shell command
+given in this document is to be executed from the top of the user directory.
 
 \section{VertexCDA}
 The aim of this analyzer is to implement an algorithm that will compute the Kaon
 decay vertex and make it available to further analyzers. Though different
 methods are available for this purpose, the focus is given on a closest distance
 of approach (CDA) algorithm. The algoritm implemented by this analyzer can be
-used for the class of processes $K^\pm\to C^\pm+\ldots$ where $K^\pm$ is the
-incoming charged kaon measured in GigaTracker and $C^\pm$ is a charged particle
-measured in the Spectrometer. Even if the tracks are supposed to originate from
-the same point they are in practice never intersecting because of the
-finite measurement precision. The CDA will find the unique point
+used for the class of processes $K^\pm\to C^\pm X$ where $K^\pm$ is the
+incoming charged kaon measured in GigaTracker, $C^\pm$ is a charged particle
+measured in the Spectrometer and $X$ is any kind and any number of additional particule. Even if the
+tracks are supposed to originate from the same point they are in practice never intersecting
+because of the finite measurement precision. The CDA will find the unique point
 $\vec{v}=(v_x,v_y,v_z)$ where the distance between $v$ and the first track and
 the distance between $v$ and the second track are minimums. For this point only,
 the line $l$ passing through $v$ and joining both tracks is perpendicular to them.
@@ -33,11 +83,11 @@ the line $l$ passing through $v$ and joining both tracks is perpendicular to the
 \newcommand{\ap}[1]{|\vec{p}_{#1}|^2}
 \newcommand{\lv}{\vec{l}}
 \newcommand{\lz}{\vec{l}_{0}}
-\newcommand{\C}[1]{\vec{C}_{#1}}
+\newcommand{\C}[1]{\vec{A}_{#1}}
 \newcommand{\x}[1]{\vec{x}_{#1}}
 
-We define $\vec{x}_{1,2}$ being the track origin and $\p{1,2}$ the
-momentum of the track. Any point $\C{1,2}$ on track can be described by a
+We define $\vec{x}_{1,2}$ being the track origin and $\p{1,2}$ it's
+momentum. Any point $\C{1,2}$ on track can be described by a
 single parameter $s_{1,2}$.
 \begin{equation}
 	\C{1,2} = \x{1,2} + s_{1,2} \p{1,2}
@@ -69,11 +119,157 @@ That we solve for $s_{1c}$ and $s_{2c}$:
 	(\p{1}\cdot\p{2})(\lz\cdot\p{1})}{\ap{1}\ap{2} - (\p{1}\cdot\p{2})^2}
 \end{align}
 
-The vertex being in the middle of the $\lv(s_{1c},s{2c})$ vector:
+The vertex being in the middle of the $\lv(s_{1c},s_{2c})$ vector:
 \begin{equation}
 	v = \C{1} + 0.5\lv(s_{1c},s_{2c})
 \end{equation}
 
+\subsection{VertexCDA analyzer implementation}
+The first step is to create the skeleton of the new analyzer. This is
+automatically done with the framework python script:
+\begin{lstlisting}
+NA62AnalysisBuilder.py new VertexCDA
+\end{lstlisting}
 
+We can open the source code of the newly created analyzer in
+\path{Analyzers/include/VertexCDA.hh} and \path{Analyzers/src/VetexCDA.cc}, go through
+every standard method of the analyzer and describe each section of code
 
+\subsubsection{Constructor}
+As we will need to access the GigaTracker and Spectrometer information we first
+start by requesting the access to these ROOT TTrees:
+
+\begin{lstlisting}
+//Request TTree with name GigaTracker with elements of class TRecoGigaTrackerEvent
+RequestTree("GigaTracker", new TRecoGigaTrackerEvent);
+//Request TTree with name Spectrometer with elements of class TRecoSpectrometerEvent
+RequestTree("Spectrometer", new TRecoSpectrometerEvent);
+\end{lstlisting}
+ 
+ Without forgetting to include the relevant header files
+\begin{lstlisting}
+#include "TRecoGigaTrackerEvent.hh"
+#include "TRecoSpectrometerEvent.hh"
+\end{lstlisting}
+
+\subsubsection{InitHist}
+In this method we will create and register all the histograms that we will need
+during the processing.
+
+\begin{lstlisting}
+//Booking 3 histograms to plot the reconstructed vertex x,y,z positions
+//Book Histogram VertexX (name that will be used to access this histogram later) and 
+//create it with new TH1I (see ROOT TH1I for the syntax).
+BookHisto("VertexX", 
+	new TH1I("VertexX", "Reconstructed vertex X position", 250, -250, 250));
+BookHisto("VertexY", 
+	new TH1I("VertexY", "Reconstructed vertex Y position", 150, -150, 150));
+BookHisto("VertexZ", 
+	new TH1I("VertexZ", "Reconstructed vertex Z position", 100, 0, 300000));
+
+//Booking 3 histograms to plot the difference between the reconstructed vertex and the real vertex components
+BookHisto("DiffVertexX", 
+	new TH1I("DiffVertexX", "X difference between reco and real vertex", 200, -50, 50));
+BookHisto("DiffVertexY", 
+	new TH1I("DiffVertexY", "Y difference between reco and real vertex", 200, -50, 50));
+BookHisto("DiffVertexZ", 
+	new TH1I("DiffVertexZ", "Z difference between reco and real vertex", 200, -10000, 10000));
+
+//Booking 3 2D histograms to plot the reconstructed vertex components vs. the real vertex components
+BookHisto("VertexRecoRealX", 
+	new TH2I("VertexRecoRealX", "Reconstructed vs. Real (X)", 250, -250, 250, 250, -250, 250));
+BookHisto("VertexRecoRealY", 
+	new TH2I("VertexRecoRealY", "Reconstructed vs. Real (Y)", 150, -150, 150, 150, -150, 150));
+BookHisto("VertexRecoRealZ", 
+	new TH2I("VertexRecoRealZ", "Reconstructed vs. Real (Z)", 200, 0, 300000, 200, 0, 300000));
+
+//Booking histograms to plot the reconstructed candidates multiplicity in GigaTracker and Spectrometer
+BookHisto("GTKMultiplicity", 
+	new TH1I("GTKMultiplicity", "Multiplicity in GTK", 11, -0.5, 10.5));
+BookHisto("StrawMultiplicity", 
+	new TH1I("StrawMultiplicity", "Multiplicity in Straw", 11, -0.5, 10.5));
+
+//Booking a serie of 20 histogram to plot the kaon decay profile in different sections of the detector length
+for(int i=0; i<20; i++){
+	BookHisto(TString("BeamXY") + (Long_t)i, 
+		new TH2I(TString("BeamXY") + (Long_t)i,
+				TString("BeamXY") + (Long_t)(100+i*5) + TString("->") + (Long_t)(100+(i+1)*5),
+				100, -100, 100, 100, -100, 100));
+}
+\end{lstlisting}
+
+We can also create several counters to keep track of the number of events passing the selection for
+this analyzer. The counters are grouped in an \class{EventFraction} table and the sample size for
+this table is defined as the \refcode{Total\_Events} counter.
+
+\begin{lstlisting}
+BookCounter("Total_Events");
+BookCounter("Good_GTK_Mult");
+BookCounter("Good_Straw_Mult");
+
+NewEventFraction("Selection");
+AddCounterToEventFraction("Selection", "Total_Events");
+AddCounterToEventFraction("Selection", "Good_GTK_Mult");
+AddCounterToEventFraction("Selection", "Good_Straw_Mult");
+DefineSampleSizeCounter("Selection", "Total_Events");
+\end{lstlisting} 
+
+\subsubsection{InitOutput}
+This analyzer is meant to provide a vertex to other analyzers. We first declare the \var{fVertex}
+member object in the header of the analyzer:
+
+\begin{lstlisting}
+protected:
+	TVector3 fVertex;
+\end{lstlisting}
+before declaring it to the framework under the name \refcode{Vertex} in the \method{InitOutput}
+method. It should be noted that to avoid collisions between independant analyzers, this name is
+automatically prepended with the name of the analyzer and a dot. In this case, to access this
+object from another analyzer, one will have to request \refcode{VertexCDA.Vertex}
+
+\begin{lstlisting}
+RegisterOutput("Vertex", &fVertex);
+\end{lstlisting}
+
+\subsubsection{DefineMCSimple}
+This method is specific to simulated events. We will define a specific partial event signature of
+the type $K^+\to\pi^+X$ where $X$ can be any number (0 included) of any particle. When reading simulated
+events, the list of simulated particles (\class{KineParts}) will be scanned and the particles
+corresponding to the definition given here will be stored in a structure that will allow us to easily reference
+them later.
+
+\begin{lstlisting}
+//We ask for the initial Kaon and store it's ID
+int kID = fMCSimple->AddParticle(0, 321);
+// We ask for the positive pion whose parent is the initial Kaon (kID as parent)
+fMCSimple->AddParticle(kID, 211);
+\end{lstlisting}
+
+\subsubsection{Process}
+This method is the main process loop. Every event will be processed by this method. This analyzer
+does not need simulated data but can do extra-work for consistency checks if available. We therefore
+don't enforce the use of simulated data but we simply check for them and set the \var{withMC}
+flag accordingly. The \var{fMCSimpe.fStatus} flag can take 3 different values:
+\begin{itemize}
+  \item \var{kEmpty}: No Monte Carlo data have been found
+  \item \var{kMissing}: Monte Carlo data have been found but the current event does not correspond
+  to the signature given in \method{DefineMCSimple} 
+  \item \var{kComplete}: Monte Carlo data have been found and the event corresponds to the signature
+  given in \method{DefineMCSimple}. There could be additional particles in the event.
+\end{itemize}
+The extra-work can only be realized with a complete event and we will therefore only check for the
+value \var{KComplete} of the status flag.
+
+\begin{lstlisting}
+//Declare the flag
+bool withMC = true;
+//For the additional jobWe are only interested in complete 
+if(fMCSimple.fStatus != MCSimple::kComplete) withMC = false;
+\end{lstlisting}
+
+Then we request the events retrieved from the GigaTracker and Spectrometer TTrees
+\begin{lstlisting}
+TRecoGigaTrackerEvent *GTKEvent = (TRecoGigaTrackerEvent*)GetEvent("GigaTracker");
+TRecoSpectrometerEvent *SpectrometerEvent = (TRecoSpectrometerEvent*)GetEvent("Spectrometer");
+\end{lstlisting}
 \end{document}
