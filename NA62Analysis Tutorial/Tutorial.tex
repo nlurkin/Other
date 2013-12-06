@@ -189,7 +189,8 @@ BookHisto("GTKMultiplicity",
 BookHisto("StrawMultiplicity", 
 	new TH1I("StrawMultiplicity", "Multiplicity in Straw", 11, -0.5, 10.5));
 
-//Booking a serie of 20 histogram to plot the kaon decay profile in different sections of the detector length
+//Booking a serie of 20 histogram to plot the MC kaon decay vertex X-Y profile in different sections
+of the detector length 
 for(int i=0; i<20; i++){
 	BookHisto(TString("BeamXY") + (Long_t)i, 
 		new TH2I(TString("BeamXY") + (Long_t)i,
@@ -246,10 +247,20 @@ fMCSimple->AddParticle(kID, 211);
 \end{lstlisting}
 
 \subsubsection{Process}
-This method is the main process loop. Every event will be processed by this method. This analyzer
-does not need simulated data but can do extra-work for consistency checks if available. We therefore
-don't enforce the use of simulated data but we simply check for them and set the \var{withMC}
-flag accordingly. The \var{fMCSimpe.fStatus} flag can take 3 different values:
+This method is the main process loop. Every event will be processed by this method. First we declare
+some variables:
+\begin{lstlisting}
+//Flags for rejected/accepted events
+bool badEvent = false;
+//Will contain the kaon position on GigaTracker station 3 and it's reconstructed momentum
+TVector3 KaonPosition, KaonMomentum;
+//Will contain the charged pion position returned by Spectrometer and it's reconstructed momentum 
+TVector3 PipPosition, PipMomentum;
+\end{lstlisting}
+
+This analyzer does not need simulated data but can do extra-work for consistency checks if
+available. We therefore don't enforce the use of simulated data but we simply check for them and
+set the \var{withMC} flag accordingly. The \var{fMCSimpe.fStatus} flag can take 3 different values:
 \begin{itemize}
   \item \var{kEmpty}: No Monte Carlo data have been found
   \item \var{kMissing}: Monte Carlo data have been found but the current event does not correspond
@@ -272,4 +283,93 @@ Then we request the events retrieved from the GigaTracker and Spectrometer TTree
 TRecoGigaTrackerEvent *GTKEvent = (TRecoGigaTrackerEvent*)GetEvent("GigaTracker");
 TRecoSpectrometerEvent *SpectrometerEvent = (TRecoSpectrometerEvent*)GetEvent("Spectrometer");
 \end{lstlisting}
+
+We increment to counter that keeps track of the total number of processed events:
+\begin{lstlisting}
+IncrementCounter("Total_Events");
+\end{lstlisting}
+
+The next step is handling the GigaTracker information. We fill the multiplicity histogram
+and if only 1 candidate has been reconstructed we fill the kaon variables. The kaon position is the
+position on station 3 but as the coordinates are relative to the center of the GigaTracker detector,
+we have to translate it into the experiment frame. Only the z coordinate is impacted. We also
+increment the counter keeping the count of events passing the GigaTracker selection. If 0 or more
+than 1 candidate is reconstructed, we flag the event as bad.
+
+\begin{lstlisting}
+//Filling GigaTracker multiplicity histogram
+FillHisto("GTKMultiplicity", GTKEvent->GetNCandidates());
+if(GTKEvent->GetNCandidates()==1){
+	//If only 1 reconstructed candidate, set KaonPosition to the position on station 3 (index 2)
+	KaonPosition = ((TRecoGigaTrackerCandidate*)GTKEvent->GetCandidate(0))->GetPosition(2);
+	//Move Z to the experiment frame. Z position of GigaTracker centre is 90932.5mm  
+	KaonPosition.SetZ(KaonPosition.Z()+90932.5);
+	//Set the kaon momentum as measured by GigaTracker
+	KaonMomentum = ((TRecoGigaTrackerCandidate*)GTKEvent->GetCandidate(0))->GetMomentum().Vect();
+	//Increment the GigaTracker selection counter
+	IncrementCounter("Good_GTK_Mult");
+}
+else badEvent = true;
+\end{lstlisting}
+
+The same processing is applied for the recostructed Spectrometer events. We fill the multiplicity
+histogram then get the position and momentum if only one candidate is reconstructed and we increment
+the counter for the Spectrometer selection. If no or more than one event is found, the
+\var{badEvent} flag is raised.
+
+\begin{lstlisting}
+FillHisto("StrawMultiplicity", SpectrometerEvent->GetNCandidates());
+if(SpectrometerEvent->GetNCandidates()==1){
+	PipPosition = ((TRecoSpectrometerCandidate*)SpectrometerEvent->GetCandidate(0))->GetPosition();
+	PipMomentum = ((TRecoSpectrometerCandidate*)SpectrometerEvent->GetCandidate(0))->GetMomentum().Vect();
+	IncrementCounter("Good_Straw_Mult");
+}
+else badEvent = true;
+\end{lstlisting}
+
+Finally if the event is tagged as bad, we set the state of the output to \var{kOInvalid} without
+further treatment to signal other analyzers that the value of this output should not be used. 
+
+\begin{lstlisting}
+if(badEvent){
+	//Signal the state of the Vertex output as kOInvalid if the event did not pass the selection
+	SetOutputState("Vertex", kOInvalid);
+}
+\end{lstlisting}
+
+If the event passed the selection, we finally compute the vertex with the CDA algorithm (whose
+implementation is described in section \ref{GetIntersection}), set the state of the output to
+\var{kOValid} to signal other analyzers that they can use it and fill the three Vertex histograms.
+
+\begin{lstlisting}
+else{
+	//Get the vertex from the CDA algorithm
+	fVertex = GetIntersection(KaonPosition, KaonMomentum, PipPosition, PipMomentum);
+	\\Signal the state of the Vertex Output as kOValid
+	SetOutputState("Vertex", kOValid);
+	
+	//Fill the histograms with the vertex components
+	FillHisto("VertexX", fVertex.X());
+	FillHisto("VertexY", fVertex.Y());
+	FillHisto("VertexZ", fVertex.Z());
+\end{lstlisting}
+
+To finish the event processing and if MonteCarlo are available, we compare the reconstructed vertex
+to the real one component by component and insert the result in 1D and 2D histograms. We also plot
+the vertex X-Y profile along the experiment in 20 Z sections starting at Z=100m. 
+\begin{lstlisting}
+	if(withMC){
+		FillHisto("DiffVertexX", fVertex.X()-fMCSimple["pi+"][0]->GetProdPos().X());
+		FillHisto("DiffVertexY", fVertex.Y()-fMCSimple["pi+"][0]->GetProdPos().Y());
+		FillHisto("DiffVertexZ", fVertex.Z()-fMCSimple["pi+"][0]->GetProdPos().Z());
+		FillHisto("VertexRecoRealX", fVertex.X(), fMCSimple["pi+"][0]->GetProdPos().X());
+		FillHisto("VertexRecoRealY", fVertex.Y(), fMCSimple["pi+"][0]->GetProdPos().Y());
+		FillHisto("VertexRecoRealZ", fVertex.Z(), fMCSimple["pi+"][0]->GetProdPos().Z());
+		int cat = ((fMCSimple["pi+"][0]->GetProdPos().Z()/1000)-100)/5;
+		FillHisto(TString("BeamXY") + (Long_t)cat, fMCSimple["pi+"][0]->GetProdPos().X(), fMCSimple["pi+"][0]->GetProdPos().Y());
+	}
+}
+\end{lstlisting}
+
+\subsubsection{GetIntersection}\label{GetIntersection}
 \end{document}
