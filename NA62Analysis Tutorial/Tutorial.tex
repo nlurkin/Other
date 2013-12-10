@@ -371,5 +371,53 @@ the vertex X-Y profile along the experiment in 20 Z sections starting at Z=100m.
 }
 \end{lstlisting}
 
+\subsection{PostProcess}
+This method is meant to destroy temporary objects that have been allocated during \method{Process}
+and that shall be destroyed only after all the analyzers finished processing the event. This is
+typically the case for memory allocated for the output of the analyzer. In the specific case of this
+analyzer, no such memory has been allocated and this method will stay empty.
+
+\subsection{ExportPlot}
+All the histograms previously booked with \method{BookHisto} are saved in the output ROOT file with
+
+\begin{lstlisting}
+SaveAllPlots();
+\end{lstlisting} 
+
+\subsection{DrawPlot}
+Similarly if the analysis is running in graphical mode, all the histograms previously booked with
+\method{BookHisto} should be displayed on screen:
+
+\begin{lstlisting}
+DrawAllPlots();
+\end{lstlisting} 
+
 \subsubsection{GetIntersection}\label{GetIntersection}
+This is the implementation of the CDA algorithm described earlier in this document. As input it
+receive two 3-vectors \var{x1} and \var{x2} being respectively a point belonging to the first track
+and a point belonging to the second track and two 3-vector \var{p1} and \var{p2} representing the
+directions of the tracks.
+
+The $\lz$ vector is computed from the positions: 
+\begin{lstlisting}
+TVector3 l0 = x1-x2;
+\end{lstlisting}
+Then the different cross-products and the $s_{1,2}$ parameters are computed:
+\begin{lstlisting}
+double a = p1.Mag2();
+double b = p1*p2;
+double c = p2.Mag2();
+double d = p1*d0;
+double e = p2*d0;
+double s1 = (b*e-c*d)/(a*c-b*b);
+double s2 = (a*e-b*d)/(a*c-b*b);
+\end{lstlisting}
+The vector linking the closest points ($\lv(s_1, s_2)$ in the algorithm) is \var{vdist} and the
+point being in the middle of this vector is returned:
+\begin{lstlisting}
+TVector3 vdist = l0 + (s1*p1 - s2*p2);
+
+return x1 + s1*p1 - 0.5*vdist;
+\end{lstlisting}
+
 \end{document}
