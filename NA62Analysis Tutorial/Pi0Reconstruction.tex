@@ -1,0 +1,117 @@
+\section{Pi0Reconstruction}
+
+This analyzer is implementing the reconstruction of a $\pi^0$ candidate from two photon candidates
+in the Liquid Krypton calorimeter. The eventual reconstructed candidate is then made available to
+further analyzer as a \class{KinePart} object. 
+
+xxxDescription of the algorithmxxx
+
+\subsection{Pi0Reconstruction implementation}
+
+The first step is to create the skeleton of the new analyzer. This is
+automatically done with the framework python script:
+\begin{lstlisting}
+NA62AnalysisBuilder.py new Pi0Reconstruction
+\end{lstlisting}
+
+The source code of the newly created analyzer can be found in
+\path{Examples/include/Pi0Reconstruction.hh} and \path{Examples/src/Pi0Reconstruction.cc}.
+Every standard method of the analyzer and each section of code will be described thereafter.
+
+\subsubsection{Constructor}
+As this analyzer only needs information from the LKr, this is the only requested TTree. The
+analyzer will run some acceptance checks as well and need access to the global instance of the
+\class{DetectorAcceptance} object:
+
+\begin{lstlisting}
+RequestTree("LKr", new TRecoLKrEvent);
+fDetectorAcceptanceInstance = GetDetectorAcceptanceInstance();
+\end{lstlisting}
+
+Without forgetting to include the header for the LKr reconstructed events
+
+\begin{lstlisting}
+#include "TRecoLKrEvent.hh"
+\end{lstlisting}
+
+
+\subsubsection{InitHist}
+In this method all the histograms that will be needed during the processing are created and
+registered to the framework:
+
+\begin{itemize}
+  \item Histograms for the photon candidates reconstructed energy 
+\begin{lstlisting}
+BookHisto("g1Energy", new TH1I("G1Energy", "Energy of g1", 100, 0, 75000));
+BookHisto("g2Energy", new TH1I("G2Energy", "Energy of g2", 100, 0, 75000));
+\end{lstlisting}
+	\item 2D histograms to compare reconstructed photon candidates energy with the true Monte Carlo
+	energy
+\begin{lstlisting}
+BookHisto("g1Reco", new TH2I("g1Reco", "g1 Reco vs. Real", 100, 0, 75000, 100, 0, 75000));
+BookHisto("g2Reco", new TH2I("g2Reco", "g2 Reco vs. Real", 100, 0, 75000, 100, 0, 75000));
+\end{lstlisting}
+	\item 2D histograms to compare reconstructed photon candidates momentum with the true Monte Carlo
+	momentum
+\begin{lstlisting}
+BookHisto("g1px", new TH2I("g1px", "g1 px Reco vs. Real", 200, 0, 2000, 200, 0, 2000));
+BookHisto("g2px", new TH2I("g2px", "g2 px Reco vs. Real", 200, 0, 2000, 200, 0, 2000));
+BookHisto("g1py", new TH2I("g1py", "g1 py Reco vs. Real", 200, 0, 2000, 200, 0, 2000));
+BookHisto("g2py", new TH2I("g2py", "g2 py Reco vs. Real", 200, 0, 2000, 200, 0, 2000));
+BookHisto("g1pz", new TH2I("g1pz", "g1 pz Reco vs. Real", 10, 240000, 250000, 10, 240000, 250000));
+BookHisto("g2pz", new TH2I("g2pz", "g2 pz Reco vs. Real", 10, 240000, 250000, 10, 240000, 250000));
+\end{lstlisting}
+	\item Histograms for the reconstructed $\pi^0$ canidate properties
+\begin{lstlisting}
+BookHisto("pi0Energy", new TH1I("pi0Energy", "Energy of pi0", 100, 0, 75000));
+BookHisto("pi0Mass", new TH1I("pi0Mass", "Reconstructed mass of pi0", 200, 0, 200));
+BookHisto("pi0MCMass", new TH1I("pi0MCMass", "MC mass of pi0", 200, 0, 200));
+\end{lstlisting}
+	\item 
+\begin{lstlisting}
+BookHisto("clusterPosition", new TH2I("clusterPosition", "Cluster position on LKr", 500, -2000, 2000, 500, -2000, 2000));
+BookHisto("photonsNbr", new TH1I("photonsNbr", "Photons number/event", 10, 0, 10));
+BookHisto("g1EnergyFraction", new TH1I("g1EnergyFraction", "Fraction between real energy and reco energy", 1000, 0, 100));
+BookHisto("g2EnergyFraction", new TH1I("g2EnergyFraction", "Fraction between real energy and reco energy", 1000, 0, 100));
+\end{lstlisting}
+	\item 
+\begin{lstlisting}
+BookHisto("gPairSelected", new TH1I("gPairSelected", "Pair of gamma selected for Pi0", 10, 0, 10));
+\end{lstlisting}
+	\item 
+\begin{lstlisting}
+BookHisto("g1FirstVol", new TH1I("g1FirstVol", "First touched volume for g1", 15, 0, 15));
+BookHisto("g2FirstVol", new TH1I("g2FirstVol", "First touched volume for g2", 15, 0, 15));
+\end{lstlisting}
+	\item 
+\begin{lstlisting}
+BookHisto("pdgID", new TH1I("pdgID", "Non complete events : pdgID", 0, 0, 0));
+\end{lstlisting}
+	\item 
+\begin{lstlisting}
+BookHisto("energyCalib", new TGraph());
+\end{lstlisting}
+\end{itemize}
+
+\subsubsection{InitOutput}
+
+\subsubsection{DefineMCSimple}
+
+\subsubsection{Process}
+
+\subsubsection{ExportPlot}
+All the histograms previously booked with \method{BookHisto} are saved in the output ROOT file with
+
+\begin{lstlisting}
+SaveAllPlots();
+\end{lstlisting} 
+
+\subsubsection{DrawPlot}
+Similarly if the analysis is running in graphical mode, all the histograms previously booked with
+\method{BookHisto} should be displayed on screen:
+
+\begin{lstlisting}
+DrawAllPlots();
+\end{lstlisting} 
+
+\subsection{Validation}
