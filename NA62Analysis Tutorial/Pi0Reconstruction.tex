@@ -61,41 +61,61 @@ BookHisto("g2py", new TH2I("g2py", "g2 py Reco vs. Real", 200, 0, 2000, 200, 0, 
 BookHisto("g1pz", new TH2I("g1pz", "g1 pz Reco vs. Real", 10, 240000, 250000, 10, 240000, 250000));
 BookHisto("g2pz", new TH2I("g2pz", "g2 pz Reco vs. Real", 10, 240000, 250000, 10, 240000, 250000));
 \end{lstlisting}
-	\item Histograms for the reconstructed $\pi^0$ canidate properties
+	\item Histograms for the reconstructed $\pi^0$ candidate properties
 \begin{lstlisting}
 BookHisto("pi0Energy", new TH1I("pi0Energy", "Energy of pi0", 100, 0, 75000));
 BookHisto("pi0Mass", new TH1I("pi0Mass", "Reconstructed mass of pi0", 200, 0, 200));
 BookHisto("pi0MCMass", new TH1I("pi0MCMass", "MC mass of pi0", 200, 0, 200));
 \end{lstlisting}
-	\item 
+	\item Histograms for LKr Monitoring
 \begin{lstlisting}
 BookHisto("clusterPosition", new TH2I("clusterPosition", "Cluster position on LKr", 500, -2000, 2000, 500, -2000, 2000));
 BookHisto("photonsNbr", new TH1I("photonsNbr", "Photons number/event", 10, 0, 10));
+BookHisto("energyCalib", new TGraph());
 BookHisto("g1EnergyFraction", new TH1I("g1EnergyFraction", "Fraction between real energy and reco energy", 1000, 0, 100));
 BookHisto("g2EnergyFraction", new TH1I("g2EnergyFraction", "Fraction between real energy and reco energy", 1000, 0, 100));
 \end{lstlisting}
-	\item 
+	\item Histograms for the pair selection algorithm
 \begin{lstlisting}
 BookHisto("gPairSelected", new TH1I("gPairSelected", "Pair of gamma selected for Pi0", 10, 0, 10));
 \end{lstlisting}
-	\item 
+	\item Histograms specific to Monte Carlo events
 \begin{lstlisting}
 BookHisto("g1FirstVol", new TH1I("g1FirstVol", "First touched volume for g1", 15, 0, 15));
 BookHisto("g2FirstVol", new TH1I("g2FirstVol", "First touched volume for g2", 15, 0, 15));
-\end{lstlisting}
-	\item 
-\begin{lstlisting}
 BookHisto("pdgID", new TH1I("pdgID", "Non complete events : pdgID", 0, 0, 0));
-\end{lstlisting}
-	\item 
-\begin{lstlisting}
-BookHisto("energyCalib", new TGraph());
 \end{lstlisting}
 \end{itemize}
 
 \subsubsection{InitOutput}
+This analyzer should provide further analyzers with a $\pi^0$ candidate if any is found. The output
+object is first declared in the header:
+
+\begin{lstlisting}
+KinePart pi0;
+\end{lstlisting}
+
+And then registered in the framework under the name \refcode{pi0} in the \method{InitOutput}
+method. It should be noted that to avoid collisions between independent analyzers, this name is
+automatically prepended with the name of the analyzer and a dot. In this case, to access this
+object from another analyzer, one will have to request \refcode{Pi0Reconstruction.pi0}
+\begin{lstlisting}
+RegisterOutput("pi0", &pi0);
+\end{lstlisting}
 
 \subsubsection{DefineMCSimple}
+In this method, the specific event signature $K^+\to\pi^+X\pi^0\to\gamma\gamma X$ is defined where
+$X$ can be any kind or any number (including 0) of additional particle. This will allow to do
+extra-processing to assess the performances of the analyzer when running on on this kind of
+simulated events.
+\begin{lstlisting}
+int kID = fMCSimple->AddParticle(0, 321); //ask for beam Kaon
+fMCSimple->AddParticle(kID, 211); //ask for positive pion from initial kaon decay
+int pi0ID = fMCSimple->AddParticle(kID, 111); //ask for positive pion from initial kaon decay
+fMCSimple->AddParticle(pi0ID, 22); //ask for positive pion from initial kaon decay
+fMCSimple->AddParticle(pi0ID, 22); //ask for positive pion from initial kaon decay
+\end{lstlisting}
+
 
 \subsubsection{Process}
 
