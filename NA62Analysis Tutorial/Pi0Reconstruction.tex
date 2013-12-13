@@ -4,7 +4,16 @@ This analyzer is implementing the reconstruction of a $\pi^0$ candidate from two
 in the Liquid Krypton calorimeter. The eventual reconstructed candidate is then made available to
 further analyzer as a \class{KinePart} object. 
 
-xxxDescription of the algorithmxxx
+The simple algorithm implemented works under strong hypothesis: 
+\begin{itemize}
+  \item The clusters in LKr are all due to individual photons.
+  \item The event contains only a single $\pi^0$ that decayed into two photons, both in the
+  acceptance of the LKr.
+\end{itemize}
+Every cluster is transformed to a photon candidate. The energy being the cluster energy and the
+momentum being computed using the reconstructed vertex. Every possible combination of candidate pair
+is tried and the pair with the invariant mass closest to $m_{\pi^0}$ is selected to reconstruct the
+$\pi^0$. 
 
 \subsection{Pi0Reconstruction implementation}
 
@@ -77,8 +86,6 @@ BookHisto("pi0Energy",
 		new TH1I("pi0Energy", "Energy of pi0", 100, 0, 75000));
 BookHisto("pi0Mass", 
 		new TH1I("pi0Mass", "Reconstructed mass of pi0", 200, 0, 200));
-BookHisto("pi0MCMass", 
-		new TH1I("pi0MCMass", "MC mass of pi0", 200, 0, 200));
 \end{lstlisting}
 	\item Histograms for LKr Monitoring
 \begin{lstlisting}
@@ -131,7 +138,7 @@ RegisterOutput("pi0", &pi0);
 \subsubsection{DefineMCSimple}
 In this method, the specific event signature $K^+\to\pi^+X\pi^0\to\gamma\gamma X$ is defined where
 $X$ can be any kind and any number (including 0) of additional particle. This will allow to do
-extra-processing to assess the performances of the analyzer when running on on this kind of
+extra-processing to assess the performances of the analyzer when running on this kind of
 simulated events.
 \begin{lstlisting}
 int kID = fMCSimple->AddParticle(0, 321); //ask for beam Kaon
@@ -211,7 +218,7 @@ vertex = *(TVector3*)GetOutput("VertexCDA.Vertex", state);
 if(state!=kOValid) return;
 \end{lstlisting}
 
-Then all the LKr cluster are transformed into photon candidates. The hypothesis is made that all
+Then all the LKr clusters are transformed into photon candidates. The hypothesis is made that all
 clusters are due to a photon and that they all originate from the vertex. In which case the
 particle momenta is 
 $\vec{p}=E_{cl}*\frac{(\vec{x}_{cl}-\vec{V})}{\left|\vec{x}_{cl}-\vec{V}\right|}$ where $E_{cl}$ is
@@ -279,8 +286,8 @@ g1 = candidates[cID.begin()->second].first;
 g2 = candidates[cID.begin()->second].second;
 \end{lstlisting}
 
-If Monte Carlo data are available the energy of the selected photon candidates are compared with the
-simulated photons coming from the $\pi^0$ decay. Tests are also done to see wether they are in the
+If Monte Carlo data is available the energy of the selected photon candidates are compared with the
+simulated photons coming from the $\pi^0$ decay. Tests are also done to see whether they are in the
 acceptance of the LKr or not. 
 \begin{lstlisting}
 //Are we working with MC?
@@ -375,7 +382,6 @@ SetOutputState("pi0", kOValid);
 //Fill the pi0 histograms
 FillHisto("pi0Energy", pi0.GetInitialEnergy());
 FillHisto("pi0Mass", sqrt(pow(pi0.GetInitialEnergy(),2) - pi0.GetInitialMomentum().Mag2()));
-FillHisto("pi0MCMass", sqrt(pow(fMCSimple[22][iLead]->GetInitialEnergy() + fMCSimple[22][iTrail]->GetInitialEnergy(), 2) - (fMCSimple[22][iLead]->GetInitialMomentum() + fMCSimple[22][iTrail]->GetInitialMomentum()).Mag2()));
 \end{lstlisting}
 
 
@@ -411,4 +417,27 @@ Similarly if the analysis is running in graphical mode, all the histograms previ
 DrawAllPlots();
 \end{lstlisting} 
 
-\subsection{Validation}
+\subsection{Results}
+The figure \ref{pi0validation} shows some results of this analyzer run on simulated
+$K^+\to\pi^+\pi^0\to\gamma\gamma$ events. The top plots shows the reconstructed energy of the
+$\pi^0$ candidate when found and the invariant mass of the photon pair being selected as decay
+product of the $pi^0$. The mass peak is center on 129.6 MeV. The bottom plot is the graph of the
+reconstructed energy vs. the MC energy for the selected photons. A linear fit is done on these
+points to extract the calibration constants (or verify them in case they are alredy applied).
+
+\begin{figure}
+\begin{subfigure}{0.5\textwidth}
+\includegraphics[width=\textwidth]{energypi0}
+\end{subfigure}
+\begin{subfigure}{0.5\textwidth}
+\includegraphics[width=\textwidth]{masspi0}
+\end{subfigure}\\
+\begin{subfigure}{\textwidth}
+\includegraphics[width=\textwidth,height=150pt]{calibpi0}
+\end{subfigure}
+\caption{Top: histograms of the reconstructed $\pi^0$ candidate mass and energy. Bottom:
+Fit of the $E_{reco}$ vs. $E_{MC}$ slope for the verification of the
+calibration constants.}\label{pi0validation}
+\end{figure}
+
+
