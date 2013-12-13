@@ -42,48 +42,73 @@ registered to the framework:
 \begin{itemize}
   \item Histograms for the photon candidates reconstructed energy 
 \begin{lstlisting}
-BookHisto("g1Energy", new TH1I("G1Energy", "Energy of g1", 100, 0, 75000));
-BookHisto("g2Energy", new TH1I("G2Energy", "Energy of g2", 100, 0, 75000));
+BookHisto("g1Energy", 
+		new TH1I("G1Energy", "Energy of g1", 100, 0, 75000));
+BookHisto("g2Energy", 
+		new TH1I("G2Energy", "Energy of g2", 100, 0, 75000));
 \end{lstlisting}
 	\item 2D histograms to compare reconstructed photon candidates energy with the true Monte Carlo
 	energy
 \begin{lstlisting}
-BookHisto("g1Reco", new TH2I("g1Reco", "g1 Reco vs. Real", 100, 0, 75000, 100, 0, 75000));
-BookHisto("g2Reco", new TH2I("g2Reco", "g2 Reco vs. Real", 100, 0, 75000, 100, 0, 75000));
+BookHisto("g1Reco", 
+		new TH2I("g1Reco", "g1 Reco vs. Real", 100, 0, 75000, 100, 0, 75000));
+BookHisto("g2Reco", 
+		new TH2I("g2Reco", "g2 Reco vs. Real", 100, 0, 75000, 100, 0, 75000));
 \end{lstlisting}
 	\item 2D histograms to compare the reconstructed photon candidates positions on LKr with the
 	extrapolated position of the true MC photons
 \begin{lstlisting}
-BookHisto("g1px", new TH2I("g1px", "g1 px Reco vs. Real", 200, 0, 2000, 200, 0, 2000));
-BookHisto("g2px", new TH2I("g2px", "g2 px Reco vs. Real", 200, 0, 2000, 200, 0, 2000));
-BookHisto("g1py", new TH2I("g1py", "g1 py Reco vs. Real", 200, 0, 2000, 200, 0, 2000));
-BookHisto("g2py", new TH2I("g2py", "g2 py Reco vs. Real", 200, 0, 2000, 200, 0, 2000));
-BookHisto("g1pz", new TH2I("g1pz", "g1 pz Reco vs. Real", 10, 240000, 250000, 10, 240000, 250000));
-BookHisto("g2pz", new TH2I("g2pz", "g2 pz Reco vs. Real", 10, 240000, 250000, 10, 240000, 250000));
+BookHisto("g1px", 
+		new TH2I("g1px", "g1 px Reco vs. Real", 200, 0, 2000, 200, 0, 2000));
+BookHisto("g2px", 
+		new TH2I("g2px", "g2 px Reco vs. Real", 200, 0, 2000, 200, 0, 2000));
+BookHisto("g1py", 
+		new TH2I("g1py", "g1 py Reco vs. Real", 200, 0, 2000, 200, 0, 2000));
+BookHisto("g2py", 
+		new TH2I("g2py", "g2 py Reco vs. Real", 200, 0, 2000, 200, 0, 2000));
+BookHisto("g1pz", 
+		new TH2I("g1pz", "g1 pz Reco vs. Real", 10, 240000, 250000, 10, 240000, 250000));
+BookHisto("g2pz", 
+		new TH2I("g2pz", "g2 pz Reco vs. Real", 10, 240000, 250000, 10, 240000, 250000));
 \end{lstlisting}
 	\item Histograms for the reconstructed $\pi^0$ candidate properties
 \begin{lstlisting}
-BookHisto("pi0Energy", new TH1I("pi0Energy", "Energy of pi0", 100, 0, 75000));
-BookHisto("pi0Mass", new TH1I("pi0Mass", "Reconstructed mass of pi0", 200, 0, 200));
-BookHisto("pi0MCMass", new TH1I("pi0MCMass", "MC mass of pi0", 200, 0, 200));
+BookHisto("pi0Energy", 
+		new TH1I("pi0Energy", "Energy of pi0", 100, 0, 75000));
+BookHisto("pi0Mass", 
+		new TH1I("pi0Mass", "Reconstructed mass of pi0", 200, 0, 200));
+BookHisto("pi0MCMass", 
+		new TH1I("pi0MCMass", "MC mass of pi0", 200, 0, 200));
 \end{lstlisting}
 	\item Histograms for LKr Monitoring
 \begin{lstlisting}
-BookHisto("clusterPosition", new TH2I("clusterPosition", "Cluster position on LKr", 500, -2000, 2000, 500, -2000, 2000));
-BookHisto("photonsNbr", new TH1I("photonsNbr", "Photons number/event", 10, 0, 10));
-BookHisto("energyCalib", new TGraph());
-BookHisto("g1EnergyFraction", new TH1I("g1EnergyFraction", "Fraction between real energy and reco energy", 1000, 0, 100));
-BookHisto("g2EnergyFraction", new TH1I("g2EnergyFraction", "Fraction between real energy and reco energy", 1000, 0, 100));
+BookHisto("clusterPosition", 
+		new TH2I("clusterPosition", 
+				"Cluster position on LKr", 500, -2000, 2000, 500, -2000, 2000));
+BookHisto("photonsNbr", 
+		new TH1I("photonsNbr", "Photons number/event", 10, 0, 10));
+BookHisto("energyCalib", 
+		new TGraph());
+BookHisto("g1EnergyFraction", 
+		new TH1I("g1EnergyFraction", 
+				"Fraction between real energy and reco energy",	1000, 0, 100));
+BookHisto("g2EnergyFraction", 
+		new TH1I("g2EnergyFraction", 
+				"Fraction between real energy and reco energy",	1000, 0, 100));
 \end{lstlisting}
 	\item Histograms for the pair selection algorithm
 \begin{lstlisting}
-BookHisto("gPairSelected", new TH1I("gPairSelected", "Pair of gamma selected for Pi0", 10, 0, 10));
+BookHisto("gPairSelected", 
+		new TH1I("gPairSelected", "Pair of gamma selected for Pi0", 10, 0, 10));
 \end{lstlisting}
 	\item Histograms specific to Monte Carlo events
 \begin{lstlisting}
-BookHisto("g1FirstVol", new TH1I("g1FirstVol", "First touched volume for g1", 15, 0, 15));
-BookHisto("g2FirstVol", new TH1I("g2FirstVol", "First touched volume for g2", 15, 0, 15));
-BookHisto("pdgID", new TH1I("pdgID", "Non complete events : pdgID", 0, 0, 0));
+BookHisto("g1FirstVol", 
+		new TH1I("g1FirstVol", "First touched volume for g1", 15, 0, 15));
+BookHisto("g2FirstVol", 
+		new TH1I("g2FirstVol", "First touched volume for g2", 15, 0, 15));
+BookHisto("pdgID", 
+		new TH1I("pdgID", "Non complete events : pdgID", 0, 0, 0));
 \end{lstlisting}
 \end{itemize}
 
@@ -105,7 +130,7 @@ RegisterOutput("pi0", &pi0);
 
 \subsubsection{DefineMCSimple}
 In this method, the specific event signature $K^+\to\pi^+X\pi^0\to\gamma\gamma X$ is defined where
-$X$ can be any kind or any number (including 0) of additional particle. This will allow to do
+$X$ can be any kind and any number (including 0) of additional particle. This will allow to do
 extra-processing to assess the performances of the analyzer when running on on this kind of
 simulated events.
 \begin{lstlisting}
@@ -169,7 +194,8 @@ The use of simulated events is not enforced but the \var{withMC} flag is set acc
 bool withMC = true;
 if(fMCSimple.fStatus == MCSimple::kMissing){
 	for(int i=0; i<MCTruthEvent->GetNKineParts(); i++){
-		FillHisto("pdgID", ((KinePart*)MCTruthEvent->GetKineParts()->At(i))->GetParticleName(), 1);
+		FillHisto("pdgID", 
+				((KinePart*)MCTruthEvent->GetKineParts()->At(i))->GetParticleName(), 1);
 	}
 	return;
 }
@@ -198,9 +224,11 @@ for(int i=0; i<LKrEvent->GetNCandidates(); i++){
 	lkrCand = (TRecoLKrCandidate*)LKrEvent->GetCandidate(i);
 	part = new KinePart();
 	//Fill the cluster position histogram
-	FillHisto("clusterPosition", lkrCand->GetClusterX()*10, lkrCand->GetClusterY()*10);
+	FillHisto("clusterPosition", 
+			lkrCand->GetClusterX()*10, lkrCand->GetClusterY()*10);
 	//Set the LKr position (*10 to go from cm to mm)
-	direction.SetXYZ(lkrCand->GetClusterX()*10, lkrCand->GetClusterY()*10, LKrStartPos);
+	direction.SetXYZ(lkrCand->GetClusterX()*10, 
+					lkrCand->GetClusterY()*10, LKrStartPos);
 	//Set the direction
 	direction = direction - vertex;
 	//Set the magnitude of the direction to the corrected cluster energy to form the momentum (photon hypothesis)
@@ -210,7 +238,8 @@ for(int i=0; i<LKrEvent->GetNCandidates(); i++){
 	part->SetInitialMomentum(direction);
 	part->SetInitialEnergy(lkrCand->GetClusterEnergy()*1000*calibMult + calibConst);
 	//Push the candidate in the list
-	photonOrder.insert(pair<double, int>(lkrCand->GetClusterEnergy()*1000*calibMult + calibConst, photons.size()));
+	photonOrder.insert(pair<double, int>(
+		lkrCand->GetClusterEnergy()*1000*calibMult + calibConst, photons.size()));
 	photons.push_back(part);
 }
 //Fill the photon multiplicity histogram
@@ -237,7 +266,8 @@ for(photonIt = photonOrder.rbegin(); photonIt != photonOrder.rend(); photonIt++)
 		g2 = photons[photonIt2->second];
 
 		candidates.push_back(pair<KinePart*, KinePart*>(g1, g2));
-		pi0Mass = sqrt(pow(g1->GetInitialEnergy() + g2->GetInitialEnergy(),2) - (g1->GetInitialMomentum() + g2->GetInitialMomentum()).Mag2());
+		pi0Mass = sqrt(pow(g1->GetInitialEnergy() + g2->GetInitialEnergy(),2)
+					 - (g1->GetInitialMomentum() + g2->GetInitialMomentum()).Mag2());
 		//insert the invariant mass divided by the pi0 mass in the map
 		cID.insert(pair<double, int>(fabs((pi0Mass/134.9766)-1), i));
 		i++;
@@ -324,7 +354,7 @@ FillHisto("g1Energy", g1->GetInitialEnergy());
 FillHisto("g2Energy", g2->GetInitialEnergy());
 \end{lstlisting}
 
-Finally the $\pi^0$ candidate is reconstructed. It's energy is the sum of the photons energies and
+Finally the $\pi^0$ candidate is reconstructed. Its energy is the sum of the photons energies and
 its momentum  is the sum of the photon momenta. The state of the output is set as \refcode{kOValid}
 to signal further analyzer that the output can be used. The histograms corresponding to the $\pi^0$
 candidate values are filled.
@@ -350,7 +380,7 @@ FillHisto("pi0MCMass", sqrt(pow(fMCSimple[22][iLead]->GetInitialEnergy() + fMCSi
 
 
 The last step is to release all the memory that has been allocated during the processing. This can
-safely be done here as this memory is not part of the output. I memory had been allocated for the
+safely be done here as this memory is not part of the output. If memory had been allocated for the
 output, the release would have been done in the \method{PostProcess} method.
 \begin{lstlisting}
 //Delete all the created KinePart
