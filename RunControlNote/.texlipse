@@ -1,0 +1,14 @@
+#TeXlipse project settings
+#Mon Jan 27 10:19:30 GMT 2014
+markTmpDer=true
+builderNum=2
+outputDir=
+makeIndSty=
+bibrefDir=
+outputFormat=pdf
+tempDir=tmp
+mainTexFile=Note.tex
+outputFile=RunControlNote.pdf
+langSpell=en
+markDer=true
+srcDir=
