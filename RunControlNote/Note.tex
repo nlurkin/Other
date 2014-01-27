@@ -122,6 +122,11 @@ should always be the one specified in the last file (values in the latest file a
 values in the earliest ones). The default file could also be used when no file is specified for the
 given recipe or when resetting the device.
 
+The file transfer mechanism will work as described hereafter. After sending a command requiring a
+configuration file, the RunControl will send the content of the first configuration file as a
+string on a dedicated command slot. The RunControl will then wait until the device notifies it that
+the file has been entirely processed and is waiting for further instructions. The RunControl will
+repeat the same procedure for the next configuration files until the last one has been processed.
 
 Once all the configuration has been applied the RunControl will ask the device to report back the
 current configuration. The device will generate a file containing all the current parameters values,
@@ -135,11 +140,15 @@ file will be stored in the offline database. Two possibilities are given to the 
   values.
 \end{itemize}
 
+When the complete procedure is finished the device should update it's state parameters and report an
+INITIALIZED state in the RunControl. 
 
 \section{Logging}
 The RunControl will be connected to three different databases: the configuration database containing
 the recipes and the configuration files, the online database storing number of information related
-to the run and the instantaneous state of the data taking, PC farm, 
+to the run and the instantaneous state of the data taking, PC farm, \ldots. And finally the offline
+database that will contain the subset of the online values that are relevant to future analysis and
+the configuration for each run.
 
 
 \end{document}
