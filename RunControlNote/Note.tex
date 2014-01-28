@@ -93,8 +93,8 @@ RunControl is the following:
 	\ref{sec:commands}.
 	\item \label{cmd:fileContent} dimServerName/FileContent (Format: ``C''): For the configuration
 	files content according to the procedure described in \ref{sec:configuration}.
-	\item \label{cmd:endTranfer} dimServerName/EndTranfer (Format: ``I''): For signaling that the
-	last configuration file has been tranfered.
+	\item \label{cmd:endTransfer} dimServerName/EndTransfer (Format: ``I''): For signaling that the
+	last configuration file has been transfered.
 \end{enumerate}
 The service ports are providing information to the clients connected to the device (output).
 With these ports, the RunControl is able to determine the exact state of the hardware,
@@ -135,24 +135,23 @@ be implemented is the following:
 	current values of the configuration parameters.
 \end{enumerate}
 
-The client part can connect to a server's command port to send commands to the server or to a
-server's service port to receive data from the server. The RunControl is acting as a client
-connected to the device server whose minimum interface is described above, but is also acting as a
-server, providing different informations:
+The client part can connect to a server's command port to send it commands or to a server's
+service port to receive data from it. The RunControl is acting as a client connected to the device's
+server whose minimum interface is described above, but is also acting as a server, providing different informations:
 \begin{itemize}
 	\item RunControl/RunNumber (Format: ``I''): Run number of the current run.
 	\item RunControl/BurstNumber (Format: ``I''): Number of bursts in the current run.
 	\item RunControl/EnabledDetectors (Format: ``C''): List of enabled detectors for the current run
 	and number of data source for each detector. The string has the format\\ 
 	\mbox{``DetID:NSource,DetID:NSource,\ldots''} where DetID is the detector ID in hexadecimal format
-	(0x18) defined in \cite{biblio:TDAQNote} and NSource is the number of data source for this detector. This
+	(0x18) defined in \cite{biblio:TDAQNote} and NSource is the number of data source. This
 	service is primarily intended for the PC farm.
 \end{itemize}
 
 \subsection{RunControl commands}\label{sec:commands}
 
-As the RunControl is not aware of the internal operation of any device the commands are very generic
-and the device is expected to understand them and execute the appropriate sequence of actions
+As the RunControl is not aware of the internal operation of any device, the commands are very
+generic and the device is expected to understand them and execute the appropriate sequence of actions
 specific to itself. After the execution of the associated action the devices should answer back to
 the RunControl, notifying the success or failure of the action by updating/refreshing its state
 parameters on service \ref{svc:state} (or the alternative \ref{svc:stateParams}).
@@ -189,7 +188,7 @@ be associated to one or several tags relating it to recipes.
 
 The configuration files can be incremental: for each recipe, a list of files can be sent to the
 device. The first one would contain ``default'' values, values that are valid for different type of
-runs, parameters that rarely change. The following files would contain paramParler du fait qu'ils peuvent prendre des trucs chez moi aussieters that have a
+runs, parameters that rarely change. The following files would contain parameters that have a
 higher changing rate. The files will be send to the device sequentially and the value applied for a
 specific parameter should always be the one specified in the last file (values in the latest file
 are overwriting the values in the earliest ones). The default file could also be used when no file
@@ -210,9 +209,9 @@ The file transfer mechanism will work as described hereafter:
 	\item The RunControl repeats the points \ref{transf:start} and \ref{transf:wait} for the next
 	configuration files until the last one has been processed.
 	\item \label{transf:end} Once all the configuration has been applied the RunControl sends 1 on
-	\ref{cmd:endTranfer} to warn the device that there are no more configuration files.
+	\ref{cmd:endTransfer} to warn the device that there are no more configuration files.
 	\item The device is now supposed to report back the current configuration. It will generate a file
-	containing all the current parameters values, possibly in the same format as the configuration
+	containing all the current parameters value, possibly in the same format as the configuration
 	file. The file is transmitted to the RunControl by publishing it on the service port
 	\ref{svc:config} and is stored in the offline database. Two possibilities are given to the
 	subsystem:
@@ -238,22 +237,21 @@ the configuration for each run.
 
 In addition to the run values logging, there will be a centralized device logging. This logging will
 be displayed in the control room and recorded in the database. Every device will implement the
-service port \ref{svc:logging}. This service provides the source id, a severity code and finally
-the text message itself.
+service port \ref{svc:logging} providing the source id, a severity code and the text message itself.
 
 \section{Alternative/Additional functionalities}
-ALternative or additional functionnalities can be provided by or to the device. Any of the
+Alternative or additional functionnalities can be provided by or to the device. Any of the
 possibilities listed, or not, hereafter as well as anything not following the standards described
 up to this point are to be discussed and agreed with the RunControl developpers well in advance.
 
 Examples of alternative or additional services are given below and are taken from devices already
 integrated in the RunControl:
 \begin{enumerate}[label=\textbf{ASVC.\arabic*}]
-	\item \label{svc:stateParams} dimServerName/paramName: An alternative to the single \ref{svc:state}
-	service reporting the FSM state that is internally maintained and has to comply with the
-	convention outline in Table \ref{table:FSMStates} is to provide a serie of parameters value via as
-	much service ports. The RunControl can assemble these values through logical expression to
-	determine one of the state depicted in figure \ref{fig:FSM_Device}. For the rest, these ports have
+	\item \label{svc:stateParams} dimServerName/paramName: The single \ref{svc:state}
+	service is reporting the FSM state that is internally maintained and has to comply with the
+	convention outlined in Table \ref{table:FSMStates}. An alternative is to provide a serie of
+	parameters through as much service ports. The RunControl can assemble these values through logical
+	expression to determine one of the state depicted in figure \ref{fig:FSM_Device}. For the rest, these ports have
 	to follow the same rules as the \ref{svc:state} one.
 	\item dimServerName/TriggerNumber (Format: ``X''): From the L0TP. Number of triggers generated
 	during the current burst.
