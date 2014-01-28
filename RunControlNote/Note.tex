@@ -5,6 +5,7 @@
 \usepackage{geometry}         % Définir les marges
 \usepackage{graphicx}
 \usepackage{subcaption}
+\usepackage{enumitem}
 
 \title{NA62 RunControl}
 \author{Nicolas Lurkin}
@@ -16,7 +17,7 @@
 \maketitle
 
 \section{Finite State Machine}
-The NA62 RunControl is based on a three levels tree-like hierarchy of Finite State Machine (FSM). 
+The NA62 RunControl is based on a three levels tree-like hierarchy of Finite State Machine (FSM).
 
 Each constituting element of the DAQ (device) is internally modeled as an FSM. Each state of the
 FSM is defined by the evaluation of logical expressions depending on a set of parameters that are
@@ -52,8 +53,8 @@ described below:
 	\item \textbf{INITIALIZED}: When all the devices have been configured and the DAQ is ready to take
 	data.
 	\item \textbf{READY}: All the devices are completely ready for data and waiting for triggers. The
-	only exception being the trigger processor, in a paused state, waiting for further command to generate
-	the triggers.
+	only exception being the trigger processor, in a paused state, waiting for further command to
+	generate the triggers.
 	\item \textbf{RUNNING}: The trigger processor is out of the paused state and running.
 	\item \textbf{ERROR}: This state can be reached from any other state whenever a problem occurs on
 	any device.
@@ -65,13 +66,13 @@ hereafter:
 
 \begin{itemize}
 	\item \textbf{INITIALIZE}: Request to initialize all the devices with a specific configuration.
-	\item \textbf{STARTRUN}: Request to all the devices to start the run and move in a ready state
+	\item \textbf{START\_RUN}: Request to all the devices to start the run and move in a ready state
 	where they are able to take data.
 	\item \textbf{ENABLE\_TRIGGER}: Request to the trigger processor to start generating triggers.
 	\item \textbf{PAUSE}: Request to the trigger processor to stop generating triggers.
-	\item \textbf{ENDRUN}: Request to all devices to stop taking data and end the current run. 
-	\item \textbf{RESET}: Immediately move to an idle/initialized state, stopping the current run if
-	it was ongoing.
+	\item \textbf{END\_RUN}: Request to all devices to stop taking data and end the current run.
+	\item \textbf{RESET}: Immediately move to an idle/initialized state, stopping the current run if it
+	was ongoing.
 \end{itemize}
 
 \section{Interface}
@@ -81,31 +82,29 @@ take care of transmitting the commands from the RunControl to the device and the
 device to the RunControl, along with any other relevant information that should be known by the
 RunControl or made availabe to the shifters.
 
+\subsection{DIM commands/services} \label{sec:DIM}
 DIM is working on a client-server model where the same instance can be both server and client.
 The server part implements command and service ports. The clients can push commands/requests to
-the device via the first type. The minimum set of DIM commands to be implemented to interface with
-the RunControl is the following:
-\begin{itemize}
-	\item dimServerName/Command: For the commands described in \note{ref}.
-	\item dimServerName/FileContent: For the configuration files content according to the procedure
-	described in \note{ref}.
-\end{itemize}
-While the service ports are providing information to the clients connected to the device.
-With these ports, the RunControl will be able to determine the exact state of the hardware,
-transmit information to the user and log them in the database. The minimum set of DIM services to be
-implemented is the following:
-\begin{itemize}
-	\item dimServerName/Info: For transmitting output to the user. This service should be the
-	equivalent of stdout when the control software is running in command line. It is only used to
-	inform the user currently working on this specific equipment and will not be recorded.
-	\item dimServerName/Logging: For the logging mechanism described in \note{ref}. Contrary to the
-	previous service, this one should only provide important and summarized information that will be
-	stored in the offline database to be aware during future analysis of important problems that
-	happened during the run.
-	\item dimServerName/State: For FSM state repoting. If the device is internally keeping track of
-	it's internal state, this state should be reported in this service. There should be a one to one
-	correspondance with the FSM diagram \ref{fig:FSM_Device}. The standard convention is shown in
-	Table \ref{table:FSMStates}.
+the device via the first type (input). For all commands/services, dimServerName is a unique name
+identifying the device. The minimum set of DIM commands to be implemented to interface with the
+RunControl is the following:
+\begin{enumerate}[label=\textbf{CMD.\arabic*}]
+	\item \label{cmd:command} dimServerName/Command (Format: ``C''): For the commands described in
+	\ref{sec:commands}.
+	\item \label{cmd:fileContent} dimServerName/FileContent (Format: ``C''): For the configuration
+	files content according to the procedure described in \ref{sec:configuration}.
+	\item \label{cmd:endTranfer} dimServerName/EndTranfer (Format: ``I''): For signaling that the
+	last configuration file has been tranfered.
+\end{enumerate}
+The service ports are providing information to the clients connected to the device (output).
+With these ports, the RunControl is able to determine the exact state of the hardware,
+transmit information to the user and log them in the database. The minimum set of DIM services to
+be implemented is the following:
+\begin{enumerate}[label=\textbf{SVC.\arabic*}]
+	\item \label{svc:state} dimServerName/State (Format: ``I''): For FSM state reporting. If the device
+	is internally keeping track of its internal state, this state should be reported in this service. There should
+	be a one to one correspondance with the FSM diagram \ref{fig:FSM_Device}. The standard convention
+	is shown in Table \ref{table:FSMStates}.
 	\begin{table}
 		\center
 		\begin{tabular}{c|c}
@@ -117,33 +116,63 @@ implemented is the following:
 			ERROR & Other (-99 reserved)\\
 			\hline
 		\end{tabular}
-		\caption{}
+		\caption{Mapping between value of service \ref{svc:state} and RunControl device FSM state.}
 		\label{table:FSMStates}
 	\end{table}
 	The use of any other value for the ERROR state allows to define different type of errors identified
-	by the error (state) code.
+	by the error (state) code. See \ref{svc:stateParams} for an alternative if your device does not
+	maintain its internal FSM state.
+	\item \label{svc:info} dimServerName/Info (Format: ``C''): For transmitting output to the user. This
+	service should be the equivalent of stdout when the control software is running in command line. It is only used
+	to inform the user currently working on this specific equipment and will not be recorded.
+	\item \label{svc:logging} dimServerName/Logging (Format: ``I:1;I:1;C''): For the logging mechanism
+	described in \ref{sec:logging}. Contrary to the previous service, this one should only provide important and
+	summarized information that will be stored in the offline database to keep track for future records
+	of important problems that happened during the run.
+	\item \label{svc:waiting} dimServerName/Waiting (Format: ``I''): To notify the RunControl that the
+	processing of the current configuration file is finished.
+	\item \label{svc:config} dimServerName/Config (Format: ``C''): To report back to the RunControl the
+	current values of the configuration parameters.
+\end{enumerate}
+
+The client part can connect to a server's command port to send commands to the server or to a
+server's service port to receive data from the server. The RunControl is acting as a client
+connected to the device server whose minimum interface is described above, but is also acting as a
+server, providing different informations:
+\begin{itemize}
+	\item RunControl/RunNumber (Format: ``I''): Run number of the current run.
+	\item RunControl/BurstNumber (Format: ``I''): Number of bursts in the current run.
+	\item RunControl/EnabledDetectors (Format: ``C''): List of enabled detectors for the current run
+	and number of data source for each detector. The string has the format\\ 
+	\mbox{``DetID:NSource,DetID:NSource,\ldots''} where DetID is the detector ID in hexadecimal format
+	(0x18) defined in \cite{biblio:TDAQNote} and NSource is the number of data source for this detector. This
+	service is primarily intended for the PC farm.
 \end{itemize}
 
+\subsection{RunControl commands}\label{sec:commands}
 
 As the RunControl is not aware of the internal operation of any device the commands are very generic
 and the device is expected to understand them and execute the appropriate sequence of actions
 specific to itself. After the execution of the associated action the devices should answer back to
-the RunControl, notifying the success or failure of the action.
- 
+the RunControl, notifying the success or failure of the action by updating/refreshing its state
+parameters on service \ref{svc:state} (or the alternative \ref{svc:stateParams}).
 
-The commands are sent to the DIM xxx command port as a string. The first token of the string is the
-command line and the following tokens are the command arguments, if any. The minimum set of
-commands to be understood and implemented is the following:
+The commands are sent to the command port \ref{cmd:command} as a string. The first token of the
+string is the command name and the following tokens are the command arguments, if any. The minimum
+set of commands to be understood and implemented is the following:
 \begin{itemize}
-  \item initialize 
-  \item startrun runNumber
-  \item endrun
-  \item resetstate
+	\item initialize
+	\item startrun runNumber
+	\item endrun
+	\item resetstate
 \end{itemize}
 
-\section{Configuration}
+After receiving any of these commands, the device should be ready to receive an eventual
+configuration file according to the procedure described in section \ref{sec:configuration}.
+
+\section{Configuration}\label{sec:configuration}
 The configuration mechanism of the RunControl will take advantage of the existing recipe mechanism
-of the JCOP\note{Link to JCOP} framework: a database contains an ensemble of fields and a list of
+of the JCOP\cite{biblio:JCOP} framework: a database contains an ensemble of fields and a list of
 recipes (configuration modes). Specific values of the field are associated to each recipe. At
 configuration time a prompt will ask the user to select a recipe to load.
 
@@ -156,51 +185,92 @@ the values.
 A tool will be available to dump configuration files into the database and an ``on-line'' editor will
 also be provided to modify/write files directly in the database. The entries in the database can be
 independant files or different versions of a same file and will be identified by a name and will
-be associated one or several tags relating it to recipes.
+be associated to one or several tags relating it to recipes.
 
 The configuration files can be incremental: for each recipe, a list of files can be sent to the
 device. The first one would contain ``default'' values, values that are valid for different type of
-runs, parameters that rarely change. The following files would contain parameters that have a higher changing rate.
-The files will be send to the device sequentially and the value applied for a specific parameter
-should always be the one specified in the last file (values in the latest file are overwriting the
-values in the earliest ones). The default file could also be used when no file is specified for the
-given recipe or when resetting the device.
+runs, parameters that rarely change. The following files would contain paramParler du fait qu'ils peuvent prendre des trucs chez moi aussieters that have a
+higher changing rate. The files will be send to the device sequentially and the value applied for a
+specific parameter should always be the one specified in the last file (values in the latest file
+are overwriting the values in the earliest ones). The default file could also be used when no file
+is specified for the given recipe or when resetting the device.
 
-The file transfer mechanism will work as described hereafter. After sending a command requiring a
-configuration file, the RunControl will send the content of the first configuration file as a
-string on a dedicated command slot. The RunControl will then wait until the device notifies it that
-the file has been entirely processed and is waiting for further instructions. The RunControl will
-repeat the same procedure for the next configuration files until the last one has been processed.
+The file transfer mechanism will work as described hereafter:
+\begin{enumerate}
+	\item \label{transf:start} After sending one of the commands described in \ref{sec:commands}, the
+	RunControl will send the content of the first configuration file as a string on the command slot \ref{cmd:command}. If
+	no file is specified, the RunControl will move directly to point \ref{transf:end} of this
+	procedure.
+	\item Upon reception of the file content, the device sets the value of \ref{svc:waiting} to 0 and
+	start processing the configuration file (the details are left to the specific device
+	implementation).
+	\item \label{transf:wait} The RunControl wait until the device notifies that the file has been
+	entirely processed and is waiting for further instructions by setting the value of
+	\ref{svc:waiting} to 1.
+	\item The RunControl repeats the points \ref{transf:start} and \ref{transf:wait} for the next
+	configuration files until the last one has been processed.
+	\item \label{transf:end} Once all the configuration has been applied the RunControl sends 1 on
+	\ref{cmd:endTranfer} to warn the device that there are no more configuration files.
+	\item The device is now supposed to report back the current configuration. It will generate a file
+	containing all the current parameters values, possibly in the same format as the configuration
+	file. The file is transmitted to the RunControl by publishing it on the service port
+	\ref{svc:config} and is stored in the offline database. Two possibilities are given to the
+	subsystem:
+	\begin{itemize}
+		\item When applying the configuration files, keeping track of the real value of each parameters
+		(the one that has been applied) and report this list of values, trusting that everything went
+		well and that these values were effectively loaded in the hardware.
+		\item Request the hardware for the actual value of each parameter and report this list of true
+		values.
+	\end{itemize}
+	\item Finally the device update its state parameters \ref{svc:state} or \ref{svc:stateParams},
+	indicating the end of the configuration procedure. 
+\end{enumerate}
+At any point of the procedure, if something goes wrong or an anomaly is detected by the device, it
+can move to an ERROR state that will interrupt the procedure. 
 
-Once all the configuration has been applied the RunControl will ask the device to report back the
-current configuration. The device will generate a file containing all the current parameters values,
-possibly in the same format as the configuration file, that it will transmit to the RunControl. This
-file will be stored in the offline database. Two possibilities are given to the subsystem:
-\begin{itemize}
-  \item When applying the configuration files, keeping track of the real value of each parameters
-  (the one that has been applied) and report this list of values, trusting that everything went well
-  and that these values were effectively loaded in the hardware.
-  \item Request the hardware for the actual value of each parameter and report this list of true
-  values.
-\end{itemize}
-
-When the complete procedure is finished the device should update it's state parameters and report an
-INITIALIZED state in the RunControl. 
-
-\section{Logging}
+\section{Logging}\label{sec:logging}
 The RunControl will be connected to three different databases: the configuration database containing
 the recipes and the configuration files, the online database storing number of information related
 to the run and the instantaneous state of the data taking, PC farm, \ldots. And finally the offline
 database that will contain the subset of the online values that are relevant to future analysis and
 the configuration for each run.
 
-In addition to the database logging, there will be a centralized visual logging screen in the
-control room. Every device will implemment the xxx service port that implement the logging message.
-The message will contain the source id, a severity code and finally the text message itself.
+In addition to the run values logging, there will be a centralized device logging. This logging will
+be displayed in the control room and recorded in the database. Every device will implement the
+service port \ref{svc:logging}. This service provides the source id, a severity code and finally
+the text message itself.
 
 \section{Alternative/Additional functionalities}
-\thebibliography{}
-\bibitem{biblio:DIM}{http://dim.web.cern.ch/dim/}
- 
-\end{document}
+ALternative or additional functionnalities can be provided by or to the device. Any of the
+possibilities listed, or not, hereafter as well as anything not following the standards described
+up to this point are to be discussed and agreed with the RunControl developpers well in advance.
 
+Examples of alternative or additional services are given below and are taken from devices already
+integrated in the RunControl:
+\begin{enumerate}[label=\textbf{ASVC.\arabic*}]
+	\item \label{svc:stateParams} dimServerName/paramName: An alternative to the single \ref{svc:state}
+	service reporting the FSM state that is internally maintained and has to comply with the
+	convention outline in Table \ref{table:FSMStates} is to provide a serie of parameters value via as
+	much service ports. The RunControl can assemble these values through logical expression to
+	determine one of the state depicted in figure \ref{fig:FSM_Device}. For the rest, these ports have
+	to follow the same rules as the \ref{svc:state} one.
+	\item dimServerName/TriggerNumber (Format: ``X''): From the L0TP. Number of triggers generated
+	during the current burst.
+\end{enumerate}
+
+Examples of additional commands are given below and are taken from devices already integrated in
+the RunControl:
+\begin{enumerate}[label=\textbf{ACMD.\arabic*}]
+	\item dimServerName/SendTrigger (Format: ``X''): From the L0TP. Request to generate a certain
+	number of triggers during next burst.
+\end{enumerate}
+
+
+\thebibliography{}
+
+\bibitem{biblio:DIM}{http://dim.web.cern.ch/dim/}
+\bibitem{biblio:JCOP}{https://j2eeps.cern.ch/wikis/display/EN/JCOP+Framework}
+\bibitem{biblio:TDAQNote}{M.S. Sozzi et al., ``NA62 online software and TDAQ interface.'', NA62
+Note NA62-11-02, 2011}
+\end{document}
