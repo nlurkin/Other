@@ -6,17 +6,32 @@
 \usepackage{graphicx}
 \usepackage{subcaption}
 \usepackage{enumitem}
+\usepackage{lineno}
 
 \title{NA62 RunControl}
-\author{Nicolas Lurkin}
+%\author{Nicolas Lurkin}
 
 \newcommand{\note}[1]{\footnote{TODO: {#1}}}
 
 \begin{document}
-
 \maketitle
 
-\section{Finite State Machine}
+\linenumbers
+
+\section{Introduction}
+The NA62 RunControl will control and monitor every equipment involved in the Data Acquisition
+(DAQ) chain. The integration work is already well advanced for some devices like the main
+acquisition board TEL62\cite{biblio:TEL62}. In order to assure the most coherent system this
+document will describe the standard interface that should be implemented by future devices to be
+integrated in the RunControl. This standard is extracted from the existing implementations and
+extended to cover the minimum functionalities foreseen for the start of the data taking:
+\begin{itemize}
+	\item Device state
+	\item Device configuration
+	\item Conditions logging and storage
+\end{itemize} 
+
+\subsection{Finite State Machine}
 The NA62 RunControl is based on a three levels tree-like hierarchy of Finite State Machine (FSM).
 
 Each constituting element of the DAQ (device) is internally modelled as an FSM. Each state of the
@@ -196,10 +211,18 @@ specific parameter should always be the one specified in the last file (values i
 are overwriting the values in the earliest ones). The default file could also be used when no file
 is specified for the given recipe or when resetting the device.
 
-The file transfer mechanism will work as described hereafter:
+\begin{figure}
+	\center
+	\includegraphics[width=\textwidth]{Doc/Configuration}
+	\caption{Sketch of the procedure for the transfer of a configuration file from the RunControl to
+	a device.}
+	\label{fig:fileTransfer}
+\end{figure}
+The file transfer mechanism will work as depicted in Figure \ref{fig:fileTransfer} and explained in
+details hereafter:
 \begin{enumerate}
 	\item \label{transf:start} After sending one of the commands described in \ref{sec:commands}, the
-	RunControl will send the content of the first configuration file as a string on the command slot \ref{cmd:command}. If
+	RunControl will send the content of the first configuration file as a string on the command slot \ref{cmd:fileContent}. If
 	no file is specified, the RunControl will move directly to point \ref{transf:end} of this
 	procedure.
 	\item Upon reception of the file content, the device sets the value of \ref{svc:waiting} to 0 and
@@ -269,8 +292,10 @@ the RunControl:
 
 \thebibliography{}
 
+\bibitem{biblio:TEL62}{B. Angelucci et al., \textit{TEL62: an integrated trigger and data
+acquisition board}, JINST 7 (2012) C02046.}
 \bibitem{biblio:DIM}{http://dim.web.cern.ch/dim/}
+\bibitem{biblio:TDAQNote}{M.S. Sozzi et al., \textit{NA62 online software and TDAQ interface.},
+NA62 Note NA62-11-02, 2011}
 \bibitem{biblio:JCOP}{https://j2eeps.cern.ch/wikis/display/EN/JCOP+Framework}
-\bibitem{biblio:TDAQNote}{M.S. Sozzi et al., ``NA62 online software and TDAQ interface.'', NA62
-Note NA62-11-02, 2011}
 \end{document}
