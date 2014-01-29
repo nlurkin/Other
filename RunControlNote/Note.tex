@@ -85,9 +85,8 @@ RunControl or made availabe to the shifters.
 \subsection{DIM commands/services} \label{sec:DIM}
 DIM is working on a client-server model where the same instance can be both server and client.
 The server part implements command and service ports. The clients can push commands/requests to
-the device via the first type (input). For all commands/services, dimServerName is a unique name
-identifying the device. The minimum set of DIM commands to be implemented to interface with the
-RunControl is the following:
+the device via the first type (input). The minimum set of DIM commands to be implemented to
+interface with the RunControl is the following:
 \begin{enumerate}[label=\textbf{CMD.\arabic*}]
 	\item \label{cmd:command} dimServerName/Command (Format: ``C''): For the commands described in
 	\ref{sec:commands}.
@@ -134,6 +133,9 @@ be implemented is the following:
 	\item \label{svc:config} dimServerName/Config (Format: ``C''): To report back to the RunControl the
 	current values of the configuration parameters.
 \end{enumerate}
+
+For all the commands/services described in this document, dimServerName is a unique name identifying
+the device.
 
 The client part can connect to a server's command port to send it commands or to a server's
 service port to receive data from it. The RunControl is acting as a client connected to the device's
