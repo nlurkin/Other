@@ -15,7 +15,7 @@ def bash_command(cmd):
 	return out
 
 def getOldCastor(path):
-	cmd = "ls %s" % path
+	cmd = "nsls %s" % path
 	
 	entries = bash_command(cmd).split()
 	return [x for x in entries if x[-5:]==".root"]
@@ -38,10 +38,8 @@ if __name__ == "__main__":
 	
 	if len(args)!= 1:
 		print "You need to provide a search path"
-	
+		sys.exit(0)
 	path = args[0]
-	
-	files = sorted(getOldCastor(path))
 	
 	prefix = ""
 	if options['format']=="castor":
@@ -50,8 +48,13 @@ if __name__ == "__main__":
 			prefix = "xroot://castorpublic.cern.ch//castor/cern.ch"
 	elif options['format']=="eos":
 			prefix = "eos"
-	
-	path = path.strip("/")
+	elif options['format']== None:
+		print "Please specify which output format you would like"
+		sys.exit(0)
+
+	files = sorted(getOldCastor(path))
+	path = getShortPath(path).strip("/")
+
 	for f in files:
 		print "%s/%s/%s" % (prefix, path, f)
 		
