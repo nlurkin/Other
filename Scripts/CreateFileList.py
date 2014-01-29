@@ -67,8 +67,12 @@ if __name__ == "__main__":
 		print "Please specify which output format you would like"
 		sys.exit(0)
 		
-	format = getPathFormat(path)
-	files = sorted(getOldCastor(path))
+	pathFormat = getPathFormat(path)
+	if pathFormat=="c":
+		files = sorted(getCastor(path))
+	else:
+		files = sorted(getEos(path))
+	
 	path = getShortPath(path).strip("/")
 
 	for f in files:
