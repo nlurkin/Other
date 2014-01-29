@@ -12,12 +12,12 @@ def bash_command(cmd):
 	(out, err) = p.communicate()
 	if len(err)>0:
 		print err
-	return out
+	return out.split()
 
 def getPathFormat(path):
-	if "castorpublic.cern.ch" in path:
+	if "/castor/" in path:
 		return "c"
-	elif "eosna62.cern.ch" in path:
+	elif "/eos/" in path:
 		return "e"
 	else:
 		return "c"
@@ -25,13 +25,15 @@ def getPathFormat(path):
 def getCastor(path):
 	cmd = "nsls %s" % path
 	
-	entries = bash_command(cmd).split()
+	entries = bash_command(cmd)
 	return [x for x in entries if x[-5:]==".root"]
 
 def getEos(path):
-	cmd = "eos ls %s" % path
-	
-	entries = bash_command(cmd).split()
+	cmd = """
+	source /afs/cern.ch/project/eos/installation/na62/etc/setup.sh
+	eos ls %s""" % path
+		
+	entries = bash_command(cmd)
 	return [x for x in entries if x[-5:]==".root"]
 	
 	
@@ -62,7 +64,7 @@ if __name__ == "__main__":
 	elif options['format']=="xroot":
 			prefix = "xroot://castorpublic.cern.ch//castor/cern.ch"
 	elif options['format']=="eos":
-			prefix = "eos"
+			prefix = "root://eosna62.cern.ch/eos/na62"
 	elif options['format']== None:
 		print "Please specify which output format you would like"
 		sys.exit(0)
