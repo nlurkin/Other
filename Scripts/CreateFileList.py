@@ -14,12 +14,27 @@ def bash_command(cmd):
 		print err
 	return out
 
-def getOldCastor(path):
+def getPathFormat(path):
+	if "castorpublic.cern.ch" in path:
+		return "c"
+	elif "eosna62.cern.ch" in path:
+		return "e"
+	else:
+		return "c"
+	
+def getCastor(path):
 	cmd = "nsls %s" % path
 	
 	entries = bash_command(cmd).split()
 	return [x for x in entries if x[-5:]==".root"]
 
+def getEos(path):
+	cmd = "eos ls %s" % path
+	
+	entries = bash_command(cmd).split()
+	return [x for x in entries if x[-5:]==".root"]
+	
+	
 def getShortPath(path):
 	result = ""
 	m = expr.match(path)
@@ -51,7 +66,8 @@ if __name__ == "__main__":
 	elif options['format']== None:
 		print "Please specify which output format you would like"
 		sys.exit(0)
-
+		
+	format = getPathFormat(path)
 	files = sorted(getOldCastor(path))
 	path = getShortPath(path).strip("/")
 
