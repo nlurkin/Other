@@ -19,14 +19,14 @@
 \section{Finite State Machine}
 The NA62 RunControl is based on a three levels tree-like hierarchy of Finite State Machine (FSM).
 
-Each constituting element of the DAQ (device) is internally modeled as an FSM. Each state of the
+Each constituting element of the DAQ (device) is internally modelled as an FSM. Each state of the
 FSM is defined by the evaluation of logical expressions depending on a set of parameters that are
 provided by the device. The figure \ref{fig:FSM_Device} shows the FSM diagram followed by most of
 the devices.
 
-The device nodes are forming the leaves of the tree. The internal node are grouping the devices into
-logical entities representing subsytems of the experiment. These nodes are also modeled as FSM,
-summarizing the states of the devices belonging to this group according to a set of rules.
+The device nodes are forming the leaves of the tree. The internal nodes are grouping the devices
+into logical entities representing subsystems of the experiment. These nodes are also modelled as
+FSM, summarizing the states of the devices belonging to this group according to a set of rules.
 
 Finally the root of the tree is an FSM node that represents the global state of the Data Acquisition
 by further summarizing the states of all the logical nodes. The figure \ref{fig:FSM_Main} shows the
@@ -53,7 +53,7 @@ described below:
 	\item \textbf{INITIALIZED}: When all the devices have been configured and the DAQ is ready to take
 	data.
 	\item \textbf{READY}: All the devices are completely ready for data and waiting for triggers. The
-	only exception being the trigger processor, in a paused state, waiting for further command to
+	only exception being the trigger processor waiting in a paused state for further command to
 	generate the triggers.
 	\item \textbf{RUNNING}: The trigger processor is out of the paused state and running.
 	\item \textbf{ERROR}: This state can be reached from any other state whenever a problem occurs on
@@ -80,7 +80,7 @@ The link between the device nodes modelling a specific device and the hardware i
 established by DIM\cite{biblio:DIM}\footnote{Distributed Information Management System} that will
 take care of transmitting the commands from the RunControl to the device and the state parameters from the
 device to the RunControl, along with any other relevant information that should be known by the
-RunControl or made availabe to the shifters.
+RunControl or made available to the shifters.
 
 \subsection{DIM commands/services} \label{sec:DIM}
 DIM is working on a client-server model where the same instance can be both server and client.
@@ -92,8 +92,8 @@ interface with the RunControl is the following:
 	\ref{sec:commands}.
 	\item \label{cmd:fileContent} dimServerName/FileContent (Format: ``C''): For the configuration
 	files content according to the procedure described in \ref{sec:configuration}.
-	\item \label{cmd:endTransfer} dimServerName/EndTransfer (Format: ``I''): For signaling that the
-	last configuration file has been transfered.
+	\item \label{cmd:endTransfer} dimServerName/EndTransfer (Format: ``I''): For signalling that the
+	last configuration file has been transferred.
 \end{enumerate}
 The service ports are providing information to the clients connected to the device (output).
 With these ports, the RunControl is able to determine the exact state of the hardware,
@@ -102,7 +102,7 @@ be implemented is the following:
 \begin{enumerate}[label=\textbf{SVC.\arabic*}]
 	\item \label{svc:state} dimServerName/State (Format: ``I''): For FSM state reporting. If the device
 	is internally keeping track of its internal state, this state should be reported in this service. There should
-	be a one to one correspondance with the FSM diagram \ref{fig:FSM_Device}. The standard convention
+	be a one to one correspondence with the FSM diagram \ref{fig:FSM_Device}. The standard convention
 	is shown in Table \ref{table:FSMStates}.
 	\begin{table}
 		\center
@@ -118,7 +118,7 @@ be implemented is the following:
 		\caption{Mapping between value of service \ref{svc:state} and RunControl device FSM state.}
 		\label{table:FSMStates}
 	\end{table}
-	The use of any other value for the ERROR state allows to define different type of errors identified
+	The use of any other value for the ERROR state allows defining different type of errors identified
 	by the error (state) code. See \ref{svc:stateParams} for an alternative if your device does not
 	maintain its internal FSM state.
 	\item \label{svc:info} dimServerName/Info (Format: ``C''): For transmitting output to the user. This
@@ -180,12 +180,12 @@ configuration time a prompt will ask the user to select a recipe to load.
 Again, in order to hide the internals of the devices from the RunControl, the actual configuration
 parameters/values are contained in a configuration file. The content of the files will be written in
 the JCOP database and associated to recipes. When loading a recipe, the associated files content
-will be transmitted integrally to the device who will again be responsible to decode it and apply
+will be transmitted integrally to the device that will again be responsible to decode it and apply
 the values.
 
 A tool will be available to dump configuration files into the database and an ``on-line'' editor will
 also be provided to modify/write files directly in the database. The entries in the database can be
-independant files or different versions of a same file and will be identified by a name and will
+independent files or different versions of a same file and will be identified by a name and will
 be associated to one or several tags relating it to recipes.
 
 The configuration files can be incremental: for each recipe, a list of files can be sent to the
@@ -210,7 +210,7 @@ The file transfer mechanism will work as described hereafter:
 	\ref{svc:waiting} to 1.
 	\item The RunControl repeats the points \ref{transf:start} and \ref{transf:wait} for the next
 	configuration files until the last one has been processed.
-	\item \label{transf:end} Once all the configuration has been applied the RunControl sends 1 on
+	\item \label{transf:end} Once the entire configuration has been applied the RunControl sends 1 on
 	\ref{cmd:endTransfer} to warn the device that there are no more configuration files.
 	\item The device is now supposed to report back the current configuration. It will generate a file
 	containing all the current parameters value, possibly in the same format as the configuration
@@ -218,13 +218,13 @@ The file transfer mechanism will work as described hereafter:
 	\ref{svc:config} and is stored in the offline database. Two possibilities are given to the
 	subsystem:
 	\begin{itemize}
-		\item When applying the configuration files, keeping track of the real value of each parameters
+		\item When applying the configuration files, keeping track of the real value of each parameter
 		(the one that has been applied) and report this list of values, trusting that everything went
 		well and that these values were effectively loaded in the hardware.
 		\item Request the hardware for the actual value of each parameter and report this list of true
 		values.
 	\end{itemize}
-	\item Finally the device update its state parameters \ref{svc:state} or \ref{svc:stateParams},
+	\item Finally the device updates its state parameters \ref{svc:state} or \ref{svc:stateParams},
 	indicating the end of the configuration procedure. 
 \end{enumerate}
 At any point of the procedure, if something goes wrong or an anomaly is detected by the device, it
@@ -242,19 +242,19 @@ be displayed in the control room and recorded in the database. Every device will
 service port \ref{svc:logging} providing the source id, a severity code and the text message itself.
 
 \section{Alternative/Additional functionalities}
-Alternative or additional functionnalities can be provided by or to the device. Any of the
+Alternative or additional functionalities can be provided by or to the device. Any of the
 possibilities listed, or not, hereafter as well as anything not following the standards described
-up to this point are to be discussed and agreed with the RunControl developpers well in advance.
+up to this point are to be discussed and agreed with the RunControl developers well in advance.
 
 Examples of alternative or additional services are given below and are taken from devices already
 integrated in the RunControl:
 \begin{enumerate}[label=\textbf{ASVC.\arabic*}]
 	\item \label{svc:stateParams} dimServerName/paramName: The single \ref{svc:state}
 	service is reporting the FSM state that is internally maintained and has to comply with the
-	convention outlined in Table \ref{table:FSMStates}. An alternative is to provide a serie of
+	convention outlined in Table \ref{table:FSMStates}. An alternative is to provide a series of
 	parameters through as much service ports. The RunControl can assemble these values through logical
-	expression to determine one of the state depicted in figure \ref{fig:FSM_Device}. For the rest, these ports have
-	to follow the same rules as the \ref{svc:state} one.
+	expression to determine one of the states depicted in figure \ref{fig:FSM_Device}. For the rest,
+	these ports have to follow the same rules as the \ref{svc:state} one.
 	\item dimServerName/TriggerNumber (Format: ``X''): From the L0TP. Number of triggers generated
 	during the current burst.
 \end{enumerate}
