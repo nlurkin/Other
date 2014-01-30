@@ -46,6 +46,7 @@
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
 								</inputType>
+								<outputType id="cdt.managedbuild.tool.gnu.cpp.linker.output.1707909432" outputPrefix="../" superClass="cdt.managedbuild.tool.gnu.cpp.linker.output"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.assembler.exe.debug.1827523672" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.exe.debug">
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1836230680" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
@@ -116,11 +117,11 @@
 	</storageModule>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.release.650179664;cdt.managedbuild.config.gnu.exe.release.650179664.;cdt.managedbuild.tool.gnu.c.compiler.exe.release.1475275262;cdt.managedbuild.tool.gnu.c.compiler.input.2040700261">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
-		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.625366093;cdt.managedbuild.config.gnu.exe.debug.625366093.;cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.2067142872;cdt.managedbuild.tool.gnu.cpp.compiler.input.557115459">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.make.core.GCCStandardMakePerFileProfile"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.release.650179664;cdt.managedbuild.config.gnu.exe.release.650179664.;cdt.managedbuild.tool.gnu.c.compiler.exe.release.1475275262;cdt.managedbuild.tool.gnu.c.compiler.input.2040700261">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.release.650179664;cdt.managedbuild.config.gnu.exe.release.650179664.;cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.797786853;cdt.managedbuild.tool.gnu.cpp.compiler.input.588434092">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>

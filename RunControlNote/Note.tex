@@ -9,7 +9,7 @@
 \usepackage{lineno}
 
 \title{Device software interface to the NA62 RunControl}
-\author{Nicolas Lurkin}
+\author{R.~Fantechi, G.~Lamanna, N.~Lurkin, M.~Sozzi, F.~Varela Rodriguez}
 
 \newcommand{\note}[1]{\footnote{TODO: {#1}}}
 
@@ -50,13 +50,13 @@ described below:
 
 \begin{figure}
 	\centering
-	\begin{subfigure}{0.4\textwidth}
-		\includegraphics[width=\textwidth]{Doc/TEL62FSM.pdf}
+	\begin{subfigure}{0.49\textwidth}
+		\includegraphics[width=1.15\textwidth]{Doc/TEL62FSM.pdf}
 		\caption{Generic FSM diagram for the devices.\newline}
 		\label{fig:FSM_Device}
 	\end{subfigure}
-	\begin{subfigure}{0.4\textwidth}
-		\includegraphics[width=\textwidth]{Doc/NA62_EN.pdf}
+	\begin{subfigure}{0.49\textwidth}
+		\includegraphics[width=1.15\textwidth]{Doc/NA62_EN.pdf}
 		\caption{FSM diagram of the root node representing the global state of the NA62 DAQ.}
 		\label{fig:FSM_Main}
 	\end{subfigure}
@@ -290,10 +290,8 @@ the RunControl:
 \end{enumerate}
 
 \section{Acknowledgment}
-The requirements for this interface have been defined with the help of R. Fantechi, G. Lamanna, M.
-Sozzi and F. Varela Rodriguez. Thanks to them, J. Kunze, R. Lietava and V. Cerny for the initial
-implementations. I would also like to thank S. Podolsky for his contribution with the link to the
-offline database.
+We would like to thank J.~Kunze, R.~Lietava and V.~Cerny for their contribution to the initial
+implementations of this interface.
 
 \thebibliography{}
 
