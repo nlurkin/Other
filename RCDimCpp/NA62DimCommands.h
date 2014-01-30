@@ -11,6 +11,7 @@
 #include <string>
 #include "dis.hxx"
 #include <vector>
+#include "ConfigDecoder.h"
 using namespace std;
 
 class NA62DimServer;
@@ -42,6 +43,7 @@ private:
 	void commandHandler();
 
 	NA62DimServer *p;
+	ConfigDecoder decoder;
 };
 
 class EndTransfer: public DimCommand

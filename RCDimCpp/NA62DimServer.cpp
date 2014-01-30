@@ -5,9 +5,9 @@
  *      Author: ncl
  */
 
-#include "NA62DimServer.h"
 #include <iostream>
 #include <sstream>
+#include "NA62DimServer.h"
 
 using namespace std;
 
@@ -34,6 +34,12 @@ NA62DimServer::NA62DimServer(string name){
 	dimCommand = new Command(dimServerName, this);
 	dimFileContent = new FileContent(dimServerName, this);
 	dimEndTransfer = new EndTransfer(dimServerName, this);
+
+	runNumber = 0;
+	frequency = 0.;
+	sourceID = 0;
+	uselessInt = 0;
+	uselessString = "";
 }
 void NA62DimServer::start(){
 	DimServer::start(dimServerName.c_str());
@@ -87,6 +93,7 @@ int NA62DimServer::getState() const {
 
 void NA62DimServer::setState(int state) {
 	this->state = state;
+	dimState->updateService();
 }
 
 int NA62DimServer::getWaiting() const {
@@ -95,4 +102,50 @@ int NA62DimServer::getWaiting() const {
 
 void NA62DimServer::setWaiting(int waiting) {
 	this->waiting = waiting;
+	dimWaiting->updateService();
+}
+
+void NA62DimServer::setFrequency(double frequency) {
+	this->frequency = frequency;
+}
+
+void NA62DimServer::setSourceId(int sourceId) {
+	sourceID = sourceId;
+}
+
+void NA62DimServer::setUselessInt(int uselessInt) {
+	this->uselessInt = uselessInt;
+}
+
+void NA62DimServer::setUselessString(const string& uselessString) {
+	this->uselessString = uselessString;
+}
+
+double NA62DimServer::getFrequency() const {
+	return frequency;
+}
+
+int NA62DimServer::getSourceId() const {
+	return sourceID;
+}
+
+int NA62DimServer::getUselessInt() const {
+	return uselessInt;
+}
+
+const string& NA62DimServer::getUselessString() const {
+	return uselessString;
+}
+
+int NA62DimServer::getParam() const {
+	return param;
+}
+
+void NA62DimServer::setParam(int param) {
+	this->param = param;
+}
+
+void NA62DimServer::setConfig(string config) {
+	strcpy(this->config, config.c_str());
+	dimConfig->updateService();
 }

@@ -33,6 +33,17 @@ public:
 	void setState(int state);
 	int getWaiting() const;
 	void setWaiting(int waiting);
+	void setFrequency(double frequency);
+	void setSourceId(int sourceId);
+	void setUselessInt(int uselessInt);
+	void setUselessString(const string& uselessString);
+	double getFrequency() const;
+	int getSourceId() const;
+	int getUselessInt() const;
+	const string& getUselessString() const;
+	int getParam() const;
+	void setParam(int param);
+	void setConfig(string config);
 
 private:
 	string dimServerName;
@@ -56,6 +67,11 @@ private:
 	EndTransfer *dimEndTransfer;
 
 	int runNumber;
+	double frequency;
+	int sourceID;
+	string uselessString;
+	int uselessInt;
+	int param;
 };
 
 

@@ -9,7 +9,8 @@
 #include "NA62DimServer.h"
 #include <iostream>
 #include <vector>
-#include <stdlib.h>
+#include "ConfigDecoder.h"
+#include <sstream>
 
 Command::Command(string dimServerName, NA62DimServer *parent):
 		DimCommand((dimServerName + "/Command").c_str(), "C")
@@ -18,16 +19,10 @@ Command::Command(string dimServerName, NA62DimServer *parent):
 }
 
 void Command::commandHandler(){
-	p->print("Received: ");
+	p->print("Command port receiving: ");
 	p->println(getString());
 
-	char *t = strtok(getString(), " ");
-	vector<string> tok;
-
-	while(t){
-		tok.push_back(t);
-		t = strtok(NULL, " ");
-	}
+	vector<string> tok = ConfigDecoder::tokenize(getString());
 
 	if(tok[0].compare("initialize")==0) doInitialize(tok);
 	if(tok[0].compare("startrun")==0) doStartRun(tok);
@@ -36,7 +31,7 @@ void Command::commandHandler(){
 }
 void Command::doInitialize(vector<string> tok){
 	p->println("Initializing... Waiting for possible configuration file");
-	p->setWaiting(true);
+	p->setWaiting(0);
 }
 void Command::doStartRun(vector<string> tok){
 	if(p->getState()==kINITIALIZED){
@@ -72,7 +67,20 @@ FileContent::FileContent(string dimServerName, NA62DimServer *parent):
 	p = parent;
 }
 void FileContent::commandHandler(){
-	cout << "Received:" << getString() << endl;
+	p->print("FileContent port receiving: ");
+	p->println(getString());
+
+	p->setWaiting(0);
+	decoder.parseFile(getString());
+	//Applying parameters
+	p->setSourceId(decoder.param3);
+	p->setFrequency(decoder.param4);
+	p->setUselessInt(decoder.param1);
+	p->setUselessString(decoder.param5);
+	p->setParam(decoder.param2);
+
+	p->println("Finished processing config file... Waiting for next one.");
+	p->setWaiting(1);
 }
 
 EndTransfer::EndTransfer(string dimServerName, NA62DimServer *parent):
@@ -81,5 +89,23 @@ EndTransfer::EndTransfer(string dimServerName, NA62DimServer *parent):
 	p = parent;
 }
 void EndTransfer::commandHandler(){
-	cout << "Received:" << getInt() << endl;
+	p->print("FileContent port receiving: ");
+	p->println(getInt());
+
+	if(getInt()==1){
+		//Generate final configuration file
+		stringstream ss;
+		ss << "uselessInt=" << p->getUselessInt() << endl;
+		ss << "param=" << p->getParam() << endl;
+		ss << "sourceID=0x" << hex << p->getSourceId() << endl;
+		ss << "frequency=" << p->getFrequency() << endl;
+		ss << "uselessString" << p->getUselessString() << endl;
+
+		p->setConfig(ss.str());
+		p->setState(kINITIALIZED);
+	}
+	else{
+		p->println("Unexpected value received from FileContent port.");
+		p->setState(kUNKNOWN);
+	}
 }
