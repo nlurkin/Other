@@ -1,3 +1,6 @@
+#ifndef HELPER_H
+#define HELPER_H
+
 #define STRING_MAX_LENGTH 100
 #define CONFIG_MAX_LENGTH 1000
 
@@ -29,3 +32,5 @@ void print(const char * s);
 void printi(int s);
 void println(const char *s);
 void printlni(int s);
+
+#endif

@@ -5,7 +5,7 @@ CppServerSRC = mainCppServer ConfigDecoder NA62DimCommands NA62DimServer
 CppServerOBJ = $(addprefix $(OBJDIR)/,$(addsuffix .o,$(CppServerSRC)))
 
 CServerDIR = CServer
-CServerSRC = mainCServer helper commands
+CServerSRC = mainCServer helper commands decoder
 CServerOBJ = $(addprefix $(OBJDIR)/,$(addsuffix .o,$(CServerSRC)))
 
 TestClientDIR = TestClient

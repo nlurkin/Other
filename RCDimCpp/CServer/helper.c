@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "helper.h"
+#include "dis.h"
 
 void print(const char * s){
 	printf("%s",s);
@@ -24,7 +25,7 @@ void println(const char *s){
 	info[infoIndex+strlen(s)] = '\n';
 	info[infoIndex+strlen(s)+1] = '\0';
 	infoIndex = 0;
-	dis_update_service_(dimInfo);
+	dis_update_service(dimInfo);
 }
 void printlni(int s){
 	char dest[STRING_MAX_LENGTH];

@@ -33,7 +33,7 @@ TestDimClient::TestDimClient(string name) {
 
 	files.push_back("config1");
 	files.push_back("config2");
-	//files.push_back("config3");
+	files.push_back("config3");
 }
 
 TestDimClient::~TestDimClient() {

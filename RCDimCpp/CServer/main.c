@@ -1,4 +1,5 @@
 #include "dis.h"
+#include "decoder.h"
 #include "helper.h"
 #include "commands.h"
 #include <stdio.h>
@@ -29,22 +30,14 @@ void dimCommand(long* tag, char* cmnd_buffer, int*size){
 	print("Command port receiving: ");
 	println(cmnd_buffer);
 
-	char *cmnd = strtok(cmnd_buffer, " ");
 	char args[5][STRING_MAX_LENGTH];
-	char *t;
-	int i=0;
-	if(cmnd!= NULL){
-		t = strtok(NULL, " ");
-		while(t != NULL){
-			strcpy(args[i], t);
-			t = strtok(NULL, " ");
-		}
-	}
 
-	if(strcmp(cmnd, "initialize")==0) doInitialize(args);
-	if(strcmp(cmnd, "startrun")==0) doStartRun(args);
-	if(strcmp(cmnd, "endrun")==0) doEndRun(args);
-	if(strcmp(cmnd, "resetstate")==0) doResetState(args);
+	if(tokenize(args, cmnd_buffer, " ")>0){
+		if(strcmp(args[0], "initialize")==0) doInitialize(args);
+		if(strcmp(args[0], "startrun")==0) doStartRun(args);
+		if(strcmp(args[0], "endrun")==0) doEndRun(args);
+		if(strcmp(args[0], "resetstate")==0) doResetState(args);
+	}
 }
 
 void dimFileContent(long* tag, char* cmnd_buffer, int*size){
@@ -53,14 +46,7 @@ void dimFileContent(long* tag, char* cmnd_buffer, int*size){
 		print("FileContent port receiving: ");
 		println(cmnd_buffer);
 
-		/*decoder.parseFile(getString());
-		//Applying parameters
-		setSourceId(decoder.param3);
-		setFrequency(decoder.param4);
-		setUselessInt(decoder.param1);
-		setUselessString(decoder.param5);
-		setParam(decoder.param2);
-		*/
+		parseFile(cmnd_buffer);
 
 		println("Finished processing config file... Waiting for next one.");
 		setWaiting(1);
