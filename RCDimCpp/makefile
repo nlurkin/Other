@@ -5,8 +5,8 @@ CppServerSRC = mainCppServer ConfigDecoder NA62DimCommands NA62DimServer
 CppServerOBJ = $(addprefix $(OBJDIR)/,$(addsuffix .o,$(CppServerSRC)))
 
 CServerDIR = CServer
-CServerSRC = mainCServer
-CServerOBJ = $(addprefix $(OBJDIR)/,$(addsuffix .o,$(CppServerSRC)))
+CServerSRC = mainCServer helper commands
+CServerOBJ = $(addprefix $(OBJDIR)/,$(addsuffix .o,$(CServerSRC)))
 
 TestClientDIR = TestClient
 TestClientSRC = mainTestClient TestDimClient
@@ -20,8 +20,9 @@ HDRDIR = /home/ncl/Software/Install/dim_v20r7/dim
 CFLAGS		= -O -Wall -fPIC -g3
 SOFLAGS		= -shared
 CC			= g++
+CCC			= gcc
 
-all: RCDimCpp testClient CServer
+all: RCDimCpp testClient RCDimC
 
 # Tool invocations
 RCDimCpp: $(CppServerOBJ)
@@ -35,16 +36,16 @@ $(OBJDIR)/%CppServer.o: $(CppServerDIR)/main.cpp
 	@mkdir -p $(OBJDIR)
 	$(CC) -o $@ -c $< $(CFLAGS) -I$(HDRDIR)
 
-CServer: $(CServerOBJ)
-	$(CC) -o $@ $^ $(CFLAGS) -L$(LIBSDIR) $(LIBS)
+RCDimC: $(CServerOBJ)
+	$(CCC) -o $@ $^ $(CFLAGS) -L$(LIBSDIR) $(LIBS)
 
-$(OBJDIR)/%.o: $(CServerDIR)/%.cpp $(CServerDIR)/%.h
+$(OBJDIR)/%.o: $(CServerDIR)/%.c $(CServerDIR)/%.h
 	@mkdir -p $(OBJDIR)
-	$(CC) -o $@ -c $< $(CFLAGS) -I$(HDRDIR)
+	$(CCC) -o $@ -c $< $(CFLAGS) -I$(HDRDIR)
 
-$(OBJDIR)/%CServer.o: $(CServerDIR)/main.cpp
+$(OBJDIR)/%CServer.o: $(CServerDIR)/main.c
 	@mkdir -p $(OBJDIR)
-	$(CC) -o $@ -c $< $(CFLAGS) -I$(HDRDIR)
+	$(CCC) -o $@ -c $< $(CFLAGS) -I$(HDRDIR)
 	
 testClient: $(TestClientOBJ)
 	$(CC) -o $@ $^ $(CFLAGS) -L$(LIBSDIR) $(LIBS)
@@ -62,6 +63,7 @@ $(OBJDIR)/%TestClient.o: $(TestClientDIR)/main.cpp
 # Other Targets
 clean:
 	rm -f RCDimCpp
+	rm -f RCDimC
 	rm -f testClient
 	rm -rf obj
 

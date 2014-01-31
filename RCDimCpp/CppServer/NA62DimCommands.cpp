@@ -95,7 +95,6 @@ EndTransfer::EndTransfer(string dimServerName, NA62DimServer *parent):
 	p = parent;
 }
 void EndTransfer::commandHandler(){
-	cout << p->getWaiting() << endl;
 	if(p->getWaiting()==1){
 		p->print("EndTransfer port receiving: ");
 		p->println(getInt());
