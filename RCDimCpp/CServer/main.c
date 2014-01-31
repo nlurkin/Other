@@ -59,7 +59,8 @@ void dimFileContent(long* tag, char* cmnd_buffer, int*size){
 		setFrequency(decoder.param4);
 		setUselessInt(decoder.param1);
 		setUselessString(decoder.param5);
-		setParam(decoder.param2);*/
+		setParam(decoder.param2);
+		*/
 
 		println("Finished processing config file... Waiting for next one.");
 		setWaiting(1);
