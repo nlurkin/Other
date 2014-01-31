@@ -22,10 +22,10 @@ using namespace std;
 TestDimClient::TestDimClient(string name) {
 	dimServerName = name;
 	infoState = new DimInfo((name + "/State").c_str(), -1, this);
-	infoInfo = new DimInfo((name + "/Info").c_str(), "", this);
-	infoLogging = new DimInfo((name + "/Logging").c_str(), "", this);
+	infoInfo = new DimInfo((name + "/Info").c_str(), (char*)"", this);
+	infoLogging = new DimInfo((name + "/Logging").c_str(), (char*)"", this);
 	infoWaiting = new DimInfo((name + "/Waiting").c_str(), -1, this);
-	infoConfig = new DimInfo((name + "/Config").c_str(), "", this);
+	infoConfig = new DimInfo((name + "/Config").c_str(), (char*)"", this);
 
 	currentFile = -1;
 	deviceState = -1;
