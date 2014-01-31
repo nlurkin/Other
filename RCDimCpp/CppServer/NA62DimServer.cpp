@@ -18,7 +18,7 @@ using namespace std;
 NA62DimServer::NA62DimServer(string name){
 	dimServerName = name;
 	state = 0;
-	waiting = 0;
+	waiting = 3;
 	info = new char[STRING_MAX_LENGTH+1];
 	logging = new char[STRING_MAX_LENGTH+1];
 	config = new char[CONFIG_MAX_LENGTH+1];
@@ -40,6 +40,7 @@ NA62DimServer::NA62DimServer(string name){
 	sourceID = 0;
 	uselessInt = 0;
 	uselessString = "";
+	param = 0;
 }
 void NA62DimServer::start(){
 	DimServer::start(dimServerName.c_str());
@@ -63,7 +64,8 @@ void NA62DimServer::print(int s){
 void NA62DimServer::println(const char *s){
 	cout << s << endl;
 	strcpy(info+infoIndex, s);
-	info[strlen(s)] = '\n';
+	info[infoIndex+strlen(s)] = '\n';
+	info[infoIndex+strlen(s)+1] = '\0';
 	infoIndex = 0;
 	dimInfo->updateService();
 }

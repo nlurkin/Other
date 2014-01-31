@@ -16,6 +16,8 @@ using namespace std;
 
 class TestDimClient : public DimClient{
 public:
+	enum {kIDLE, kINITIALIZED, kREADY};
+
 	TestDimClient(string name);
 	virtual ~TestDimClient();
 
@@ -25,14 +27,25 @@ public:
 	void startrun();
 	void endrun();
 	void reset();
+	int getDeviceState() const;
+
+	void test();
+
 private:
+	enum {kSTARTED, kSENDING, kWAITING, kENDED};
 	void handleState(int i);
 	void handleInfo(string s);
 	void handleLogging(string s);
 	void handleWaiting(int i);
 	void handleConfig(string s);
 
-	void sendFiles();
+	void sendNextFile();
+	void endTransfer();
+	void resetTransfer();
+
+	void modifyTransferStatus(int st);
+
+	void print(string s);
 
 	DimInfo *infoState;
 	DimInfo *infoInfo;
@@ -43,6 +56,11 @@ private:
 	string dimServerName;
 
 	vector<string> files;
+	int currentFile;
+
+	int transferStatus;
+
+	int deviceState;
 };
 
 #endif /* TESTDIMCLIENT_H_ */
