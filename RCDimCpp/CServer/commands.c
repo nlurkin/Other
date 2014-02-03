@@ -32,8 +32,8 @@ void doInitialize(char tok[5][STRING_MAX_LENGTH]){
 void doStartRun(char tok[5][STRING_MAX_LENGTH]){
 	if(state==kINITIALIZED){
 		print("Starting run number ");
-		println(tok[0]);
-		setRunNumber(atoi(tok[0]));
+		println(tok[1]);
+		setRunNumber(atoi(tok[1]));
 		setState(kREADY);
 	}
 	else{

@@ -56,7 +56,7 @@ private:
 	string dimServerName;
 
 	vector<string> files;
-	int currentFile;
+	unsigned int currentFile;
 
 	int transferStatus;
 
