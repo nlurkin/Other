@@ -19,9 +19,9 @@
 \linenumbers
 
 \section{Introduction}
-The NA62 RunControl will control and monitor all equipment involved in the Data Acquisition
-(DAQ) chain. The integration work is already well advanced for some devices, for example the
-main acquisition board TEL62\cite{biblio:TEL62}. In order to assure the most coherent system this
+The NA62 RunControl will control and monitor all equipment involved in the Trigger and Data
+Acquisition (TDAQ) chain. The integration work is already well advanced for some devices, for
+example the main acquisition board TEL62\cite{biblio:TEL62}. In order to assure the most coherent system this
 document will describe the standard interface that should be implemented by future devices to be
 integrated in the RunControl. This standard is extracted from the existing implementations and
 extended to cover the minimum functionalities foreseen for the start of the data taking:
@@ -34,9 +34,9 @@ extended to cover the minimum functionalities foreseen for the start of the data
 \subsection{Finite State Machine}
 The NA62 RunControl is based on a three levels tree-like hierarchy of Finite State Machine (FSM).
 
-Each constituting element of the DAQ (device) is internally modelled as an FSM. Each state of the
+Each constituting element of the TDAQ (device) is internally modelled as an FSM. Each state of the
 FSM is defined by the evaluation of logical expressions depending on a set of parameters that are
-provided by the device. The figure \ref{fig:FSM_Device} shows the FSM diagram followed by most of
+provided by the device. The Figure \ref{fig:FSM_Device} shows the FSM diagram followed by most of
 the devices.
 
 The device nodes are forming the leaves of the tree. The internal nodes are grouping the devices
@@ -44,20 +44,21 @@ into logical entities representing subsystems of the experiment. These nodes are
 FSM, summarizing the states of the devices belonging to this group according to a set of rules.
 
 Finally the root of the tree is an FSM node that represents the global state of the Data Acquisition
-by further summarizing the states of all the logical nodes. The figure \ref{fig:FSM_Main} shows the
+by further summarizing the states of all the logical nodes. The Figure \ref{fig:FSM_Main} shows the
 FSM diagram for this root node which is derived from the device FSM. The possible states are
 described below:
 
 \begin{figure}
 	\centering
 	\begin{subfigure}{0.49\textwidth}
-		\includegraphics[width=1.15\textwidth]{Doc/TEL62FSM.pdf}
+		\includegraphics[page=3,width=1.15\textwidth]{Doc/FullFSM.pdf}
 		\caption{Generic FSM diagram for the devices.\newline}
 		\label{fig:FSM_Device}
 	\end{subfigure}
 	\begin{subfigure}{0.49\textwidth}
-		\includegraphics[width=1.15\textwidth]{Doc/NA62_EN.pdf}
-		\caption{FSM diagram of the root node representing the global state of the NA62 DAQ.}
+		\includegraphics[page=2,width=1.15\textwidth]{Doc/FullFSM.pdf}
+		\caption{FSM diagram of the root node representing the global state of the NA62 Trigger and
+		Data Acquisition (TDAQ).}
 		\label{fig:FSM_Main}
 	\end{subfigure}
 	\caption{Main Finite State Machine diagrams of the NA62 RunControl.}
@@ -65,7 +66,7 @@ described below:
 
 \begin{itemize}
 	\item \textbf{IDLE}: This is the initial state after starting or resetting the FSM and the devices.
-	\item \textbf{INITIALIZED}: When all the devices have been configured and the DAQ is ready to take
+	\item \textbf{INITIALIZED}: When all the devices have been configured and the TDAQ is ready to take
 	data.
 	\item \textbf{READY}: All the devices are completely ready for data and waiting for triggers. The
 	only exception being the trigger processor waiting in a paused state for further command to
@@ -76,7 +77,7 @@ described below:
 \end{itemize}
 
 Each state allows a list of abstract commands that are propagated downward in the hierarchy to
-the device nodes where it is transmitted through the network. The list of commands is described
+the device nodes where they are transmitted through the network. The list of commands is described
 hereafter:
 
 \begin{itemize}
@@ -100,7 +101,7 @@ RunControl or made available to the shifters.
 \subsection{DIM commands/services} \label{sec:DIM}
 DIM is working on a client-server model where the same instance can be both server and client.
 The server part implements command and service ports. The clients can push commands/requests to
-the device via the first type (input). The minimum set of DIM commands to be implemented to
+the device via the command ports (input). The minimum set of DIM commands to be implemented to
 interface with the RunControl is the following:
 \begin{enumerate}[label=\textbf{CMD.\arabic*}]
 	\item \label{cmd:command} dimServerName/Command (Format: ``C''): For the commands described in
@@ -112,7 +113,7 @@ interface with the RunControl is the following:
 \end{enumerate}
 The service ports are providing information to the clients connected to the device (output).
 With these ports, the RunControl is able to determine the exact state of the hardware,
-transmit information to the user and log them in the database. The minimum set of DIM services to
+transmit information to the user and log it in the database. The minimum set of DIM services to
 be implemented is the following:
 \begin{enumerate}[label=\textbf{SVC.\arabic*}]
 	\item \label{svc:state} dimServerName/State (Format: ``I''): For FSM state reporting. If the device
@@ -137,14 +138,15 @@ be implemented is the following:
 	by the error (state) code. See \ref{svc:stateParams} for an alternative if your device does not
 	maintain its internal FSM state.
 	\item \label{svc:info} dimServerName/Info (Format: ``C''): For transmitting output to the user. This
-	service should be the equivalent of stdout when the control software is running in command line. It is only used
-	to inform the user currently working on this specific equipment and will not be recorded.
+	service should be the equivalent of stdout when the control software is running in command line
+	mode. It is only used to inform the user currently working on this specific equipment and will not
+	be recorded.
 	\item \label{svc:logging} dimServerName/Logging (Format: ``I:1;I:1;C''): For the logging mechanism
 	described in \ref{sec:logging}. Contrary to the previous service, this one should only provide important and
 	summarized information that will be stored in the offline database to keep track for future records
 	of important problems that happened during the run.
 	\item \label{svc:waiting} dimServerName/Waiting (Format: ``I''): To notify the RunControl that the
-	processing of the current configuration file is finished.
+	processing of the current configuration file is finished (see section \ref{sec:configuration}).
 	\item \label{svc:config} dimServerName/Config (Format: ``C''): To report back to the RunControl the
 	current values of the configuration parameters.
 \end{enumerate}
@@ -161,7 +163,7 @@ server whose minimum interface is described above, but is also acting as a serve
 	\item RunControl/EnabledDetectors (Format: ``C''): List of enabled detectors for the current run
 	and number of data source for each detector. The string has the format\\ 
 	\mbox{``DetID:NSource,DetID:NSource,\ldots''} where DetID is the detector ID in hexadecimal format
-	(0x18) defined in \cite{biblio:TDAQNote} and NSource is the number of data source. This
+	(e.g. 0x18)\ldots defined in \cite{biblio:TDAQNote} and NSource is the number of data source. This
 	service is primarily intended for the PC farm.
 \end{itemize}
 
@@ -178,12 +180,12 @@ string is the command name and the following tokens are the command arguments, i
 set of commands to be understood and implemented is the following:
 \begin{itemize}
 	\item initialize
-	\item startrun runNumber
+	\item startrun <runNumber>
 	\item endrun
 	\item resetstate
 \end{itemize}
 
-After receiving any of these commands, the device should be ready to receive an eventual
+After receiving any of these commands, the device should be ready to receive a possible
 configuration file according to the procedure described in section \ref{sec:configuration}.
 
 \section{Configuration}\label{sec:configuration}
@@ -222,11 +224,11 @@ The file transfer mechanism will work as depicted in Figure \ref{fig:fileTransfe
 details hereafter:
 \begin{enumerate}
 	\item \label{transf:start} After sending one of the commands described in \ref{sec:commands}, the
-	RunControl will send the content of the first configuration file as a string on the command slot \ref{cmd:fileContent}. If
-	no file is specified, the RunControl will move directly to point \ref{transf:end} of this
-	procedure.
+	RunControl will send the content of the first configuration file as a string on the command slot
+	\ref{cmd:fileContent}. If no file has to be sent, the RunControl will move directly to point
+	\ref{transf:end} of this procedure.
 	\item Upon reception of the file content, the device sets the value of \ref{svc:waiting} to 0 and
-	start processing the configuration file (the details are left to the specific device
+	starts processing the configuration file (the details are left to the specific device
 	implementation).
 	\item \label{transf:wait} The RunControl wait until the device notifies that the file has been
 	entirely processed and is waiting for further instructions by setting the value of
@@ -236,7 +238,7 @@ details hereafter:
 	\item \label{transf:end} Once the entire configuration has been applied the RunControl sends 1 on
 	\ref{cmd:endTransfer} to warn the device that there are no more configuration files.
 	\item The device is now supposed to report back the current configuration. It will generate a file
-	containing all the current parameters value, possibly in the same format as the configuration
+	containing all the current parameter values, possibly in the same format as the configuration
 	file. The file is transmitted to the RunControl by publishing it on the service port
 	\ref{svc:config} and is stored in the offline database. Two possibilities are given to the
 	subsystem:
@@ -255,8 +257,8 @@ can move to an ERROR state that will interrupt the procedure.
 
 \section{Logging}\label{sec:logging}
 The RunControl will be connected to three different databases: the configuration database containing
-the recipes and the configuration files, the online database storing number of information related
-to the run and the instantaneous state of the data taking, PC farm, \ldots. And finally the offline
+the recipes and the configuration files, the online database storing informations related to the
+run and the instantaneous state of the data taking, PC farm, \ldots and finally the offline
 database that will contain the subset of the online values that are relevant to future analysis and
 the configuration for each run.
 
@@ -266,7 +268,7 @@ service port \ref{svc:logging} providing the source id, a severity code and the 
 
 \section{Alternative/Additional functionalities}
 Alternative or additional functionalities can be provided by or to the device. Any of the
-possibilities listed, or not, hereafter as well as anything not following the standards described
+possibilities listed hereafter as well as anything not following the standards described
 up to this point are to be discussed and agreed with the RunControl developers well in advance.
 
 Examples of alternative or additional services are given below and are taken from devices already
