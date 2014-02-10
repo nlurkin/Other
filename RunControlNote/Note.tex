@@ -66,11 +66,11 @@ described below:
 
 \begin{itemize}
 	\item \textbf{IDLE}: This is the initial state after starting or resetting the FSM and the devices.
-	\item \textbf{INITIALIZED}: When all the devices have been configured and the TDAQ is ready to take
-	data.
-	\item \textbf{READY}: All the devices are completely ready for data and waiting for triggers. The
-	only exception being the trigger processor waiting in a paused state for further command to
-	generate the triggers.
+	\item \textbf{INITIALIZED}: When all the devices have been configured and the
+	TDAQ is ready to start data taking.
+	\item \textbf{READY}: All the devices are in their data taking state but
+	waiting for triggers. The only exception being the trigger processor waiting in
+	a paused state for further command to start generating the triggers.
 	\item \textbf{RUNNING}: The trigger processor is out of the paused state and running.
 	\item \textbf{ERROR}: This state can be reached from any other state whenever a problem occurs on
 	any device.
@@ -82,10 +82,12 @@ hereafter:
 
 \begin{itemize}
 	\item \textbf{INITIALIZE}: Request to initialize all the devices with a specific configuration.
-	\item \textbf{START\_RUN}: Request to all the devices to start the run and move in a ready state
+	\item \textbf{START\_RUN}: Request to all the devices to start the run and move in a state
 	where they are able to take data.
-	\item \textbf{ENABLE\_TRIGGER}: Request to the trigger processor to start generating triggers.
-	\item \textbf{PAUSE}: Request to the trigger processor to stop generating triggers.
+	\item \textbf{ENABLE\_TRIGGER}: Request to the trigger processor to start
+	generating triggers at the next burst.
+	\item \textbf{PAUSE}: Request to the trigger processor to stop generating
+	triggers at the next burst.
 	\item \textbf{END\_RUN}: Request to all devices to stop taking data and end the current run.
 	\item \textbf{RESET}: Immediately move to an idle/initialized state, stopping the current run if it
 	was ongoing.
@@ -159,7 +161,10 @@ service port to receive data from it. The RunControl is acting as a client conne
 server whose minimum interface is described above, but is also acting as a server, providing different informations:
 \begin{itemize}
 	\item RunControl/RunNumber (Format: ``I''): Run number of the current run.
-	\item RunControl/BurstNumber (Format: ``I''): Number of bursts in the current run.
+	Updated after the \textbf{START\_RUN} command.
+	\item RunControl/BurstNumber (Format: ``I''): Number of bursts in the current
+	run. Updated at each new burst (relying on NA62Timer/SOB and NA62Timer/EOB
+	timestamps).
 	\item RunControl/EnabledDetectors (Format: ``C''): List of enabled detectors for the current run
 	and number of data source for each detector. The string has the format\\ 
 	\mbox{``DetID:NSource,DetID:NSource,\ldots''} where DetID is the detector ID in hexadecimal format
@@ -271,8 +276,10 @@ Alternative or additional functionalities can be provided by or to the device. A
 possibilities listed hereafter as well as anything not following the standards described
 up to this point are to be discussed and agreed with the RunControl developers well in advance.
 
-Examples of alternative or additional services are given below and are taken from devices already
-integrated in the RunControl:
+Alternative or additional services are given below and are taken from devices
+already integrated in the RunControl. This is given as an example of services
+that can be implemented beyond the minimum interface described in the previous
+sections:
 \begin{enumerate}[label=\textbf{ASVC.\arabic*}]
 	\item \label{svc:stateParams} dimServerName/paramName: The single \ref{svc:state}
 	service is reporting the FSM state that is internally maintained and has to comply with the
@@ -280,20 +287,26 @@ integrated in the RunControl:
 	parameters through as much service ports. The RunControl can assemble these values through logical
 	expression to determine one of the states depicted in figure \ref{fig:FSM_Device}. For the rest,
 	these ports have to follow the same rules as the \ref{svc:state} one.
-	\item dimServerName/TriggerNumber (Format: ``X''): From the L0TP. Number of triggers generated
-	during the current burst.
+	\item dimServerName/TriggerNumber (Format: ``X''): This service is
+	implemented by the current trigger processor. It provides the number of
+	triggers generated during the current burst and is updated regularly during
+	the burst.
 \end{enumerate}
 
-Examples of additional commands are given below and are taken from devices already integrated in
-the RunControl:
+Again the additional command given below and are taken from devices already
+integrated in the RunControl and given as an example of commands that can be
+implemented beyond the minimum interface desrcibed in the previous sections:
 \begin{enumerate}[label=\textbf{ACMD.\arabic*}]
-	\item dimServerName/SendTrigger (Format: ``X''): From the L0TP. Request to generate a certain
-	number of triggers during next burst.
+	\item dimServerName/SendTrigger (Format: ``X''): This command is
+	implemented by the current trigger processor. It requests the trigger processor
+	to generate a certain number of triggers during next burst. This command has
+	been created for testing and demonstration purposes during the commissioning of
+	the TDAQ and will be disabled for normal runs.
 \end{enumerate}
 
 \section{Acknowledgment}
 We would like to thank J.~Kunze, R.~Lietava and V.~Cerny for their contribution to the initial
-implementations of this interface.
+implementations of the interface to the RunControl.
 
 \thebibliography{}
 
