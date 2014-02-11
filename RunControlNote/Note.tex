@@ -31,7 +31,7 @@ extended to cover the minimum functionalities foreseen for the start of the data
 	\item Conditions logging and storage
 \end{itemize} 
 
-\subsection{Finite State Machine}
+\subsection{Finite State Machine}\label{sec:FSM}
 The NA62 RunControl is based on a three levels tree-like hierarchy of Finite State Machine (FSM).
 
 Each constituting element of the TDAQ (device) is internally modelled as an FSM. Each state of the
@@ -184,10 +184,10 @@ The commands are sent to the command port \ref{cmd:command} as a string. The fir
 string is the command name and the following tokens are the command arguments, if any. The minimum
 set of commands to be understood and implemented is the following:
 \begin{itemize}
-	\item initialize
-	\item startrun <runNumber>
-	\item endrun
-	\item resetstate
+	\item initialize [arg1 [arg2 [\ldots]]]
+	\item startrun [arg1 [arg2 [\ldots]]]
+	\item endrun [arg1 [arg2 [\ldots]]]
+	\item resetstate [arg1 [arg2 [\ldots]]]
 \end{itemize}
 
 After receiving any of these commands, the device should be ready to receive a possible
@@ -269,7 +269,18 @@ the configuration for each run.
 
 In addition to the run values logging, there will be a centralized device logging. This logging will
 be displayed in the control room and recorded in the database. Every device will implement the
-service port \ref{svc:logging} providing the source id, a severity code and the text message itself.
+service port \ref{svc:logging} providing the source id, a severity code and the
+text message itself. Four severity levels are allowed:
+\begin{itemize}
+  \item 0 for \textbf{Info}, an information that the user might want to know but
+  no action is needed.
+  \item 1 for \textbf{Warning}, an event has occured and the user might want to
+  take action even if it is not mandatory.
+  \item 2 for \textbf{Error}, an event has occured and the user should take
+  action.
+  \item 3 for \textbf{Fatal}, a fatal error has occured and the run should be
+  aborted.
+\end{itemize}
 
 \section{Alternative/Additional functionalities}
 Alternative or additional functionalities can be provided by or to the device. Any of the
@@ -281,12 +292,19 @@ already integrated in the RunControl. This is given as an example of services
 that can be implemented beyond the minimum interface described in the previous
 sections:
 \begin{enumerate}[label=\textbf{ASVC.\arabic*}]
-	\item \label{svc:stateParams} dimServerName/paramName: The single \ref{svc:state}
-	service is reporting the FSM state that is internally maintained and has to comply with the
-	convention outlined in Table \ref{table:FSMStates}. An alternative is to provide a series of
-	parameters through as much service ports. The RunControl can assemble these values through logical
-	expression to determine one of the states depicted in figure \ref{fig:FSM_Device}. For the rest,
-	these ports have to follow the same rules as the \ref{svc:state} one.
+	\item \label{svc:stateParams} dimServerName/paramName: As stated in section
+	\ref{sec:FSM} every device is described as a Finate State Machine in
+	the Run Control. The proposed interface assumes that the device is internally
+	following the same FSM diagram and keeping track of its current state,
+	complying with the convention outlined in Table \ref{table:FSMStates}. On
+	another hand the Run Control is able to determine itself in which state is the
+	device if some requirements are met: the device provides a list of parameters
+	and a set of rules are defined to infer the current state from these
+	parameters.
+	While the rules have to be given to the Run Control developers, the
+	parameters values are read from a serie of dim services, each service
+	providing the value of a single parameter. This list of services is an
+	alternative to the standard \ref{svc:state} and replaces it.
 	\item dimServerName/TriggerNumber (Format: ``X''): This service is
 	implemented by the current trigger processor. It provides the number of
 	triggers generated during the current burst and is updated regularly during
