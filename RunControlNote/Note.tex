@@ -43,10 +43,10 @@ The device nodes are forming the leaves of the tree. The internal nodes are grou
 into logical entities representing subsystems of the experiment. These nodes are also modelled as
 FSM, summarizing the states of the devices belonging to this group according to a set of rules.
 
-Finally the root of the tree is an FSM node that represents the global state of the Data Acquisition
-by further summarizing the states of all the logical nodes. The Figure \ref{fig:FSM_Main} shows the
-FSM diagram for this root node which is derived from the device FSM. The possible states are
-described below:
+Finally the root of the tree is an FSM node that represents the global state of
+the Trigger and Data Acquisition by further summarizing the states of all the
+logical nodes. The Figure \ref{fig:FSM_Main} shows the FSM diagram for this root
+node which is derived from the device FSM. The possible states are described below:
 
 \begin{figure}
 	\centering
@@ -102,24 +102,29 @@ RunControl or made available to the shifters.
 
 \subsection{DIM commands/services} \label{sec:DIM}
 DIM is working on a client-server model where the same instance can be both server and client.
-The server part implements command and service ports. The clients can push commands/requests to
-the device via the command ports (input). The minimum set of DIM commands to be implemented to
+The server part implements command and service ports. DIM commands and
+services are defined by three elements. The first being a unique name
+identifying the device and called dimServerName in the rest of the document.
+The second is the name of the port. The last one is the format of the data
+transferred through this port. Details on the format are given in appendix
+\ref{app:dimFormat}. The clients can push commands/requests to the device via
+the command ports (input). The minimum set of DIM commands to be implemented to
 interface with the RunControl is the following:
 \begin{enumerate}[label=\textbf{CMD.\arabic*}]
 	\item \label{cmd:command} dimServerName/Command (Format: ``C''): For the commands described in
 	\ref{sec:commands}.
 	\item \label{cmd:fileContent} dimServerName/FileContent (Format: ``C''): For the configuration
 	files content according to the procedure described in \ref{sec:configuration}.
-	\item \label{cmd:endTransfer} dimServerName/EndTransfer (Format: ``I''): For signalling that the
-	last configuration file has been transferred.
+	\item \label{cmd:endTransfer} dimServerName/EndTransfer (Format: ``I:1''): For
+	signalling that the last configuration file has been transferred.
 \end{enumerate}
 The service ports are providing information to the clients connected to the device (output).
 With these ports, the RunControl is able to determine the exact state of the hardware,
 transmit information to the user and log it in the database. The minimum set of DIM services to
 be implemented is the following:
 \begin{enumerate}[label=\textbf{SVC.\arabic*}]
-	\item \label{svc:state} dimServerName/State (Format: ``I''): For FSM state reporting. If the device
-	is internally keeping track of its internal state, this state should be reported in this service. There should
+	\item \label{svc:state} dimServerName/State (Format: ``I:1''): For FSM state
+	reporting. If the device is internally keeping track of its internal state, this state should be reported in this service. There should
 	be a one to one correspondence with the FSM diagram \ref{fig:FSM_Device}. The standard convention
 	is shown in Table \ref{table:FSMStates}.
 	\begin{table}
@@ -146,30 +151,33 @@ be implemented is the following:
 	\item \label{svc:logging} dimServerName/Logging (Format: ``I:1;I:1;C''): For the logging mechanism
 	described in \ref{sec:logging}. Contrary to the previous service, this one should only provide important and
 	summarized information that will be stored in the offline database to keep track for future records
-	of important problems that happened during the run.
-	\item \label{svc:waiting} dimServerName/Waiting (Format: ``I''): To notify the RunControl that the
-	processing of the current configuration file is finished (see section \ref{sec:configuration}).
+	of important problems that happened during the run. The first integer is the
+	source id, the second being the severity code and the final string is the
+	logging message.
+	\item \label{svc:waiting} dimServerName/Waiting (Format: ``I:1''): To notify
+	the RunControl that the processing of the current configuration file is
+	finished (see section \ref{sec:configuration}). The integer value is used as a
+	boolean flag.
 	\item \label{svc:config} dimServerName/Config (Format: ``C''): To report back to the RunControl the
 	current values of the configuration parameters.
 \end{enumerate}
 
-For all the commands/services described in this document, dimServerName is a unique name identifying
-the device.
-
 The client part can connect to a server's command port to send it commands or to a server's
 service port to receive data from it. The RunControl is acting as a client connected to the device's
-server whose minimum interface is described above, but is also acting as a server, providing different informations:
+server whose minimum interface is described above, but is also acting as a server, providing different information:
 \begin{itemize}
-	\item RunControl/RunNumber (Format: ``I''): Run number of the current run.
+	\item RunControl/RunNumber (Format: ``I:1''): Run number of the current run.
 	Updated after the \textbf{START\_RUN} command.
-	\item RunControl/BurstNumber (Format: ``I''): Number of bursts in the current
+	\item RunControl/BurstNumber (Format: ``I:1''): Number of bursts in the current
 	run. Updated at each new burst (relying on NA62Timer/SOB and NA62Timer/EOB
 	timestamps).
 	\item RunControl/EnabledDetectors (Format: ``C''): List of enabled detectors for the current run
 	and number of data source for each detector. The string has the format\\ 
 	\mbox{``DetID:NSource,DetID:NSource,\ldots''} where DetID is the detector ID in hexadecimal format
-	(e.g. 0x18)\ldots defined in \cite{biblio:TDAQNote} and NSource is the number of data source. This
-	service is primarily intended for the PC farm.
+	(e.g. 0x18)\ldots defined in \cite{biblio:TDAQNote} and NSource is the number
+	of data source i.e. the number of boards generating data packets for the
+	specific subsystem and therefore having the same detector ID. This service is
+	primarily intended for the PC farm.
 \end{itemize}
 
 \subsection{RunControl commands}\label{sec:commands}
@@ -196,8 +204,9 @@ configuration file according to the procedure described in section \ref{sec:conf
 \section{Configuration}\label{sec:configuration}
 The configuration mechanism of the RunControl will take advantage of the existing recipe mechanism
 of the JCOP\cite{biblio:JCOP} framework: a database contains an ensemble of fields and a list of
-recipes (configuration modes). Specific values of the field are associated to each recipe. At
-configuration time a prompt will ask the user to select a recipe to load.
+recipes, describing different configuration modes (e.g. calibration run, muon
+run, physics run, \ldots). Specific values of the field are associated to each
+recipe. At configuration time a prompt will ask the user to select a recipe to load.
 
 Again, in order to hide the internals of the devices from the RunControl, the actual configuration
 parameters/values are contained in a configuration file. The content of the files will be written in
@@ -208,7 +217,7 @@ the values.
 A tool will be available to dump configuration files into the database and an ``on-line'' editor will
 also be provided to modify/write files directly in the database. The entries in the database can be
 independent files or different versions of a same file and will be identified by a name and will
-be associated to one or several tags relating it to recipes.
+be associated to one or recipes.
 
 The configuration files can be incremental: for each recipe, a list of files can be sent to the
 device. The first one would contain ``default'' values, values that are valid for different type of
@@ -262,7 +271,7 @@ can move to an ERROR state that will interrupt the procedure.
 
 \section{Logging}\label{sec:logging}
 The RunControl will be connected to three different databases: the configuration database containing
-the recipes and the configuration files, the online database storing informations related to the
+the recipes and the configuration files, the online database storing information related to the
 run and the instantaneous state of the data taking, PC farm, \ldots and finally the offline
 database that will contain the subset of the online values that are relevant to future analysis and
 the configuration for each run.
@@ -274,11 +283,11 @@ text message itself. Four severity levels are allowed:
 \begin{itemize}
   \item 0 for \textbf{Info}, an information that the user might want to know but
   no action is needed.
-  \item 1 for \textbf{Warning}, an event has occured and the user might want to
+  \item 1 for \textbf{Warning}, an event has occurred and the user might want to
   take action even if it is not mandatory.
-  \item 2 for \textbf{Error}, an event has occured and the user should take
+  \item 2 for \textbf{Error}, an event has occurred and the user should take
   action.
-  \item 3 for \textbf{Fatal}, a fatal error has occured and the run should be
+  \item 3 for \textbf{Fatal}, a fatal error has occurred and the run should be
   aborted.
 \end{itemize}
 
@@ -293,19 +302,19 @@ that can be implemented beyond the minimum interface described in the previous
 sections:
 \begin{enumerate}[label=\textbf{ASVC.\arabic*}]
 	\item \label{svc:stateParams} dimServerName/paramName: As stated in section
-	\ref{sec:FSM} every device is described as a Finate State Machine in
-	the Run Control. The proposed interface assumes that the device is internally
+	\ref{sec:FSM} every device is described as a Finite State Machine in
+	the RunControl. The proposed interface assumes that the device is internally
 	following the same FSM diagram and keeping track of its current state,
 	complying with the convention outlined in Table \ref{table:FSMStates}. On
-	another hand the Run Control is able to determine itself in which state is the
+	another hand the RunControl is able to determine itself in which state is the
 	device if some requirements are met: the device provides a list of parameters
 	and a set of rules are defined to infer the current state from these
 	parameters.
-	While the rules have to be given to the Run Control developers, the
-	parameters values are read from a serie of dim services, each service
+	While the rules have to be given to the RunControl developers, the
+	parameters values are read from a series of dim services, each service
 	providing the value of a single parameter. This list of services is an
 	alternative to the standard \ref{svc:state} and replaces it.
-	\item dimServerName/TriggerNumber (Format: ``X''): This service is
+	\item dimServerName/TriggerNumber (Format: ``X:1''): This service is
 	implemented by the current trigger processor. It provides the number of
 	triggers generated during the current burst and is updated regularly during
 	the burst.
@@ -313,9 +322,9 @@ sections:
 
 Again the additional command given below and are taken from devices already
 integrated in the RunControl and given as an example of commands that can be
-implemented beyond the minimum interface desrcibed in the previous sections:
+implemented beyond the minimum interface described in the previous sections:
 \begin{enumerate}[label=\textbf{ACMD.\arabic*}]
-	\item dimServerName/SendTrigger (Format: ``X''): This command is
+	\item dimServerName/SendTrigger (Format: ``X:1''): This command is
 	implemented by the current trigger processor. It requests the trigger processor
 	to generate a certain number of triggers during next burst. This command has
 	been created for testing and demonstration purposes during the commissioning of
@@ -325,6 +334,18 @@ implemented beyond the minimum interface desrcibed in the previous sections:
 \section{Acknowledgment}
 We would like to thank J.~Kunze, R.~Lietava and V.~Cerny for their contribution to the initial
 implementations of the interface to the RunControl.
+
+\appendix{Dim data format}\label{app:dimFormat}
+A DIM service can contain different format of data: single value of a given
+type, multiple values of a given type, structure with mixed types. This is
+explained in the DIM documentation\cite{biblio:DIM}:
+\textit{The available types are C(har), I(nt), L(ong), S(hort), D(ouble),
+F(loat) or X(tra long). The format has to be specified as a description string in the form
+``T:N;T:N;T:N'' where T is the type and N is the number of items of that type.
+A data type alone at the end of string means all following items are of type T.}
+In this document we use mostly the description ``I:1'' which means we are
+transmitting a single integer and ``C'' which means a suite of chars (i.e. a
+string).
 
 \thebibliography{}
 
