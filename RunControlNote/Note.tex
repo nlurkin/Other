@@ -7,6 +7,7 @@
 \usepackage{subcaption}
 \usepackage{enumitem}
 \usepackage{lineno}
+\usepackage{appendix}
 
 \title{Device software interface to the NA62 RunControl}
 \author{R.~Fantechi, G.~Lamanna, N.~Lurkin, M.~Sozzi, F.~Varela Rodriguez}
@@ -111,12 +112,13 @@ transferred through this port. Details on the format are given in appendix
 the command ports (input). The minimum set of DIM commands to be implemented to
 interface with the RunControl is the following:
 \begin{enumerate}[label=\textbf{CMD.\arabic*}]
-	\item \label{cmd:command} dimServerName/Command (Format: ``C''): For the commands described in
-	\ref{sec:commands}.
-	\item \label{cmd:fileContent} dimServerName/FileContent (Format: ``C''): For the configuration
-	files content according to the procedure described in \ref{sec:configuration}.
-	\item \label{cmd:endTransfer} dimServerName/EndTransfer (Format: ``I:1''): For
-	signalling that the last configuration file has been transferred.
+	\item \label{cmd:command} dimServerName/Command (Format: ``C''): To transmit
+	the commands described in \ref{sec:commands}.
+	\item \label{cmd:fileContent} dimServerName/FileContent (Format: ``C''): To
+	transmit the configuration files content according to the procedure described
+	in \ref{sec:configuration}.
+	\item \label{cmd:endTransfer} dimServerName/EndTransfer (Format: ``I:1''): To
+	signal that the last configuration file has been transferred.
 \end{enumerate}
 The service ports are providing information to the clients connected to the device (output).
 With these ports, the RunControl is able to determine the exact state of the hardware,
@@ -217,7 +219,7 @@ the values.
 A tool will be available to dump configuration files into the database and an ``on-line'' editor will
 also be provided to modify/write files directly in the database. The entries in the database can be
 independent files or different versions of a same file and will be identified by a name and will
-be associated to one or recipes.
+be associated to one or more recipes.
 
 The configuration files can be incremental: for each recipe, a list of files can be sent to the
 device. The first one would contain ``default'' values, values that are valid for different type of
@@ -274,7 +276,14 @@ The RunControl will be connected to three different databases: the configuration
 the recipes and the configuration files, the online database storing information related to the
 run and the instantaneous state of the data taking, PC farm, \ldots and finally the offline
 database that will contain the subset of the online values that are relevant to future analysis and
-the configuration for each run.
+the configuration for each run. 
+
+% Online and offline databases have different purposes. The online database is
+% used by the RunControl as a real-time database while the offline database is
+% used mostly for delayed reconstruction and analysis purposes. Their schemes are
+% therefore different and the online database should not be loaded with the high
+% read rates required by the offline database. Furthermore part of the values
+% stored by the RunControl are not relevant to reconstruction and analysis jobs.
 
 In addition to the run values logging, there will be a centralized device logging. This logging will
 be displayed in the control room and recorded in the database. Every device will implement the
@@ -335,14 +344,19 @@ implemented beyond the minimum interface described in the previous sections:
 We would like to thank J.~Kunze, R.~Lietava and V.~Cerny for their contribution to the initial
 implementations of the interface to the RunControl.
 
-\appendix{Dim data format}\label{app:dimFormat}
+\appendix
+\appendixpage
+\section{Dim data format}\label{app:dimFormat}
+%
 A DIM service can contain different format of data: single value of a given
 type, multiple values of a given type, structure with mixed types. This is
 explained in the DIM documentation\cite{biblio:DIM}:
+
 \textit{The available types are C(har), I(nt), L(ong), S(hort), D(ouble),
 F(loat) or X(tra long). The format has to be specified as a description string in the form
 ``T:N;T:N;T:N'' where T is the type and N is the number of items of that type.
 A data type alone at the end of string means all following items are of type T.}
+
 In this document we use mostly the description ``I:1'' which means we are
 transmitting a single integer and ``C'' which means a suite of chars (i.e. a
 string).
