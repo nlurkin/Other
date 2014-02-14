@@ -9,6 +9,13 @@
 \usepackage{lineno}
 \usepackage{appendix}
 
+\usepackage{fancyhdr}
+
+\fancypagestyle{plain}{%
+   \fancyhead[R]{Note NA62-14-02}
+   \renewcommand{\headrulewidth}{0pt}
+}
+
 \title{Device software interface to the NA62 RunControl}
 \author{R.~Fantechi, G.~Lamanna, N.~Lurkin, M.~Sozzi, F.~Varela Rodriguez}
 
@@ -200,8 +207,9 @@ set of commands to be understood and implemented is the following:
 	\item resetstate [arg1 [arg2 [\ldots]]]
 \end{itemize}
 
-After receiving any of these commands, the device should be ready to receive a possible
-configuration file according to the procedure described in section \ref{sec:configuration}.
+After receiving \textit{initialize} or \textit{startrun} command, the device
+should be ready to receive a single! configuration file according to the
+procedure described in section \ref{sec:configuration}.
 
 \section{Configuration}\label{sec:configuration}
 The configuration mechanism of the RunControl will take advantage of the existing recipe mechanism
