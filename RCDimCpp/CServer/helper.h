@@ -5,7 +5,7 @@
 #define CONFIG_MAX_LENGTH 1000
 
 extern int state;
-extern int waiting;
+extern int nextState;
 extern char info[STRING_MAX_LENGTH];
 extern char logging[STRING_MAX_LENGTH];
 extern char config[CONFIG_MAX_LENGTH];
@@ -15,7 +15,7 @@ extern int infoIndex;
 extern int dimState;
 extern int dimInfo;
 extern int dimLogging;
-extern int dimWaiting;
+//extern int dimWaiting;
 extern int dimConfig;
 
 extern int runNumber;

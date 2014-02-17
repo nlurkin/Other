@@ -104,7 +104,6 @@ void RequestConfig::commandHandler(){
 		ss << "uselessString=" << p->getUselessString() << endl;
 
 		p->setConfig(ss.str());
-		p->setState(kINITIALIZED);
 	}
 	else{
 		p->println("Unexpected value received from RequestConfig port.");
