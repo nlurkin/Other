@@ -18,7 +18,8 @@ using namespace std;
 NA62DimServer::NA62DimServer(string name){
 	dimServerName = name;
 	state = 0;
-	waiting = 3;
+	nextState = -1;
+
 	info = new char[STRING_MAX_LENGTH+1];
 	logging = new char[STRING_MAX_LENGTH+1];
 	config = new char[CONFIG_MAX_LENGTH+1];
@@ -28,12 +29,11 @@ NA62DimServer::NA62DimServer(string name){
 	dimState = new DimService((dimServerName + "/State").c_str(), state);
 	dimInfo = new DimService((dimServerName + "/Info").c_str(), info);
 	dimLogging = new DimService((dimServerName + "/Logging").c_str(), logging);
-	dimWaiting = new DimService((dimServerName + "/Waiting").c_str(), waiting);
 	dimConfig = new DimService((dimServerName + "/Config").c_str(), config);
 
 	dimCommand = new Command(dimServerName, this);
 	dimFileContent = new FileContent(dimServerName, this);
-	dimEndTransfer = new EndTransfer(dimServerName, this);
+	dimRequestConfig = new RequestConfig(dimServerName, this);
 
 	runNumber = 0;
 	frequency = 0.;
@@ -98,15 +98,6 @@ void NA62DimServer::setState(int state) {
 	dimState->updateService();
 }
 
-int NA62DimServer::getWaiting() const {
-	return waiting;
-}
-
-void NA62DimServer::setWaiting(int waiting) {
-	this->waiting = waiting;
-	dimWaiting->updateService();
-}
-
 void NA62DimServer::setFrequency(double frequency) {
 	this->frequency = frequency;
 }
@@ -150,4 +141,12 @@ void NA62DimServer::setParam(int param) {
 void NA62DimServer::setConfig(string config) {
 	strcpy(this->config, config.c_str());
 	dimConfig->updateService();
+}
+
+int NA62DimServer::getNextState() const {
+	return nextState;
+}
+
+void NA62DimServer::setNextState(int nextState) {
+	this->nextState = nextState;
 }

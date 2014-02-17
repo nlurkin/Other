@@ -31,8 +31,6 @@ public:
 	void setRunNumber(int runNumber);
 	int getState() const;
 	void setState(int state);
-	int getWaiting() const;
-	void setWaiting(int waiting);
 	void setFrequency(double frequency);
 	void setSourceId(int sourceId);
 	void setUselessInt(int uselessInt);
@@ -44,12 +42,15 @@ public:
 	int getParam() const;
 	void setParam(int param);
 	void setConfig(string config);
+	int getNextState() const;
+	void setNextState(int nextState);
 
 private:
 	string dimServerName;
 
 	//States: 0=IDLE, 1=INITIALIZED, 2=READY, else ERROR
-	int state, waiting;
+	int state;
+	int nextState;
 	char *info;
 	char *logging;
 	char *config;
@@ -59,12 +60,11 @@ private:
 	DimService *dimState;
 	DimService *dimInfo;
 	DimService *dimLogging;
-	DimService *dimWaiting;
 	DimService *dimConfig;
 
 	Command *dimCommand;
 	FileContent *dimFileContent;
-	EndTransfer *dimEndTransfer;
+	RequestConfig *dimRequestConfig;
 
 	int runNumber;
 	double frequency;

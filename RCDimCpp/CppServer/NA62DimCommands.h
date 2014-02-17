@@ -46,10 +46,10 @@ private:
 	ConfigDecoder decoder;
 };
 
-class EndTransfer: public DimCommand
+class RequestConfig: public DimCommand
 {
 public:
-	EndTransfer(string dimServerName, NA62DimServer *parent);
+	RequestConfig(string dimServerName, NA62DimServer *parent);
 private:
 	void commandHandler();
 

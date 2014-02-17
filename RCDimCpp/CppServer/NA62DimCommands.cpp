@@ -31,15 +31,15 @@ void Command::commandHandler(){
 }
 void Command::doInitialize(vector<string> tok){
 	if(p->getState()!=kREADY){
-		p->println("Initializing... Waiting for possible configuration file");
-		p->setWaiting(1);
+		p->println("Initializing... Waiting for configuration file");
+		p->setNextState(kINITIALIZED);
 	}
 }
 void Command::doStartRun(vector<string> tok){
 	if(p->getState()==kINITIALIZED){
-		p->println("Starting run number " + tok[1]);
+		p->println("Starting run number " + tok[1] + "... Waiting for configuration file");
 		p->setRunNumber(atoi(tok[1].c_str()));
-		p->setState(kREADY);
+		p->setNextState(kREADY);
 	}
 	else{
 		p->println("Device is not in INITIALIZED state. Cannot start a run.");
@@ -64,57 +64,50 @@ void Command::doResetState(vector<string> tok){
 }
 
 FileContent::FileContent(string dimServerName, NA62DimServer *parent):
-				DimCommand((dimServerName + "/FileContent").c_str(), "C")
+								DimCommand((dimServerName + "/FileContent").c_str(), "C")
 {
 	p = parent;
 }
 void FileContent::commandHandler(){
-	if(p->getWaiting()==1){
-		p->print("FileContent port receiving: ");
-		p->println(getString());
+	p->print("FileContent port receiving: ");
+	p->println(getString());
 
-		decoder.parseFile(getString());
-		//Applying parameters
-		p->setSourceId(decoder.param3);
-		p->setFrequency(decoder.param4);
-		p->setUselessInt(decoder.param1);
-		p->setUselessString(decoder.param5);
-		p->setParam(decoder.param2);
+	decoder.parseFile(getString());
+	//Applying parameters
+	p->setSourceId(decoder.param3);
+	p->setFrequency(decoder.param4);
+	p->setUselessInt(decoder.param1);
+	p->setUselessString(decoder.param5);
+	p->setParam(decoder.param2);
 
-		p->println("Finished processing config file... Waiting for next one.");
-		p->setWaiting(1);
-	}
-	else{
-		p->setState(p->getState());
-	}
+	p->println("Finished processing config file... Moving to next state.");
+	p->setState(p->getNextState());
+	p->setNextState(-1);
 }
 
-EndTransfer::EndTransfer(string dimServerName, NA62DimServer *parent):
-				DimCommand((dimServerName + "/EndTransfer").c_str(), "I")
+RequestConfig::RequestConfig(string dimServerName, NA62DimServer *parent):
+								DimCommand((dimServerName + "/RequestConfig").c_str(), "I")
 {
 	p = parent;
 }
-void EndTransfer::commandHandler(){
-	if(p->getWaiting()==1){
-		p->print("EndTransfer port receiving: ");
-		p->println(getInt());
+void RequestConfig::commandHandler(){
+	p->print("RequestConfig port receiving: ");
+	p->println(getInt());
 
-		if(getInt()==1){
-			//Generate final configuration file
-			stringstream ss;
-			ss << "uselessInt=" << p->getUselessInt() << endl;
-			ss << "param=" << p->getParam() << endl;
-			ss << "sourceID=0x" << hex << p->getSourceId() << endl;
-			ss << "frequency=" << p->getFrequency() << endl;
-			ss << "uselessString=" << p->getUselessString() << endl;
+	if(getInt()==1){
+		//Generate final configuration file
+		stringstream ss;
+		ss << "uselessInt=" << p->getUselessInt() << endl;
+		ss << "param=" << p->getParam() << endl;
+		ss << "sourceID=0x" << hex << p->getSourceId() << endl;
+		ss << "frequency=" << p->getFrequency() << endl;
+		ss << "uselessString=" << p->getUselessString() << endl;
 
-			p->setWaiting(3);
-			p->setConfig(ss.str());
-			p->setState(kINITIALIZED);
-		}
-		else{
-			p->println("Unexpected value received from FileContent port.");
-			p->setState(kUNKNOWN);
-		}
+		p->setConfig(ss.str());
+		p->setState(kINITIALIZED);
+	}
+	else{
+		p->println("Unexpected value received from RequestConfig port.");
+		p->setState(kUNKNOWN);
 	}
 }
