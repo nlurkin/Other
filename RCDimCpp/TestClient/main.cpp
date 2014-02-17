@@ -30,6 +30,7 @@ int main(int argc, char** argv){
 		if(input.compare("start")==0) client->startrun();
 		if(input.compare("end")==0) client->endrun();
 		if(input.compare("reset")==0) client->reset();
+		if(input.compare("request")==0) client->requestConfig();
 		if(input.compare("t")==0) client->test();
 	}
 }

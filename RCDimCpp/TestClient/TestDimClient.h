@@ -27,6 +27,7 @@ public:
 	void startrun();
 	void endrun();
 	void reset();
+	void requestConfig();
 	int getDeviceState() const;
 
 	void test();
@@ -36,29 +37,33 @@ private:
 	void handleState(int i);
 	void handleInfo(string s);
 	void handleLogging(string s);
-	void handleWaiting(int i);
+	//void handleWaiting(int i);
 	void handleConfig(string s);
 
-	void sendNextFile();
-	void endTransfer();
-	void resetTransfer();
+	//void sendNextFile();
+	//void endTransfer();
+	//void resetTransfer();
 
-	void modifyTransferStatus(int st);
+	//void modifyTransferStatus(int st);
+
+	void sendFile(string fileName);
 
 	void print(string s);
 
 	DimInfo *infoState;
 	DimInfo *infoInfo;
 	DimInfo *infoLogging;
-	DimInfo *infoWaiting;
+	//DimInfo *infoWaiting;
 	DimInfo *infoConfig;
 
 	string dimServerName;
 
-	vector<string> files;
-	unsigned int currentFile;
+	//vector<string> files;
+	//unsigned int currentFile;
+	string coldFileName;
+	string warmFileName;
 
-	int transferStatus;
+	//int transferStatus;
 
 	int deviceState;
 };

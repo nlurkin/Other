@@ -24,16 +24,18 @@ TestDimClient::TestDimClient(string name) {
 	infoState = new DimInfo((name + "/State").c_str(), -1, this);
 	infoInfo = new DimInfo((name + "/Info").c_str(), (char*)"", this);
 	infoLogging = new DimInfo((name + "/Logging").c_str(), (char*)"", this);
-	infoWaiting = new DimInfo((name + "/Waiting").c_str(), -1, this);
+	//infoWaiting = new DimInfo((name + "/Waiting").c_str(), -1, this);
 	infoConfig = new DimInfo((name + "/Config").c_str(), (char*)"", this);
 
-	currentFile = -1;
+	//currentFile = -1;
 	deviceState = -1;
-	transferStatus = kENDED;
+	//transferStatus = kENDED;
 
-	files.push_back("config1");
-	files.push_back("config2");
-	files.push_back("config3");
+	//files.push_back("config1");
+	//files.push_back("config2");
+	//files.push_back("config3");
+	coldFileName = "ColdConfig";
+	warmFileName = "WarmConfig";
 }
 
 TestDimClient::~TestDimClient() {
@@ -52,9 +54,9 @@ void TestDimClient::infoHandler() {
 	else if(curr==infoLogging){
 		handleLogging(curr->getString());
 	}
-	else if(curr==infoWaiting){
-		handleWaiting(curr->getInt());
-	}
+	//	else if(curr==infoWaiting){
+	//		handleWaiting(curr->getInt());
+	//	}
 	else if(curr==infoConfig){
 		handleConfig(curr->getString());
 	}
@@ -63,13 +65,13 @@ void TestDimClient::infoHandler() {
 void TestDimClient::handleState(int i) {
 	deviceState = i;
 	print("");
-	if(transferStatus!=kENDED) resetTransfer();
+	//	if(transferStatus!=kENDED) resetTransfer();
 }
 
-void TestDimClient::resetTransfer(){
-	modifyTransferStatus(kENDED);
-	currentFile = -1;
-}
+//void TestDimClient::resetTransfer(){
+//	modifyTransferStatus(kENDED);
+//	currentFile = -1;
+//}
 
 void TestDimClient::handleInfo(string s) {
 	print("\tInfo: " + s);
@@ -79,22 +81,24 @@ void TestDimClient::handleLogging(string s) {
 	print("\tLogging: " + s);
 }
 
-void TestDimClient::handleWaiting(int i) {
-	cout << "Waiting has moved to " << i << "(status: " << transferStatus << " " << ((transferStatus==kWAITING) ? "OK" : "NOK") << ")" << endl;
-	if(i==1 && transferStatus==kWAITING){
-		sendNextFile();
-	}
-}
+//void TestDimClient::handleWaiting(int i) {
+//	cout << "Waiting has moved to " << i << "(status: " << transferStatus << " " << ((transferStatus==kWAITING) ? "OK" : "NOK") << ")" << endl;
+//	if(i==1 && transferStatus==kWAITING){
+//		sendNextFile();
+//	}
+//}
 
 void TestDimClient::initialize(){
 	sendCommand((dimServerName + "/Command").c_str(), "initialize muons");
 
-	modifyTransferStatus(kSTARTED);
-	sendNextFile();
+	//modifyTransferStatus(kSTARTED);
+	//sendNextFile();
+	sendFile(coldFileName);
 }
 
 void TestDimClient::startrun() {
 	sendCommand((dimServerName + "/Command").c_str(), "startrun 1");
+	sendFile(warmFileName);
 }
 
 void TestDimClient::endrun() {
@@ -105,12 +109,35 @@ void TestDimClient::reset() {
 	sendCommand((dimServerName + "/Command").c_str(), "resetstate");
 }
 
+void TestDimClient::requestConfig(){
+	sendCommand((dimServerName + "/RequestConfig").c_str(), 1);
+}
+
 void TestDimClient::handleConfig(string s) {
 	print("Full config received");
 	print(s);
 }
 
-void TestDimClient::sendNextFile() {
+void TestDimClient::sendFile(string fileName){
+	ifstream fd;
+	string content;
+	char *c = new char[1000];
+	cout << "Sending file " << fileName << endl;
+	fd.open(fileName.c_str());
+
+	fd.seekg(0,ios::end);
+	content.reserve(fd.tellg());
+	fd.seekg(0, ios::beg);
+
+	content.assign((istreambuf_iterator<char>(fd)), istreambuf_iterator<char>());
+
+	fd.close();
+	strcpy(c, content.c_str());
+	sendCommandNB((dimServerName + "/FileContent").c_str(), c);
+	delete[] c;
+}
+
+/*void TestDimClient::sendNextFile() {
 	ifstream fd;
 	string content;
 	char *c = new char[1000];
@@ -136,16 +163,16 @@ void TestDimClient::sendNextFile() {
 	else{
 		endTransfer();
 	}
-}
+}*/
 
-void TestDimClient::endTransfer(){
+/*void TestDimClient::endTransfer(){
 	currentFile=-1;
 
 	sendCommand((dimServerName + "/EndTransfer").c_str(), 1);
 	modifyTransferStatus(kENDED);
-}
+}*/
 
-void TestDimClient::modifyTransferStatus(int st) {
+/*void TestDimClient::modifyTransferStatus(int st) {
 	string n;
 
 	if(st==kSTARTED) n = "kSTARTED";
@@ -154,7 +181,7 @@ void TestDimClient::modifyTransferStatus(int st) {
 	else if(st==kENDED) n = "kENDED";
 	cout << "STATUS=" << n << endl;
 	transferStatus = st;
-}
+}*/
 
 void TestDimClient::print(string s){
 	string color;
