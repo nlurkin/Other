@@ -127,10 +127,7 @@ interface with the RunControl is the following:
 	\item \label{cmd:fileContent} dimServerName/FileContent (Format: ``C''): To
 	transmit the configuration files content according to the procedure described
 	in \ref{sec:configuration}.
-%	\item \label{cmd:endTransfer} dimServerName/EndTransfer (Format: ``I:1''): To
-%	signal that the last configuration file has been transferred.
-%TODO is format needed?
-	\item \label{cmd:report} dimServerName/ReportConfig (Format: ``I:1''): To request the device to
+	\item \label{cmd:report} dimServerName/RequestConfig (Format: ``I:1''): To request the device to
 	report back its current configuration to the RunControl.
 \end{enumerate}
 The service ports are providing information to the clients connected to the device (output).
@@ -173,10 +170,6 @@ be implemented is the following:
 	of important problems that happened during the run. The first integer is the
 	source id, the second being the severity code and the final string is the
 	logging message.
-%	\item \label{svc:waiting} dimServerName/Waiting (Format: ``I:1''): To notify
-%	the RunControl that the processing of the current configuration file is
-%	finished (see section \ref{sec:configuration}). The integer value is used as a
-%	boolean flag.
 	\item \label{svc:config} dimServerName/Config (Format: ``C''): To report back
 	to the RunControl the current values of the configuration parameters.
 \end{enumerate}
@@ -221,7 +214,8 @@ set of commands to be understood and implemented is the following:
 
 After receiving \textit{initialize} or \textit{startrun} command, the device
 should be ready to receive a single configuration file according to the
-procedure described in section \ref{sec:configuration}.
+procedure described in section \ref{sec:configuration}. For the commands followed by a configuration
+file, the state should be updated/refreshed only after the configuration file has been applied.
 
 \section{Configuration}\label{sec:configuration}
 The configuration mechanism of the RunControl will take advantage of the existing recipe mechanism
@@ -234,7 +228,7 @@ Again, in order to hide the internals of the devices from the RunControl, the ac
 parameters/values are contained in a configuration file. The content of the files will be written in
 the JCOP database and associated to recipes. When loading a recipe, the associated files content
 will be transmitted integrally to the device that will again be responsible to
-decode it (see \cite{biblio:XMLProxy} for the NA62 XML proxy) and apply the
+decode it (see \cite{biblio:XMLProxy} for the NA62 XMLconfig) and apply the
 values.
 
 A tool will be available to dump configuration files into the database and an ``on-line'' editor will
@@ -397,14 +391,14 @@ string).
 A skeleton of the DIM server implementing the interface described in this document is available at
 \url{https://twiki.cern.ch/twiki/bin/viewauth/NA62/RunControlNote}
 
-The archive contains a C version of the server, a C++ version of the server (implementing the same
-functionalities) and a C++ version of a test client.
+The archive contains a C version of the server and a C++ version of the server (both implementing
+the same functionalities) and a C++ version of a test client.
 The test client comes with 2 sample configuration files that match the expectation of the
 example servers (cold configuration and warm configuration).\\
 The examples are linked with the DIM libraries and therefore require it to be compiled and
 configured on the system.\\
-To run them, set the environment variable DIM\_DNS\_NODE to the host running the DIM dns and start
-one of the server (\textbf{RCDimC} or \textbf{RCDimCpp}) and the client (\textbf{testClient}). Type
+To run them, set the environment variable \textbf{DIM\_DNS\_NODE} to the host running the DIM dns
+and start one of the server (\textbf{RCDimC} or \textbf{RCDimCpp}) and the client (\textbf{testClient}). Type
 \textit{init}, \textit{start}, \textit{end}, \textit{reset} or \textit{request} within the client to test the
 correct behavior of the server when receiving the RunControl instructions.
 
