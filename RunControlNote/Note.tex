@@ -8,6 +8,7 @@
 \usepackage{enumitem}
 \usepackage{lineno}
 \usepackage{appendix}
+\usepackage{hyperref}
 
 \usepackage{fancyhdr}
 
@@ -285,22 +286,22 @@ details hereafter:
 At any point of the procedure, if something goes wrong or an anomaly is detected by the device, it
 can move to an ERROR state that will interrupt the procedure.
 
-For the consistency of the conditions database, the device can be requested to
-report back the current configuration by activating the command port
-\ref{cmd:report}.
-It will generate a file containing all the current parameter values, possibly in
-the same format as the configuration file. The file is transmitted to the
-RunControl by publishing it on the service port \ref{svc:config} and the
-RunControl will take care of storing it in the offline database. Two
-possibilities are given to the subsystem:
-\begin{itemize}
-	\item When applying the configuration files, keeping track of the real value of
-	each parameter (the one that has been applied) and report this list of values,
-	trusting that everything went well and that these values were effectively
-	loaded in the hardware.
-	\item Request the hardware for the actual value of each parameter and report
-	this list of true values.
-\end{itemize}
+\begin{enumerate}
+	\setcounter{enumi}{3}
+	\item For the consistency of the conditions database, the device can be requested to report back
+	the current configuration by activating the command port \ref{cmd:report}.
+	\item It will generate a file containing all the current parameter values, possibly in the same
+	format as the configuration file. The file is transmitted to the RunControl by publishing it on
+	the service port \ref{svc:config} and the RunControl will take care of storing it in the offline
+	database. Two possibilities are given to the subsystem:
+	\begin{itemize}
+		\item When applying the configuration files, keeping track of the real value of each parameter
+		(the one that has been applied) and report this list of values, trusting that everything went
+		well and that these values were effectively loaded in the hardware.
+		\item Request the hardware for the actual value of each parameter and report this list of true
+		values.
+	\end{itemize}
+\end{enumerate}
 
 \section{Logging}\label{sec:logging}
 The RunControl will be connected to three different databases: the configuration database containing
@@ -392,13 +393,29 @@ In this document we use mostly the description ``I:1'' which means we are
 transmitting a single integer and ``C'' which means a suite of chars (i.e. a
 string).
 
+\section{DIM server skeleton}\label{app:skeleton}
+A skeleton of the DIM server implementing the interface described in this document is available at
+\url{https://twiki.cern.ch/twiki/bin/viewauth/NA62/RunControlNote}
+
+The archive contains a C version of the server, a C++ version of the server (implementing the same
+functionalities) and a C++ version of a test client.
+The test client comes with 2 sample configuration files that matches the expectation of the
+example servers (cold configuration and warm configuration).\\
+The examples are linked with the DIM libraries and therefore requires it to be compiled and
+configured on the system.\\
+To run them, set the environment variable DIM\_DNS\_NODE to the host running the DIM dns and start
+one of the server (\textbf{RCDimC} or \textbf{RCDimCpp}) and the client (\textbf{testClient}). Type
+\textit{init}, \textit{start}, \textit{end}, \textit{reset} or \textit{request} within the client to test the
+correct behavior of the server when receiving the RunControl instructions.
+
 \thebibliography{}
 
 \bibitem{biblio:TEL62}{B. Angelucci et al., \textit{TEL62: an integrated trigger and data
 acquisition board}, JINST 7 (2012) C02046.}
 \bibitem{biblio:DIM}{http://dim.web.cern.ch/dim/}
 \bibitem{biblio:TDAQNote}{M.S. Sozzi et al., \textit{NA62 online software and TDAQ interface.},
-NA62 Note NA62-11-02, 2011}
+NA62 Note NA62-11-02, 2011.}
 \bibitem{biblio:JCOP}{https://j2eeps.cern.ch/wikis/display/EN/JCOP+Framework}
-\bibitem{biblio:XMLProxy}{xxx}
+\bibitem{biblio:XMLProxy}{V. \v{C}ern\'y, \textit{XMLconfig: A Scheme for NA62
+configuration files}, NA62 Note NA62-13-11, 2013.}
 \end{document}
