@@ -130,8 +130,8 @@ interface with the RunControl is the following:
 %	\item \label{cmd:endTransfer} dimServerName/EndTransfer (Format: ``I:1''): To
 %	signal that the last configuration file has been transferred.
 %TODO is format needed?
-	\item \label{cmd:report} dimServerName/ReportConfig (Format: ``''): To signal
-	that the last configuration file has been transferred.
+	\item \label{cmd:report} dimServerName/ReportConfig (Format: ``I:1''): To request the device to
+	report back its current configuration to the RunControl.
 \end{enumerate}
 The service ports are providing information to the clients connected to the device (output).
 With these ports, the RunControl is able to determine the exact state of the hardware,
@@ -399,9 +399,9 @@ A skeleton of the DIM server implementing the interface described in this docume
 
 The archive contains a C version of the server, a C++ version of the server (implementing the same
 functionalities) and a C++ version of a test client.
-The test client comes with 2 sample configuration files that matches the expectation of the
+The test client comes with 2 sample configuration files that match the expectation of the
 example servers (cold configuration and warm configuration).\\
-The examples are linked with the DIM libraries and therefore requires it to be compiled and
+The examples are linked with the DIM libraries and therefore require it to be compiled and
 configured on the system.\\
 To run them, set the environment variable DIM\_DNS\_NODE to the host running the DIM dns and start
 one of the server (\textbf{RCDimC} or \textbf{RCDimCpp}) and the client (\textbf{testClient}). Type
