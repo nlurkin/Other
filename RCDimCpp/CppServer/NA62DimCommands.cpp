@@ -31,15 +31,15 @@ void Command::selectCommand(string commandName, vector<string> tok){
 
 void Command::doInitialize(vector<string> tok){
 	if(p->getState()!=kREADY){
-		p->println("Initializing... Waiting for configuration file");
-		p->setNextState(kINITIALIZED);
+		p->println("Initializing");
+		p->waitConfigurationFile(kINITIALIZED);
 	}
 }
 void Command::doStartRun(vector<string> tok){
 	if(p->getState()==kINITIALIZED){
-		p->println("Starting run number " + tok[0] + "... Waiting for configuration file");
+		p->println("Starting run number " + tok[0]);
 		p->setRunNumber(atoi(tok[0].c_str()));
-		p->setNextState(kREADY);
+		p->waitConfigurationFile(kREADY);
 	}
 	else{
 		p->println("Device is not in INITIALIZED state. Cannot start a run.");
@@ -50,8 +50,8 @@ void Command::doEndRun(vector<string> tok){
 	if(p->getState()==kREADY){
 		p->print("Stopping current run (");
 		p->print(p->getRunNumber());
-		p->println(") ... Waiting for configuration file");
-		p->setNextState(kINITIALIZED);
+		p->println(")");
+		p->waitConfigurationFile(kINITIALIZED);
 	}
 	else{
 		p->println("Device is not in READY state. Cannot stop a run.");
@@ -59,8 +59,8 @@ void Command::doEndRun(vector<string> tok){
 	}
 }
 void Command::doResetState(vector<string> tok){
-	p->println("Reset requested ... Waiting for configuration file");
-	p->setNextState(kIDLE);
+	p->println("Reset requested");
+	p->waitConfigurationFile(kIDLE);
 }
 
 void FileContent::commandHandler(){
@@ -70,8 +70,7 @@ void FileContent::commandHandler(){
 	decodeFile(getString());
 
 	p->println("Finished processing config file... Moving to next state.");
-	p->setState(p->getNextState());
-	p->setNextState(-1);
+	p->moveToExpectedState();
 }
 
 void RequestConfig::commandHandler(){

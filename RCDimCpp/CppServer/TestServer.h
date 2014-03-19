@@ -53,4 +53,14 @@ private:
 	TestServer *p;
 };
 
+class TestCommand: public Command {
+public:
+	TestCommand(string dimServerName, TestServer *parent):
+		Command(dimServerName, (NA62DimServer*)parent){};
+	virtual ~TestCommand(){};
+
+private:
+	virtual void doEndRun(vector<string> tok);
+	virtual void doResetState(vector<string> tok);
+};
 #endif /* TESTSERVER_H_ */

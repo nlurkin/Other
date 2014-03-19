@@ -49,13 +49,14 @@ public:
 	int getState() const;
 	void setState(int state);
 
-	int getNextState() const;
-	void setNextState(int nextState);
-
+	void waitConfigurationFile(int expectedState);
+	void moveToExpectedState();
 private:
 	NA62DimServer();
 	NA62DimServer(NA62DimServer&);
 	NA62DimServer& operator=(NA62DimServer&);
+
+	void setNextState(int nextState);
 
 	string fDimServerName;
 

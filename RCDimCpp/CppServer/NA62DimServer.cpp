@@ -112,11 +112,12 @@ int NA62DimServer::getState() const {
 
 void NA62DimServer::setState(int state) {
 	fState = state;
+	fNextState = -1;
 	fDimState->updateService();
 }
 
-int NA62DimServer::getNextState() const {
-	return fNextState;
+void NA62DimServer::moveToExpectedState() {
+	setState(fNextState);
 }
 
 void NA62DimServer::setNextState(int nextState) {
@@ -128,4 +129,9 @@ void NA62DimServer::publishConfig(){
 	generateConfig(ss);
 	strcpy(fConfig, ss.str().c_str());
 	fDimConfig->updateService();
+}
+
+void NA62DimServer::waitConfigurationFile(int expectedState) {
+	println("... Waiting for configuration file");
+	setNextState(expectedState);
 }

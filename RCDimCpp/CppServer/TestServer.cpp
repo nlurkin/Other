@@ -8,15 +8,15 @@
 #include "TestServer.h"
 
 TestServer::TestServer(string name):
-	NA62DimServer(name),
-	fFrequency(0.),
-	fSourceID(0),
-	fUselessString(""),
-	fUselessInt(0),
-	fParam(0)
+NA62DimServer(name),
+fFrequency(0.),
+fSourceID(0),
+fUselessString(""),
+fUselessInt(0),
+fParam(0)
 {
 	//Replace the default FileContent command with  the TestFileContent one.
-	initCommands(NULL, new TestFileContent(getDimServerName(), this), NULL);
+	initCommands(new TestCommand(getDimServerName(), this), new TestFileContent(getDimServerName(), this), NULL);
 }
 
 TestServer::~TestServer() {
@@ -82,4 +82,22 @@ void TestFileContent::decodeFile(string fileContent) {
 	p->setUselessInt(fDecoder.param1);
 	p->setFrequency(fDecoder.param4);
 	p->setUselessString(fDecoder.param5);
+}
+
+void TestCommand::doEndRun(vector<string> tok) {
+	if(p->getState()==kREADY){
+		p->print("Stopping current run (");
+		p->print(p->getRunNumber());
+		p->println(")");
+		p->setState(kINITIALIZED);
+	}
+	else{
+		p->println("Device is not in READY state. Cannot stop a run.");
+		p->setState(kWRONGSTATE);
+	}
+}
+
+void TestCommand::doResetState(vector<string> tok) {
+	p->println("Reset requested");
+	p->setState(kIDLE);
 }
