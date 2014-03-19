@@ -1,7 +1,9 @@
 OBJDIR = obj
 
 CppServerDIR = CppServer
-CppServerSRC = mainCppServer ConfigDecoder NA62DimCommands NA62DimServer
+CppLibSRC    = mainCppServer NA62DimCommands NA62DimServer
+CppLibOBJ = $(addprefix $(OBJDIR)/,$(addsuffix .o,$(CppLibSRC)))
+CppServerSRC = ConfigDecoder TestServer
 CppServerOBJ = $(addprefix $(OBJDIR)/,$(addsuffix .o,$(CppServerSRC)))
 
 CServerDIR = CServer
@@ -13,8 +15,8 @@ TestClientSRC = mainTestClient TestDimClient
 TestClientOBJ = $(addprefix $(OBJDIR)/,$(addsuffix .o,$(TestClientSRC)))
 
 LIBS = -lpthread -ldim
-LIBSDIR = $(DIMDIR)/linux
-HDRDIR = $(DIMDIR)/dim
+LIBSDIR = -L$(DIMDIR)/linux -L.
+HDRDIR = -I$(DIMDIR)/dim
 
 #COMPILER
 CFLAGS		= -O -Wall -fPIC -g3
@@ -22,41 +24,44 @@ SOFLAGS		= -shared
 CC			= g++
 CCC			= gcc
 
-all: RCDimCpp testClient RCDimC
+all: libcppserver.so RCDimCpp testClient RCDimC
 
 # Tool invocations
 RCDimCpp: $(CppServerOBJ)
-	$(CC) -o $@ $^ $(CFLAGS) -L$(LIBSDIR) $(LIBS)
+	$(CC) -o $@ $^ $(CFLAGS) $(LIBSDIR) $(LIBS) -lcppserver
 
 $(OBJDIR)/%.o: $(CppServerDIR)/%.cpp $(CppServerDIR)/%.h
 	@mkdir -p $(OBJDIR)
-	$(CC) -o $@ -c $< $(CFLAGS) -I$(HDRDIR)
+	$(CC) -o $@ -c $< $(CFLAGS) $(HDRDIR)
+
+libcppserver.so: $(CppLibOBJ)
+	$(CC) $(SOFLAGS) -Wl,-soname,$@ -o $@ $^ $(CFLAGS)
 
 $(OBJDIR)/%CppServer.o: $(CppServerDIR)/main.cpp
 	@mkdir -p $(OBJDIR)
-	$(CC) -o $@ -c $< $(CFLAGS) -I$(HDRDIR)
+	$(CC) -o $@ -c $< $(CFLAGS) $(HDRDIR)
 
 RCDimC: $(CServerOBJ)
-	$(CCC) -o $@ $^ $(CFLAGS) -L$(LIBSDIR) $(LIBS)
+	$(CCC) -o $@ $^ $(CFLAGS) $(LIBSDIR) $(LIBS)
 
 $(OBJDIR)/%.o: $(CServerDIR)/%.c $(CServerDIR)/%.h
 	@mkdir -p $(OBJDIR)
-	$(CCC) -o $@ -c $< $(CFLAGS) -I$(HDRDIR)
+	$(CCC) -o $@ -c $< $(CFLAGS) $(HDRDIR)
 
 $(OBJDIR)/%CServer.o: $(CServerDIR)/main.c
 	@mkdir -p $(OBJDIR)
-	$(CCC) -o $@ -c $< $(CFLAGS) -I$(HDRDIR)
+	$(CCC) -o $@ -c $< $(CFLAGS) $(HDRDIR)
 	
 testClient: $(TestClientOBJ)
-	$(CC) -o $@ $^ $(CFLAGS) -L$(LIBSDIR) $(LIBS)
+	$(CC) -o $@ $^ $(CFLAGS) $(LIBSDIR) $(LIBS)
 
 $(OBJDIR)/%.o: $(TestClientDIR)/%.cpp $(TestClientDIR)/%.h
 	@mkdir -p $(OBJDIR)
-	$(CC) -o $@ -c $< $(CFLAGS) -I$(HDRDIR)
+	$(CC) -o $@ -c $< $(CFLAGS) $(HDRDIR)
 
 $(OBJDIR)/%TestClient.o: $(TestClientDIR)/main.cpp
 	@mkdir -p $(OBJDIR)
-	$(CC) -o $@ -c $< $(CFLAGS) -I$(HDRDIR)
+	$(CC) -o $@ -c $< $(CFLAGS) $(HDRDIR)
 
 
 	

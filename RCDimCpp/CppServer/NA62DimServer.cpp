@@ -35,6 +35,20 @@ NA62DimServer::NA62DimServer(string name):
 {
 }
 
+NA62DimServer::~NA62DimServer(){
+	delete[] fInfo;
+	delete[] fLogging;
+	delete[] fConfig;
+	delete fDimState;
+	delete fDimInfo;
+	delete fDimLogging;
+	delete fDimConfig;
+	delete fDimCommand;
+	delete fDimFileContent;
+	delete fDimRequestConfig;
+}
+
+
 void NA62DimServer::start(){
 	DimServer::start(fDimServerName.c_str());
 
@@ -95,4 +109,11 @@ int NA62DimServer::getNextState() const {
 
 void NA62DimServer::setNextState(int nextState) {
 	fNextState = nextState;
+}
+
+void NA62DimServer::publishConfig(){
+	stringstream ss;
+	generateConfig(ss);
+	strcpy(fConfig, ss.str().c_str());
+	fDimConfig->updateService();
 }

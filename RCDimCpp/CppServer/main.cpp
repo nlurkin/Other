@@ -1,10 +1,9 @@
-#include "NA62DimServer.h"
-#include "NA62DimCommands.h"
+#include "TestServer.h"
 
 using namespace std;
 
 int main(int argc, char** argv){
-	NA62DimServer server("dimExample");
+	TestServer server("dimExample");
 
 	server.start();
 	while(1){

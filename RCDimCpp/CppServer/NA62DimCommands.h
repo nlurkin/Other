@@ -32,6 +32,7 @@ private:
 
 	virtual void commandHandler() = 0;
 
+protected:
 	NA62DimServer *p;
 };
 

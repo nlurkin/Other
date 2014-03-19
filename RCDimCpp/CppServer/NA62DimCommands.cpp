@@ -24,10 +24,10 @@ void Command::commandHandler(){
 }
 
 void Command::selectCommand(string commandName, vector<string> tok){
-	if(tok[0].compare("initialize")==0) doInitialize(tok);
-	if(tok[0].compare("startrun")==0) doStartRun(tok);
-	if(tok[0].compare("endrun")==0) doEndRun(tok);
-	if(tok[0].compare("resetstate")==0) doResetState(tok);
+	if(commandName.compare("initialize")==0) doInitialize(tok);
+	if(commandName.compare("startrun")==0) doStartRun(tok);
+	if(commandName.compare("endrun")==0) doEndRun(tok);
+	if(commandName.compare("resetstate")==0) doResetState(tok);
 }
 
 void Command::doInitialize(vector<string> tok){
@@ -38,8 +38,8 @@ void Command::doInitialize(vector<string> tok){
 }
 void Command::doStartRun(vector<string> tok){
 	if(p->getState()==kINITIALIZED){
-		p->println("Starting run number " + tok[1] + "... Waiting for configuration file");
-		p->setRunNumber(atoi(tok[1].c_str()));
+		p->println("Starting run number " + tok[0] + "... Waiting for configuration file");
+		p->setRunNumber(atoi(tok[0].c_str()));
 		p->setNextState(kREADY);
 	}
 	else{
@@ -81,7 +81,7 @@ void RequestConfig::commandHandler(){
 
 	if(getInt()==1){
 		//Generate final configuration file
-		p->generateConfig();
+		p->publishConfig();
 	}
 	else{
 		p->println("Unexpected value received from RequestConfig port.");

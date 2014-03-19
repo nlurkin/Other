@@ -10,6 +10,7 @@
 #include <string>
 #include "NA62DimCommands.h"
 #include "dis.hxx"
+#include <sstream>
 using namespace std;
 
 class NA62DimServer: public DimServer
@@ -30,7 +31,7 @@ public:
 
 	//virtual methods to implement
 	virtual void mainLoop() = 0;
-	virtual void generateConfig() = 0;
+	virtual void generateConfig(stringstream& ss) = 0;
 
 	//Mandatory run infos
 	int getRunNumber() const;
@@ -38,6 +39,8 @@ public:
 
 	string getRunType() const;
 	void setRuntype(string runType);
+
+	void publishConfig();
 
 	//State management
 	int getState() const;
@@ -47,6 +50,10 @@ public:
 	void setNextState(int nextState);
 
 private:
+	NA62DimServer();
+	NA62DimServer(NA62DimServer&);
+	NA62DimServer& operator=(NA62DimServer&);
+
 	string fDimServerName;
 
 	//States: 0=IDLE, 1=INITIALIZED, 2=READY
