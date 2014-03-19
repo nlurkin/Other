@@ -13,8 +13,8 @@ TestClientSRC = mainTestClient TestDimClient
 TestClientOBJ = $(addprefix $(OBJDIR)/,$(addsuffix .o,$(TestClientSRC)))
 
 LIBS = -lpthread -ldim
-LIBSDIR = /home/ncl/Software/Install/dim_v20r7/linux
-HDRDIR = /home/ncl/Software/Install/dim_v20r7/dim
+LIBSDIR = $(DIMDIR)/linux
+HDRDIR = $(DIMDIR)/dim
 
 #COMPILER
 CFLAGS		= -O -Wall -fPIC -g3

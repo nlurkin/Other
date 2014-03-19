@@ -16,44 +16,55 @@ using namespace std;
 
 class NA62DimServer;
 enum FSMState {kIDLE=0, kINITIALIZED=1, kREADY=2};
-
 //Example error states
 enum ErrorState {kHARDWAREFAILURE=-10, kWRONGCONFIG=-11, kWRONGSTATE=-12, kUNKNOWN=-20};
 
-class Command: public DimCommand
+class NA62DimCommand: public DimCommand
 {
 public:
-	Command(string dimServerName, NA62DimServer *parent);
-private:
-	void doInitialize(vector<string> tok);
-	void doStartRun(vector<string> tok);
-	void doEndRun(vector<string> tok);
-	void doResetState(vector<string> tok);
+	NA62DimCommand(string dimServerName, string commandName, string commandType, NA62DimServer *parent):
+		DimCommand((dimServerName + "/" + commandName).c_str(), commandType.c_str()),
+		p(parent){};
 
-	void commandHandler();
+private:
+	NA62DimCommand();
+	NA62DimCommand(const NA62DimCommand &c);
+
+	virtual void commandHandler() = 0;
 
 	NA62DimServer *p;
 };
 
-class FileContent: public DimCommand
+class Command: public NA62DimCommand
 {
 public:
-	FileContent(string dimServerName, NA62DimServer *parent);
+	Command(string dimServerName, NA62DimServer *parent):NA62DimCommand(dimServerName, "Command", "C", parent){};
+private:
+	virtual void doInitialize(vector<string> tok);
+	virtual void doStartRun(vector<string> tok);
+	virtual void doEndRun(vector<string> tok);
+	virtual void doResetState(vector<string> tok);
+
+	virtual void selectCommand(string commandName, vector<string> tok);
+	void commandHandler();
+};
+
+class FileContent: public NA62DimCommand
+{
+public:
+	FileContent(string dimServerName, NA62DimServer *parent):NA62DimCommand(dimServerName, "FileContent", "C", parent){};
 private:
 	void commandHandler();
 
-	NA62DimServer *p;
 	ConfigDecoder decoder;
 };
 
-class RequestConfig: public DimCommand
+class RequestConfig: public NA62DimCommand
 {
 public:
-	RequestConfig(string dimServerName, NA62DimServer *parent);
+	RequestConfig(string dimServerName, NA62DimServer *parent):NA62DimCommand(dimServerName, "RequestConfig", "I", parent){};
 private:
 	void commandHandler();
-
-	NA62DimServer *p;
 };
 
 #endif /* NA62DIMCOMMANDS_H_ */

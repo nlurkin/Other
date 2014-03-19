@@ -16,8 +16,11 @@ class NA62DimServer: public DimServer
 {
 public:
 	NA62DimServer(string name);
+	virtual ~NA62DimServer();
+
 	void start();
 
+	//Printing to Info
 	void print(const char *s);
 	void print(string s);
 	void print(int s);
@@ -25,53 +28,48 @@ public:
 	void println(string s);
 	void println(int s);
 
-	void mainLoop();
+	//virtual methods to implement
+	virtual void mainLoop() = 0;
+	virtual void generateConfig() = 0;
 
+	//Mandatory run infos
 	int getRunNumber() const;
 	void setRunNumber(int runNumber);
+
+	string getRunType() const;
+	void setRuntype(string runType);
+
+	//State management
 	int getState() const;
 	void setState(int state);
-	void setFrequency(double frequency);
-	void setSourceId(int sourceId);
-	void setUselessInt(int uselessInt);
-	void setUselessString(const string& uselessString);
-	double getFrequency() const;
-	int getSourceId() const;
-	int getUselessInt() const;
-	const string& getUselessString() const;
-	int getParam() const;
-	void setParam(int param);
-	void setConfig(string config);
+
 	int getNextState() const;
 	void setNextState(int nextState);
 
 private:
-	string dimServerName;
+	string fDimServerName;
 
-	//States: 0=IDLE, 1=INITIALIZED, 2=READY, else ERROR
-	int state;
-	int nextState;
-	char *info;
-	char *logging;
-	char *config;
+	//States: 0=IDLE, 1=INITIALIZED, 2=READY
+	// <0 : ERROR
+	int fState;
+	int fNextState;
+	char *fInfo;
+	char *fLogging;
+	char *fConfig;
 
-	int infoIndex;
+	int fInfoIndex;
 
-	DimService *dimState;
-	DimService *dimInfo;
-	DimService *dimLogging;
-	DimService *dimConfig;
+	DimService *fDimState;
+	DimService *fDimInfo;
+	DimService *fDimLogging;
+	DimService *fDimConfig;
 
-	Command *dimCommand;
-	FileContent *dimFileContent;
-	RequestConfig *dimRequestConfig;
+	Command *fDimCommand;
+	FileContent *fDimFileContent;
+	RequestConfig *fDimRequestConfig;
 
-	int runNumber;
-	double frequency;
-	int sourceID;
-	string uselessString;
-	int uselessInt;
-	int param;
+	int fRunNumber;
+	string fRunType;
 };
 
 
