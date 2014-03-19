@@ -15,6 +15,8 @@ TestServer::TestServer(string name):
 	fUselessInt(0),
 	fParam(0)
 {
+	//Replace the default FileContent command with  the TestFileContent one.
+	initCommands(NULL, new TestFileContent(getDimServerName(), this), NULL);
 }
 
 TestServer::~TestServer() {
@@ -70,4 +72,14 @@ void TestServer::generateConfig(stringstream& ss) {
 
 void TestServer::setParam(int param) {
 	fParam = param;
+}
+
+void TestFileContent::decodeFile(string fileContent) {
+	fDecoder.parseFile(fileContent);
+
+	p->setParam(fDecoder.param2);
+	p->setSourceId(fDecoder.param3);
+	p->setUselessInt(fDecoder.param1);
+	p->setFrequency(fDecoder.param4);
+	p->setUselessString(fDecoder.param5);
 }

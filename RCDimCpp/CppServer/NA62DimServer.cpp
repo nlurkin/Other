@@ -27,9 +27,9 @@ NA62DimServer::NA62DimServer(string name):
 	fDimInfo(new DimService((fDimServerName + "/Info").c_str(), fInfo)),
 	fDimLogging(new DimService((fDimServerName + "/Logging").c_str(), fLogging)),
 	fDimConfig(new DimService((fDimServerName + "/Config").c_str(), fConfig)),
-	fDimCommand(new Command(fDimServerName, this)),
-	fDimFileContent(new FileContent(fDimServerName, this)),
-	fDimRequestConfig(new RequestConfig(fDimServerName, this)),
+	fDimCommand(NULL),
+	fDimFileContent(NULL),
+	fDimRequestConfig(NULL),
 	fRunNumber(0),
 	fRunType("")
 {
@@ -43,13 +43,25 @@ NA62DimServer::~NA62DimServer(){
 	delete fDimInfo;
 	delete fDimLogging;
 	delete fDimConfig;
-	delete fDimCommand;
-	delete fDimFileContent;
-	delete fDimRequestConfig;
+
+	if(fDimCommand) delete fDimCommand;
+	if(fDimFileContent) delete fDimFileContent;
+	if(fDimRequestConfig) delete fDimRequestConfig;
 }
 
+void NA62DimServer::initCommands(Command *cmdCommand, FileContent *fileContentCommand, RequestConfig *requestConfigCommand)
+{
+	if(!cmdCommand) fDimCommand = new Command(fDimServerName, this);
+	else fDimCommand = cmdCommand;
+	if(!fileContentCommand) fDimFileContent = new FileContent(fDimServerName, this);
+	else fDimFileContent = fileContentCommand;
+	if(!fDimRequestConfig) fDimRequestConfig = new RequestConfig(fDimServerName, this);
+	else fDimRequestConfig = requestConfigCommand;
 
+}
 void NA62DimServer::start(){
+	if(!fDimCommand || !fDimFileContent || !fDimRequestConfig) initCommands(fDimCommand, fDimFileContent, fDimRequestConfig);
+
 	DimServer::start(fDimServerName.c_str());
 
 	println(fDimServerName + " is starting.");

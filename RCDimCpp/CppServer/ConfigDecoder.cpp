@@ -34,17 +34,6 @@ void ConfigDecoder::parseFile(string content){
 	}
 }
 
-const vector<string> ConfigDecoder::tokenize(string s, const char delim) {
-	vector<string> tokens;
-	stringstream ss(s);
-	string item;
-
-	while(getline(ss, item, delim)){
-		tokens.push_back(item);
-	}
-	return tokens;
-}
-
 void ConfigDecoder::decodeLine(string line){
 	vector<string> elem = tokenize(line, '=');
 
@@ -54,4 +43,15 @@ void ConfigDecoder::decodeLine(string line){
 	if(elem[0]=="sourceID") param3 = strtol(elem[1].c_str(), NULL, 16);
 	if(elem[0]=="frequency") param4 = atof(elem[1].c_str());
 	if(elem[0]=="uselessString") param5 = elem[1];
+}
+
+const vector<string> ConfigDecoder::tokenize(string s, const char delim) {
+	vector<string> tokens;
+	stringstream ss(s);
+	string item;
+
+	while(getline(ss, item, delim)){
+		tokens.push_back(item);
+	}
+	return tokens;
 }

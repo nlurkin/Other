@@ -11,13 +11,15 @@
 #include <string>
 #include "dis.hxx"
 #include <vector>
-#include "ConfigDecoder.h"
 using namespace std;
 
 class NA62DimServer;
 enum FSMState {kIDLE=0, kINITIALIZED=1, kREADY=2};
 //Example error states
 enum ErrorState {kHARDWAREFAILURE=-10, kWRONGCONFIG=-11, kWRONGSTATE=-12, kUNKNOWN=-20};
+
+class ConfigDecoder;
+const vector<string> tokenize(string s, const char delim = ' ');
 
 class NA62DimCommand: public DimCommand
 {
@@ -40,24 +42,27 @@ class Command: public NA62DimCommand
 {
 public:
 	Command(string dimServerName, NA62DimServer *parent):NA62DimCommand(dimServerName, "Command", "C", parent){};
-private:
+protected:
 	virtual void doInitialize(vector<string> tok);
 	virtual void doStartRun(vector<string> tok);
 	virtual void doEndRun(vector<string> tok);
 	virtual void doResetState(vector<string> tok);
 
 	virtual void selectCommand(string commandName, vector<string> tok);
+private:
 	void commandHandler();
 };
 
 class FileContent: public NA62DimCommand
 {
 public:
-	FileContent(string dimServerName, NA62DimServer *parent):NA62DimCommand(dimServerName, "FileContent", "C", parent){};
+	FileContent(string dimServerName, NA62DimServer *parent):
+		NA62DimCommand(dimServerName, "FileContent", "C", parent){};
 private:
 	void commandHandler();
 
-	ConfigDecoder decoder;
+protected:
+	virtual void decodeFile(string fileContent){};
 };
 
 class RequestConfig: public NA62DimCommand

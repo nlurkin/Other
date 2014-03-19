@@ -1,9 +1,9 @@
 OBJDIR = obj
 
 CppServerDIR = CppServer
-CppLibSRC    = mainCppServer NA62DimCommands NA62DimServer
+CppLibSRC    = NA62DimCommands NA62DimServer
 CppLibOBJ = $(addprefix $(OBJDIR)/,$(addsuffix .o,$(CppLibSRC)))
-CppServerSRC = ConfigDecoder TestServer
+CppServerSRC = ConfigDecoder TestServer mainCppServer
 CppServerOBJ = $(addprefix $(OBJDIR)/,$(addsuffix .o,$(CppServerSRC)))
 
 CServerDIR = CServer
@@ -71,6 +71,7 @@ clean:
 	rm -f RCDimC
 	rm -f testClient
 	rm -rf obj
+	rm -rf *.so
 
 .PHONY: all clean dependents
 .SECONDARY:

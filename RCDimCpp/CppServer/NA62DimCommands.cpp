@@ -9,14 +9,13 @@
 #include "NA62DimServer.h"
 #include <iostream>
 #include <vector>
-#include "ConfigDecoder.h"
 #include <sstream>
 
 void Command::commandHandler(){
 	p->print("Command port receiving: ");
 	p->println(getString());
 
-	vector<string> tok = ConfigDecoder::tokenize(getString());
+	vector<string> tok = tokenize(getString());
 
 	string commandName = tok[0];
 	tok.erase(tok.begin());
@@ -51,8 +50,8 @@ void Command::doEndRun(vector<string> tok){
 	if(p->getState()==kREADY){
 		p->print("Stopping current run (");
 		p->print(p->getRunNumber());
-		p->println(")");
-		p->setState(kINITIALIZED);
+		p->println(") ... Waiting for configuration file");
+		p->setNextState(kINITIALIZED);
 	}
 	else{
 		p->println("Device is not in READY state. Cannot stop a run.");
@@ -60,15 +59,15 @@ void Command::doEndRun(vector<string> tok){
 	}
 }
 void Command::doResetState(vector<string> tok){
-	p->println("Reset requested");
-	p->setState(kIDLE);
+	p->println("Reset requested ... Waiting for configuration file");
+	p->setNextState(kIDLE);
 }
 
 void FileContent::commandHandler(){
 	p->print("FileContent port receiving: ");
 	p->println(getString());
 
-	decoder.parseFile(getString());
+	decodeFile(getString());
 
 	p->println("Finished processing config file... Moving to next state.");
 	p->setState(p->getNextState());
@@ -87,4 +86,15 @@ void RequestConfig::commandHandler(){
 		p->println("Unexpected value received from RequestConfig port.");
 		p->setState(kUNKNOWN);
 	}
+}
+
+const vector<string> tokenize(string s, const char delim) {
+	vector<string> tokens;
+	stringstream ss(s);
+	string item;
+
+	while(getline(ss, item, delim)){
+		tokens.push_back(item);
+	}
+	return tokens;
 }

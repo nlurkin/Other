@@ -9,6 +9,7 @@
 #define TESTSERVER_H_
 
 #include "NA62DimServer.h"
+#include "ConfigDecoder.h"
 
 class TestServer: public NA62DimServer {
 public:
@@ -36,6 +37,20 @@ private:
 	int fUselessInt;
 	int fParam;
 
+};
+
+class TestFileContent: public FileContent {
+public:
+	TestFileContent(string dimServerName, TestServer *parent):
+		FileContent(dimServerName, (NA62DimServer*)parent),
+		p(parent){};
+	virtual ~TestFileContent(){};
+
+private:
+	void decodeFile(string fileContent);
+
+	ConfigDecoder fDecoder;
+	TestServer *p;
 };
 
 #endif /* TESTSERVER_H_ */

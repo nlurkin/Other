@@ -19,6 +19,7 @@ public:
 	NA62DimServer(string name);
 	virtual ~NA62DimServer();
 
+	void initCommands(Command *cmdCommand=NULL, FileContent *fileContentCommand=NULL, RequestConfig *requestConfigCommand=NULL);
 	void start();
 
 	//Printing to Info
@@ -37,8 +38,10 @@ public:
 	int getRunNumber() const;
 	void setRunNumber(int runNumber);
 
-	string getRunType() const;
-	void setRuntype(string runType);
+	string getRunType() const {return fRunType;};
+	void setRuntype(string runType) {fRunType = runType;};
+
+	string getDimServerName() const {return fDimServerName;};
 
 	void publishConfig();
 
