@@ -13,27 +13,27 @@
 
 class TestServer: public NA62DimServer {
 public:
-	TestServer(string name);
+	TestServer(std::string name, int sourceID);
 	virtual ~TestServer();
 
 	void mainLoop();
-	void generateConfig(stringstream& ss);
+	void generateConfig(std::stringstream& ss);
 
 	void setFrequency(double frequency);
 	void setSourceId(int sourceId);
 	void setUselessInt(int uselessInt);
-	void setUselessString(const string& uselessString);
+	void setUselessString(const std::string& uselessString);
 	double getFrequency() const;
 	int getSourceId() const;
 	int getUselessInt() const;
-	const string& getUselessString() const;
+	const std::string& getUselessString() const;
 	int getParam() const;
 	void setParam(int param);
 
 private:
 	double fFrequency;
 	int fSourceID;
-	string fUselessString;
+	std::string fUselessString;
 	int fUselessInt;
 	int fParam;
 
@@ -41,13 +41,13 @@ private:
 
 class TestFileContent: public FileContent {
 public:
-	TestFileContent(string dimServerName, TestServer *parent):
+	TestFileContent(std::string dimServerName, TestServer *parent):
 		FileContent(dimServerName, (NA62DimServer*)parent),
 		p(parent){};
 	virtual ~TestFileContent(){};
 
 private:
-	void decodeFile(string fileContent);
+	void decodeFile(std::string fileContent);
 
 	ConfigDecoder fDecoder;
 	TestServer *p;
@@ -55,12 +55,12 @@ private:
 
 class TestCommand: public Command {
 public:
-	TestCommand(string dimServerName, TestServer *parent):
+	TestCommand(std::string dimServerName, TestServer *parent):
 		Command(dimServerName, (NA62DimServer*)parent){};
 	virtual ~TestCommand(){};
 
 private:
-	virtual void doEndRun(vector<string> tok);
-	virtual void doResetState(vector<string> tok);
+	virtual void doEndRun(std::vector<std::string> tok);
+	virtual void doResetState(std::vector<std::string> tok);
 };
 #endif /* TESTSERVER_H_ */

@@ -11,7 +11,6 @@
 
 #include <algorithm>
 #include <sstream>
-using namespace std;
 
 ConfigDecoder::ConfigDecoder(){
 	param1 = -1;
@@ -24,18 +23,18 @@ ConfigDecoder::ConfigDecoder(){
 ConfigDecoder::~ConfigDecoder() {
 }
 
-void ConfigDecoder::parseFile(string content){
-	vector<string>::iterator it;
+void ConfigDecoder::parseFile(std::string content){
+	std::vector<std::string>::iterator it;
 
-	vector<string> lines = tokenize(content, '\n');
+	std::vector<std::string> lines = tokenize(content, '\n');
 
 	for(it=lines.begin(); it!=lines.end(); it++){
 		decodeLine((*it));
 	}
 }
 
-void ConfigDecoder::decodeLine(string line){
-	vector<string> elem = tokenize(line, '=');
+void ConfigDecoder::decodeLine(std::string line){
+	std::vector<std::string> elem = tokenize(line, '=');
 
 	if(elem.size()!=2) return;
 	if(elem[0]=="uselessInt") param1 = atoi(elem[1].c_str());
@@ -45,10 +44,10 @@ void ConfigDecoder::decodeLine(string line){
 	if(elem[0]=="uselessString") param5 = elem[1];
 }
 
-const vector<string> ConfigDecoder::tokenize(string s, const char delim) {
-	vector<string> tokens;
-	stringstream ss(s);
-	string item;
+const std::vector<std::string> ConfigDecoder::tokenize(std::string s, const char delim) {
+	std::vector<std::string> tokens;
+	std::stringstream ss(s);
+	std::string item;
 
 	while(getline(ss, item, delim)){
 		tokens.push_back(item);

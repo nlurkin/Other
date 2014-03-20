@@ -7,8 +7,8 @@
 
 #include "TestServer.h"
 
-TestServer::TestServer(string name):
-NA62DimServer(name),
+TestServer::TestServer(std::string name, int sourceID):
+NA62DimServer(name, sourceID),
 fFrequency(0.),
 fSourceID(0),
 fUselessString(""),
@@ -17,6 +17,8 @@ fParam(0)
 {
 	//Replace the default FileContent command with  the TestFileContent one.
 	initCommands(new TestCommand(getDimServerName(), this), new TestFileContent(getDimServerName(), this), NULL);
+
+	centralizedLog(0, "Starting server", 1);
 }
 
 TestServer::~TestServer() {
@@ -34,7 +36,7 @@ void TestServer::setUselessInt(int uselessInt) {
 	fUselessInt = uselessInt;
 }
 
-void TestServer::setUselessString(const string& uselessString) {
+void TestServer::setUselessString(const std::string& uselessString) {
 	fUselessString = uselessString;
 }
 
@@ -50,7 +52,7 @@ int TestServer::getUselessInt() const {
 	return fUselessInt;
 }
 
-const string& TestServer::getUselessString() const {
+const std::string& TestServer::getUselessString() const {
 	return fUselessString;
 }
 
@@ -62,19 +64,19 @@ void TestServer::mainLoop()
 {
 }
 
-void TestServer::generateConfig(stringstream& ss) {
-	ss << "uselessInt=" << fUselessInt << endl;
-	ss << "param=" << fParam << endl;
-	ss << "sourceID=0x" << hex << fSourceID << endl;
-	ss << "frequency=" << fFrequency << endl;
-	ss << "uselessString=" << fUselessString << endl;
+void TestServer::generateConfig(std::stringstream& ss) {
+	ss << "uselessInt=" << fUselessInt << std::endl;
+	ss << "param=" << fParam << std::endl;
+	ss << "sourceID=0x" << std::hex << fSourceID << std::endl;
+	ss << "frequency=" << fFrequency << std::endl;
+	ss << "uselessString=" << fUselessString << std::endl;
 }
 
 void TestServer::setParam(int param) {
 	fParam = param;
 }
 
-void TestFileContent::decodeFile(string fileContent) {
+void TestFileContent::decodeFile(std::string fileContent) {
 	fDecoder.parseFile(fileContent);
 
 	p->setParam(fDecoder.param2);
@@ -84,7 +86,7 @@ void TestFileContent::decodeFile(string fileContent) {
 	p->setUselessString(fDecoder.param5);
 }
 
-void TestCommand::doEndRun(vector<string> tok) {
+void TestCommand::doEndRun(std::vector<std::string> tok) {
 	if(p->getState()==kREADY){
 		p->print("Stopping current run (");
 		p->print(p->getRunNumber());
@@ -97,7 +99,7 @@ void TestCommand::doEndRun(vector<string> tok) {
 	}
 }
 
-void TestCommand::doResetState(vector<string> tok) {
+void TestCommand::doResetState(std::vector<std::string> tok) {
 	p->println("Reset requested");
 	p->setState(kIDLE);
 }

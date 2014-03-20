@@ -11,12 +11,11 @@
 #include "NA62DimCommands.h"
 #include "dis.hxx"
 #include <sstream>
-using namespace std;
 
 class NA62DimServer: public DimServer
 {
 public:
-	NA62DimServer(string name);
+	NA62DimServer(std::string name, int sourceID);
 	virtual ~NA62DimServer();
 
 	void initCommands(Command *cmdCommand=NULL, FileContent *fileContentCommand=NULL, RequestConfig *requestConfigCommand=NULL);
@@ -24,24 +23,28 @@ public:
 
 	//Printing to Info
 	void print(const char *s);
-	void print(string s);
+	void print(std::string s);
 	void print(int s);
 	void println(const char *s);
-	void println(string s);
+	void println(std::string s);
 	void println(int s);
 
+	//Logging
+	void centralizedLog(int severity, std::string text, int priority, int errCode=0);
+
 	//virtual methods to implement
-	virtual void mainLoop() = 0;
-	virtual void generateConfig(stringstream& ss) = 0;
+	virtual void mainLoop(){};
+	virtual void generateConfig(std::stringstream& ss) = 0;
+	virtual void applyConfig(void* structPtr) = 0;
 
 	//Mandatory run infos
 	int getRunNumber() const;
 	void setRunNumber(int runNumber);
 
-	string getRunType() const {return fRunType;};
-	void setRuntype(string runType) {fRunType = runType;};
+	std::string getRunType() const {return fRunType;};
+	void setRuntype(std::string runType) {fRunType = runType;};
 
-	string getDimServerName() const {return fDimServerName;};
+	std::string getDimServerName() const {return fDimServerName;};
 
 	void publishConfig();
 
@@ -58,7 +61,7 @@ private:
 
 	void setNextState(int nextState);
 
-	string fDimServerName;
+	std::string fDimServerName;
 
 	//States: 0=IDLE, 1=INITIALIZED, 2=READY
 	// <0 : ERROR
@@ -80,7 +83,9 @@ private:
 	RequestConfig *fDimRequestConfig;
 
 	int fRunNumber;
-	string fRunType;
+	std::string fRunType;
+
+	int fSourceID;
 };
 
 

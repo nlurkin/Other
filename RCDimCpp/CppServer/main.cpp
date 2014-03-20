@@ -1,9 +1,7 @@
 #include "TestServer.h"
 
-using namespace std;
-
 int main(int argc, char** argv){
-	TestServer server("dimExample");
+	TestServer server("dimExample", 0x13);
 
 	server.start();
 	while(1){

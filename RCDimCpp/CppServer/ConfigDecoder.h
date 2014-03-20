@@ -10,25 +10,24 @@
 
 #include <string>
 #include <vector>
-using namespace std;
 
 class ConfigDecoder {
 public:
 	ConfigDecoder();
 	virtual ~ConfigDecoder();
 
-	void parseFile(string content);
+	void parseFile(std::string content);
 
-	static const vector<string> tokenize(string s, const char delim = ' ');
+	static const std::vector<std::string> tokenize(std::string s, const char delim = ' ');
 
 	int param1;
 	int param2;
 	int param3;
 	double param4;
-	string param5;
+	std::string param5;
 
 private:
-	void decodeLine(string line);
+	void decodeLine(std::string line);
 };
 
 #endif /* CONFIGDECODER_H_ */

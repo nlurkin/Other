@@ -9,29 +9,28 @@
 #include <sstream>
 #include "NA62DimServer.h"
 
-using namespace std;
-
 #define STRING_MAX_LENGTH 100
 #define CONFIG_MAX_LENGTH 1000
 
 
-NA62DimServer::NA62DimServer(string name):
-	fDimServerName(name),
-	fState(0),
-	fNextState(-1),
-	fInfo(new char[STRING_MAX_LENGTH+1]),
-	fLogging(new char[STRING_MAX_LENGTH+1]),
-	fConfig(new char[CONFIG_MAX_LENGTH+1]),
-	fInfoIndex(0),
-	fDimState(new DimService((fDimServerName + "/State").c_str(), fState)),
-	fDimInfo(new DimService((fDimServerName + "/Info").c_str(), fInfo)),
-	fDimLogging(new DimService((fDimServerName + "/Logging").c_str(), fLogging)),
-	fDimConfig(new DimService((fDimServerName + "/Config").c_str(), fConfig)),
-	fDimCommand(NULL),
-	fDimFileContent(NULL),
-	fDimRequestConfig(NULL),
-	fRunNumber(0),
-	fRunType("")
+NA62DimServer::NA62DimServer(std::string name, int sourceID):
+			fDimServerName(name),
+			fState(0),
+			fNextState(-1),
+			fInfo(new char[STRING_MAX_LENGTH+1]),
+			fLogging(new char[STRING_MAX_LENGTH+1]),
+			fConfig(new char[CONFIG_MAX_LENGTH+1]),
+			fInfoIndex(0),
+			fDimState(new DimService((fDimServerName + "/State").c_str(), fState)),
+			fDimInfo(new DimService((fDimServerName + "/Info").c_str(), fInfo)),
+			fDimLogging(new DimService((fDimServerName + "/Logging").c_str(), fLogging)),
+			fDimConfig(new DimService((fDimServerName + "/Config").c_str(), fConfig)),
+			fDimCommand(NULL),
+			fDimFileContent(NULL),
+			fDimRequestConfig(NULL),
+			fRunNumber(0),
+			fRunType(""),
+			fSourceID(sourceID)
 {
 }
 
@@ -69,31 +68,31 @@ void NA62DimServer::start(){
 
 
 void NA62DimServer::print(const char * s){
-	cout << s;
+	std::cout << s;
 	strcpy(fInfo+fInfoIndex, s);
 	fInfoIndex+=strlen(s);
 }
-void NA62DimServer::print(string s){
+void NA62DimServer::print(std::string s){
 	print(s.c_str());
 }
 void NA62DimServer::print(int s){
-	ostringstream ss;
+	std::ostringstream ss;
 	ss << s;
 	print(ss.str());
 }
 void NA62DimServer::println(const char *s){
-	cout << s << endl;
+	std::cout << s << std::endl;
 	strcpy(fInfo+fInfoIndex, s);
 	fInfo[fInfoIndex+strlen(s)] = '\n';
 	fInfo[fInfoIndex+strlen(s)+1] = '\0';
 	fInfoIndex = 0;
 	fDimInfo->updateService();
 }
-void NA62DimServer::println(string s){
+void NA62DimServer::println(std::string s){
 	println(s.c_str());
 }
 void NA62DimServer::println(int s){
-	ostringstream ss;
+	std::ostringstream ss;
 	ss << s;
 	println(ss.str());
 }
@@ -125,7 +124,7 @@ void NA62DimServer::setNextState(int nextState) {
 }
 
 void NA62DimServer::publishConfig(){
-	stringstream ss;
+	std::stringstream ss;
 	generateConfig(ss);
 	strcpy(fConfig, ss.str().c_str());
 	fDimConfig->updateService();
@@ -134,4 +133,25 @@ void NA62DimServer::publishConfig(){
 void NA62DimServer::waitConfigurationFile(int expectedState) {
 	println("... Waiting for configuration file");
 	setNextState(expectedState);
+}
+
+void NA62DimServer::centralizedLog(int severity, std::string text, int priority, int errCode)
+{
+	std::stringstream ss;
+
+	time_t mtime = time(NULL);
+	char *time= ctime(&mtime);
+
+	ss << "ErrTime:" << time << "<[|]>";
+	ss << "SysName:" << std::hex << fSourceID << "<[|]>";
+	ss << "Username:n/a<[|]>";
+	ss << "Manager:n/a<[|]>";
+	ss << "DpId:n/a<[|]>";
+	ss << "ErrPrio:" << priority << "<[|]>";
+	ss << "ErrType:0<[|]>";
+	ss << "ErrCode:" << errCode << "<[|]>";
+	ss << "ErrText:" << text << "<[|]>" << std::endl;
+
+	strcpy(fLogging,ss.str().c_str());
+	fDimLogging->updateService();
 }
