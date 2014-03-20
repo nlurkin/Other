@@ -25,6 +25,8 @@
 							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.base.1579575511" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base">
 								<option id="gnu.cpp.compiler.option.include.paths.625059646" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="/home/nlurkin/dim_v20r7/dim"/>
+									<listOptionValue builtIn="false" value="/home/nlurkin/Devel/xml"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/RCDimcpp/xmlproxy}&quot;"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.optimization.level.1495028483" name="Optimization Level" superClass="gnu.cpp.compiler.option.optimization.level" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.debugging.level.280257110" name="Debug Level" superClass="gnu.cpp.compiler.option.debugging.level" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>

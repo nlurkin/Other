@@ -11,6 +11,7 @@ clean:
 	make -C CppServer clean
 	make -C TestClient clean
 	make -C CServer clean
+	make -C xmlproxy clean
 
 .PHONY: all clean dependents
 .SECONDARY:
