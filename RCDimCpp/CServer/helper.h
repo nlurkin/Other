@@ -1,7 +1,7 @@
 #ifndef HELPER_H
 #define HELPER_H
 
-#define STRING_MAX_LENGTH 100
+#define STRING_MAX_LENGTH 500
 #define CONFIG_MAX_LENGTH 1000
 
 extern int state;
@@ -32,5 +32,7 @@ void print(const char * s);
 void printi(int s);
 void println(const char *s);
 void printlni(int s);
+void centralizedLog(int severity, char* text, int priority, int errCode);
+
 
 #endif

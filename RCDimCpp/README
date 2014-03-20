@@ -1,0 +1,35 @@
+To compile:
+
+1) Make sure $DIMDIR environment variable is set and pointing to your dim install
+	(You can download it at http://dim.web.cern.ch/dim/)
+2) Make sure $XMLPROXY environment variable is set and pointing to the xml proxy directory 
+	(You can download it at https://twiki.cern.ch/twiki/bin/viewauth/NA62/ConfigurationDataScheme)
+3) type 
+		make
+
+You can then play with the RCDimCpp or RCDimC servers that are both controlled the same way
+with testClient. They are behaving according to the interface described in the note NA62-14-02.
+In the testClient, you can control them by issuing the following commands:
+	init 	-> send initialize command and the configuration file ColdConfig.xml
+	start 	-> send startun command and the configuration file WarmConfig.xml
+	end		-> send endrun command
+	reset	-> send resetstate command
+
+To implement your own server, I advise the C++ version that can be used as a library (libcppserver.so).
+The library already implements the correct behavior and you should only derive between 1 and 4 classes
+to extend the default behavior with your device specific component.
+
+Deriving the NA62DimServer class is mandatory (NA62DimServer is pure virtual). The derived class has 
+to implement the three following methods:
+	void mainLoop();
+	void generateConfig(std::stringstream& ss);
+	bool applyConfiguration();
+Depending on your needs you may have to derive zero or more of the following classes:
+	Command
+	FileContent
+	RequestConfig (less probable)
+
+See the TestServer.(h/cpp) for an example. You will find in these files an derivation of NA62DimServer, 
+Command and FileContent classes.
+For more information on the different classes in the library, the implemented methods and their default 
+behavior, please refer to the documentation in the code or the html format in doc/html/index.html

@@ -8,7 +8,7 @@ all: RCDimC
 
 RCDimC: ../RCDimC
 
-../RCDimC: $(CServerOBJ)
+../RCDimC: $(CServerOBJ) $(xmlproxyDIR)/xmlconfig_TestNode.h $(xmlproxyOBJ)
 	$(CCC) -o $@ $^ $(CFLAGS) $(LIBSDIR) $(LIBS)
 
 $(OBJDIR)/%.o: %.c %.h

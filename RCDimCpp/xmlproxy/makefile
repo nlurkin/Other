@@ -6,7 +6,7 @@ xmlproxyOBJ = $(addprefix $(OBJDIR)/,$(addsuffix .o,$(xmlproxySRC)))
 all: xml $(OBJDIR)/TestNodeProxy.o demo
 
 xml:
-	../xml/xmlpp TestNode.h
+	$(XMLPROXY)/xmlpp TestNode.h
 
 $(OBJDIR)/%Proxy.o: %Proxy.cpp xmlconfig_%.h
 	@mkdir -p $(OBJDIR)

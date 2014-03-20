@@ -4,6 +4,7 @@
 #include "commands.h"
 #include <stdio.h>
 #include <string.h>
+#include "TestNode.h"
 
 int state=0;
 int nextState=-1;
@@ -25,6 +26,8 @@ char uselessString[STRING_MAX_LENGTH];
 int uselessInt=0;
 int param=0;
 
+TestNode structNode;
+
 void dimCommand(long* tag, char* cmnd_buffer, int*size){
 	print("Command port receiving: ");
 	println(cmnd_buffer);
@@ -43,7 +46,13 @@ void dimFileContent(long* tag, char* cmnd_buffer, int*size){
 	print("FileContent port receiving: ");
 	println(cmnd_buffer);
 
-	parseFile(cmnd_buffer);
+	parseFile(cmnd_buffer, &structNode);
+
+	uselessInt = structNode.uselessInt;
+	strcpy(uselessString, structNode.uselessString);
+	param = structNode.param;
+	frequency = structNode.frequency;
+	sourceID = structNode.sourceID;
 
 	println("Finished processing config file... Moving to next state.");
 	setState(nextState);
@@ -107,6 +116,7 @@ int main(int argc, char** argv){
 	dis_start_serving(dimServerName);
 	print(dimServerName);
 	println(" is starting.");
+	centralizedLog(0, "Starting server", 1, 0);
 
 	while(1){
 		main_loop();

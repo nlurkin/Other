@@ -1,20 +1,3 @@
-OBJDIR = obj
-ROOTDIR = $(pwd)
-
-xmlproxyDIR = xmlproxy
-xmlproxySRC = TestNodeProxy
-xmlproxyOBJ = $(addprefix $(OBJDIR)/,$(addsuffix .o,$(xmlproxySRC)))
-
-LIBS = -lpthread -ldim -lboost_serialization
-LIBSDIR = -L$(DIMDIR)/linux -L$(ROOTDIR)
-HDRDIR = -I$(DIMDIR)/dim -I$(ROOTDIR)/xml -I$(ROOTDIR)/xmlproxy
-
-#COMPILER
-CFLAGS		= -O -Wall -fPIC -g3
-SOFLAGS		= -shared
-CC			= g++
-CCC			= gcc
-
 all: 
 	make -C xmlproxy
 	make -C CppServer

@@ -8,15 +8,22 @@
 #include "decoder.h"
 #include <stdlib.h>
 #include <string.h>
+#include "xmlconfig_TestNode.h"
+#include <stdio.h>
 
-void parseFile(char *content){
-	char lines[10][STRING_MAX_LENGTH];
+void parseFile(char *content, TestNode *s){
+	/*char lines[10][STRING_MAX_LENGTH];
 
 	int linesNb = tokenize(lines, content, "\n");
 	int i;
 	for(i=0; i<linesNb; i++){
 		decodeLine(lines[i]);
-	}
+	}*/
+
+	FILE *myfile = fopen("receivedfile.xml", "w+");
+	fprintf(myfile, content);
+	fclose(myfile);
+	inxmlfile_TestNode(s,"toto", "receivedfile.xml");
 }
 
 int tokenize(char tok[][STRING_MAX_LENGTH], char*s, const char *delim){
