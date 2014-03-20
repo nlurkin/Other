@@ -2,7 +2,7 @@
  * NA62DimCommands.h
  *
  *  Created on: 30 Jan 2014
- *      Author: ncl
+ *      Author: Nicolas Lurkin
  */
 
 #ifndef NA62DIMCOMMANDS_H_
@@ -32,23 +32,33 @@ const std::vector<std::string> tokenize(std::string s, const char delim = ' ');
 
 /**
  * Base class for Dim commands.
+ *
  * Contains a pointer to the server: p(arent)
  */
 class NA62DimCommand: public DimCommand
 {
 public:
+	/**
+	 * Constructor for a dim command dimServerName/commandName of type commandType
+	 *
+	 * (see dim documentation for the available types and format: http://dim.web.cern.ch/dim/)
+	 * @param dimServerName Name of the dim server
+	 * @param commandName Name of the command
+	 * @param commandType Type of the command
+	 * @param parent Pointer to parent server
+	 */
 	NA62DimCommand(std::string dimServerName, std::string commandName, std::string commandType, NA62DimServer *parent):
 		DimCommand((dimServerName + "/" + commandName).c_str(), commandType.c_str()),
 		p(parent){};
 
 private:
-	NA62DimCommand();
-	NA62DimCommand(const NA62DimCommand &c);
+	NA62DimCommand(); /*!< Default constructor. Not implemented */
+	NA62DimCommand(const NA62DimCommand &c); /*!< Copy constructor. Not implemented */
 
-	virtual void commandHandler() = 0;
+	virtual void commandHandler() = 0; /*!< Pure virtual commandHandler */
 
 protected:
-	NA62DimServer *p;
+	NA62DimServer *p;	/*!< Pointer to the parent dim server*/
 };
 
 /**
@@ -81,6 +91,11 @@ protected:
 class Command: public NA62DimCommand
 {
 public:
+	/**
+	 * Constructor. Call the NA62DimCommand constructor.
+	 * @param dimServerName Name of the dim server
+	 * @param parent Pointer to the parent dim server.
+	 */
 	Command(std::string dimServerName, NA62DimServer *parent):NA62DimCommand(dimServerName, "Command", "C", parent){};
 protected:
 	virtual void doInitialize(std::vector<std::string> tok);
@@ -110,13 +125,25 @@ private:
 class FileContent: public NA62DimCommand
 {
 public:
+	/**
+	 * Constructor. Call the NA62DimCommand constructor.
+	 * @param dimServerName Name of the dim server
+	 * @param parent Pointer to the parent dim server.
+	 */
 	FileContent(std::string dimServerName, NA62DimServer *parent):
 		NA62DimCommand(dimServerName, "FileContent", "C", parent){};
 private:
 	void commandHandler();
 
 protected:
-	virtual bool decodeFile(std::string fileContent){ return true;};
+	/**
+	 * Virtual method to decode the received file content. The structure has to be filled and will be available
+	 * in the server part.
+	 * @param fileContent Received content
+	 * @param structPtr Pointer to a struct that should be filled with the values decoded from the config file.
+	 * @return true if successfully decoded the file.
+	 */
+	virtual bool decodeFile(std::string fileContent, void* structPtr){ return true;};
 };
 
 /**
@@ -134,6 +161,11 @@ protected:
 class RequestConfig: public NA62DimCommand
 {
 public:
+	/**
+	 * Constructor. Call the NA62DimCommand constructor.
+	 * @param dimServerName Name of the dim server
+	 * @param parent Pointer to the parent dim server.
+	 */
 	RequestConfig(std::string dimServerName, NA62DimServer *parent):NA62DimCommand(dimServerName, "RequestConfig", "I", parent){};
 private:
 	void commandHandler();

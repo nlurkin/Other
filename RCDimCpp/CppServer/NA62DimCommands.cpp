@@ -2,7 +2,7 @@
  * NA62DimCommands.cpp
  *
  *  Created on: 30 Jan 2014
- *      Author: ncl
+ *      Author: Nicolas Lurkin
  */
 
 #include "NA62DimCommands.h"
@@ -139,14 +139,14 @@ void Command::doResetState(std::vector<std::string> tok){
  * If both are successful, move to the next expected state.
  * If one of them fails, move to kCONFIGERROR.
  */
-//TODO implement the applyConfiguration mechanism
 void FileContent::commandHandler(){
 	bool success;
+
 	p->print("FileContent port receiving: ");
 	p->println(getString());
 
 	//Try to decode the file. If successful, try to apply the configuration to the parent server
-	if(decodeFile(getString())) success = p->applyConfig(NULL);
+	if(decodeFile(getString(), p->getConfigStruct())) success = p->applyConfiguration();
 	else success = false;
 
 	if(success){

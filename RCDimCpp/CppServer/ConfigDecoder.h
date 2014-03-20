@@ -11,23 +11,26 @@
 #include <string>
 #include <vector>
 
-class ConfigDecoder {
-public:
-	ConfigDecoder();
-	virtual ~ConfigDecoder();
 
-	void parseFile(std::string content);
-
-	static const std::vector<std::string> tokenize(std::string s, const char delim = ' ');
-
+struct decoderStruct_t{
 	int param1;
 	int param2;
 	int param3;
 	double param4;
 	std::string param5;
+};
+
+class ConfigDecoder {
+public:
+	ConfigDecoder();
+	virtual ~ConfigDecoder();
+
+	void parseFile(std::string content, decoderStruct_t *s);
+
+	static const std::vector<std::string> tokenize(std::string s, const char delim = ' ');
 
 private:
-	void decodeLine(std::string line);
+	void decodeLine(std::string line, decoderStruct_t *s);
 };
 
 #endif /* CONFIGDECODER_H_ */

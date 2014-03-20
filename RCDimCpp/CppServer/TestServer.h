@@ -18,6 +18,7 @@ public:
 
 	void mainLoop();
 	void generateConfig(std::stringstream& ss);
+	bool applyConfiguration();
 
 	void setFrequency(double frequency);
 	void setSourceId(int sourceId);
@@ -36,21 +37,18 @@ private:
 	std::string fUselessString;
 	int fUselessInt;
 	int fParam;
-
 };
 
 class TestFileContent: public FileContent {
 public:
 	TestFileContent(std::string dimServerName, TestServer *parent):
-		FileContent(dimServerName, (NA62DimServer*)parent),
-		p(parent){};
+		FileContent(dimServerName, (NA62DimServer*)parent){};
 	virtual ~TestFileContent(){};
 
 private:
-	void decodeFile(std::string fileContent);
+	bool decodeFile(std::string fileContent, void* structPtr);
 
 	ConfigDecoder fDecoder;
-	TestServer *p;
 };
 
 class TestCommand: public Command {

@@ -6,6 +6,7 @@
  */
 
 #include "TestServer.h"
+#include <iostream>
 
 TestServer::TestServer(std::string name, int sourceID):
 NA62DimServer(name, sourceID),
@@ -19,6 +20,7 @@ fParam(0)
 	initCommands(new TestCommand(getDimServerName(), this), new TestFileContent(getDimServerName(), this), NULL);
 
 	centralizedLog(0, "Starting server", 1);
+	NA62DimServer::fConfigStruct = new decoderStruct_t;
 }
 
 TestServer::~TestServer() {
@@ -65,6 +67,7 @@ void TestServer::mainLoop()
 }
 
 void TestServer::generateConfig(std::stringstream& ss) {
+	//Generate the current configuration stream using the same format as the input file.
 	ss << "uselessInt=" << fUselessInt << std::endl;
 	ss << "param=" << fParam << std::endl;
 	ss << "sourceID=0x" << std::hex << fSourceID << std::endl;
@@ -76,14 +79,20 @@ void TestServer::setParam(int param) {
 	fParam = param;
 }
 
-void TestFileContent::decodeFile(std::string fileContent) {
-	fDecoder.parseFile(fileContent);
+bool TestFileContent::decodeFile(std::string fileContent, void* structPtr) {
+	fDecoder.parseFile(fileContent, (decoderStruct_t*)structPtr);
+	return true;
+}
 
-	p->setParam(fDecoder.param2);
-	p->setSourceId(fDecoder.param3);
-	p->setUselessInt(fDecoder.param1);
-	p->setFrequency(fDecoder.param4);
-	p->setUselessString(fDecoder.param5);
+bool TestServer::applyConfiguration(){
+	decoderStruct_t *s = (decoderStruct_t*)fConfigStruct;
+	setParam(s->param2);
+	setSourceId(s->param3);
+	setUselessInt(s->param1);
+	setFrequency(s->param4);
+	setUselessString(s->param5);
+
+	return true;
 }
 
 void TestCommand::doEndRun(std::vector<std::string> tok) {
