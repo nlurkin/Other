@@ -11,6 +11,7 @@
 
 #include <algorithm>
 #include <sstream>
+#include <fstream>
 #include "xmlconfig_TestNode.h"
 
 ConfigDecoder::ConfigDecoder(){
@@ -20,7 +21,11 @@ ConfigDecoder::~ConfigDecoder() {
 }
 
 void ConfigDecoder::parseFile(std::string content, TestNode *s){
-	inxml_TestNode(s,"othername.xml");
+	std::ofstream myfile;
+	myfile.open ("receivedfile.xml");
+	myfile << content;
+	myfile.close();
+	inxmlfile_TestNode(s,"toto", "receivedfile.xml");
 }
 
 /*void ConfigDecoder::decodeLine(std::string line, TestNode *s){

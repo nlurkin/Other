@@ -34,8 +34,8 @@ TestDimClient::TestDimClient(string name) {
 	//files.push_back("config1");
 	//files.push_back("config2");
 	//files.push_back("config3");
-	coldFileName = "ColdConfig";
-	warmFileName = "WarmConfig";
+	coldFileName = "ColdConfig.xml";
+	warmFileName = "WarmConfig.xml";
 }
 
 TestDimClient::~TestDimClient() {

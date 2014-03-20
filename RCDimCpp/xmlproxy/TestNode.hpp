@@ -10,7 +10,7 @@
 
 #include "xmlstring.hpp"
 
-#define Mynode_VERSION 100
+#define TestNode_VERSION 100
 
 
 class TestNode{
@@ -19,18 +19,18 @@ public:
 
 	int version; /*jj*/
 
-	int param1;
-	int param2;
-	int param3;
-	double param4;
-	xmlstring param5;
+	int uselessInt;
+	int param;
+	int sourceID;
+	double frequency;
+	xmlstring uselessString;
 	template<class Archive> void serialize(Archive & ar,const unsigned int __version) {
 		ar & BOOST_SERIALIZATION_NVP(version);
-		ar & BOOST_SERIALIZATION_NVP(param1);
-		ar & BOOST_SERIALIZATION_NVP(param2);
-		ar & BOOST_SERIALIZATION_NVP(param3);
-		ar & BOOST_SERIALIZATION_NVP(param4);
-		ar & BOOST_SERIALIZATION_NVP(param5);
+		ar & BOOST_SERIALIZATION_NVP(uselessInt);
+		ar & BOOST_SERIALIZATION_NVP(param);
+		ar & BOOST_SERIALIZATION_NVP(sourceID);
+		ar & BOOST_SERIALIZATION_NVP(frequency);
+		ar & BOOST_SERIALIZATION_NVP(uselessString);
 	}
 	TestNode(){
 	}

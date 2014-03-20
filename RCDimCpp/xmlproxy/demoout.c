@@ -13,11 +13,16 @@ int main(){
     node.param = 10;
     node.sourceID = 0x11;
     node.frequency = 1000.2;
-    node.uselessInt = "toto";
+    strcpy(node.uselessString,"toto");
 
     node.version=TestNode_VERSION;
     
     OUTXMLFILE_TestNode(node, "ColdConfig.xml");  //macro defined in xmlconfig_Node.h
+
+    node.param=15;
+    node.frequency=2000.2;
+
+    OUTXMLFILE_TestNode(node, "WarmConfig.xml");  //macro defined in xmlconfig_Node.h
 	
     return 0;
 }

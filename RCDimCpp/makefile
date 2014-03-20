@@ -15,28 +15,19 @@ SOFLAGS		= -shared
 CC			= g++
 CCC			= gcc
 
-all: xmlproxy libcppserver.so RCDimCpp testClient RCDimC
-
-# Tool invocations
-RCDimCpp:
-	make -C CppServer RCDimCpp
-
-libcppserver.so:
-	make -C CppServer libcppserver.so
-	
-xmlproxy:
+all: 
 	make -C xmlproxy
-
-testClient:
+	make -C CppServer
 	make -C TestClient
-
-RCDimC:
 	make -C CServer
 	
 # Other Targets
 clean:
 	rm -rf obj
+	rm -rf receivedfile.xml
 	make -C CppServer clean
+	make -C TestClient clean
+	make -C CServer clean
 
 .PHONY: all clean dependents
 .SECONDARY:

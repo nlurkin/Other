@@ -1,0 +1,11 @@
+<node>
+	<version>100</version>
+	<uselessInt>5</uselessInt>
+	<param>15</param>
+	<sourceID>17</sourceID>
+	<frequency>2000.2</frequency>
+	<uselessString>
+		<readable_string>toto</readable_string>
+	</uselessString>
+</node>
+
