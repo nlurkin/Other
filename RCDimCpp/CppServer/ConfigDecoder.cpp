@@ -11,6 +11,7 @@
 
 #include <algorithm>
 #include <sstream>
+#include "xmlconfig_TestNode.h"
 
 ConfigDecoder::ConfigDecoder(){
 }
@@ -18,17 +19,11 @@ ConfigDecoder::ConfigDecoder(){
 ConfigDecoder::~ConfigDecoder() {
 }
 
-void ConfigDecoder::parseFile(std::string content, decoderStruct_t *s){
-	std::vector<std::string>::iterator it;
-
-	std::vector<std::string> lines = tokenize(content, '\n');
-
-	for(it=lines.begin(); it!=lines.end(); it++){
-		decodeLine((*it), s);
-	}
+void ConfigDecoder::parseFile(std::string content, TestNode *s){
+	inxml_TestNode(s,"othername.xml");
 }
 
-void ConfigDecoder::decodeLine(std::string line, decoderStruct_t *s){
+/*void ConfigDecoder::decodeLine(std::string line, TestNode *s){
 	std::vector<std::string> elem = tokenize(line, '=');
 
 	if(elem.size()!=2) return;
@@ -37,7 +32,7 @@ void ConfigDecoder::decodeLine(std::string line, decoderStruct_t *s){
 	if(elem[0]=="sourceID") s->param3 = strtol(elem[1].c_str(), NULL, 16);
 	if(elem[0]=="frequency") s->param4 = atof(elem[1].c_str());
 	if(elem[0]=="uselessString") s->param5 = elem[1];
-}
+}*/
 
 const std::vector<std::string> ConfigDecoder::tokenize(std::string s, const char delim) {
 	std::vector<std::string> tokens;

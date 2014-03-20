@@ -20,7 +20,7 @@ fParam(0)
 	initCommands(new TestCommand(getDimServerName(), this), new TestFileContent(getDimServerName(), this), NULL);
 
 	centralizedLog(0, "Starting server", 1);
-	NA62DimServer::fConfigStruct = new decoderStruct_t;
+	NA62DimServer::fConfigStruct = new TestNode;
 }
 
 TestServer::~TestServer() {
@@ -80,17 +80,17 @@ void TestServer::setParam(int param) {
 }
 
 bool TestFileContent::decodeFile(std::string fileContent, void* structPtr) {
-	fDecoder.parseFile(fileContent, (decoderStruct_t*)structPtr);
+	fDecoder.parseFile(fileContent, (TestNode*)structPtr);
 	return true;
 }
 
 bool TestServer::applyConfiguration(){
-	decoderStruct_t *s = (decoderStruct_t*)fConfigStruct;
-	setParam(s->param2);
-	setSourceId(s->param3);
-	setUselessInt(s->param1);
-	setFrequency(s->param4);
-	setUselessString(s->param5);
+	TestNode *s = (TestNode*)fConfigStruct;
+	setParam(s->param);
+	setSourceId(s->sourceID);
+	setUselessInt(s->uselessInt);
+	setFrequency(s->frequency);
+	setUselessString(s->uselessString);
 
 	return true;
 }

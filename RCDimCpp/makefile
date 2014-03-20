@@ -1,22 +1,13 @@
 OBJDIR = obj
+ROOTDIR = $(pwd)
 
-CppServerDIR = CppServer
-CppLibSRC    = NA62DimCommands NA62DimServer
-CppLibOBJ = $(addprefix $(OBJDIR)/,$(addsuffix .o,$(CppLibSRC)))
-CppServerSRC = ConfigDecoder TestServer mainCppServer
-CppServerOBJ = $(addprefix $(OBJDIR)/,$(addsuffix .o,$(CppServerSRC)))
+xmlproxyDIR = xmlproxy
+xmlproxySRC = TestNodeProxy
+xmlproxyOBJ = $(addprefix $(OBJDIR)/,$(addsuffix .o,$(xmlproxySRC)))
 
-CServerDIR = CServer
-CServerSRC = mainCServer helper commands decoder
-CServerOBJ = $(addprefix $(OBJDIR)/,$(addsuffix .o,$(CServerSRC)))
-
-TestClientDIR = TestClient
-TestClientSRC = mainTestClient TestDimClient
-TestClientOBJ = $(addprefix $(OBJDIR)/,$(addsuffix .o,$(TestClientSRC)))
-
-LIBS = -lpthread -ldim
-LIBSDIR = -L$(DIMDIR)/linux -L.
-HDRDIR = -I$(DIMDIR)/dim
+LIBS = -lpthread -ldim -lboost_serialization
+LIBSDIR = -L$(DIMDIR)/linux -L$(ROOTDIR)
+HDRDIR = -I$(DIMDIR)/dim -I$(ROOTDIR)/xml -I$(ROOTDIR)/xmlproxy
 
 #COMPILER
 CFLAGS		= -O -Wall -fPIC -g3
@@ -24,54 +15,28 @@ SOFLAGS		= -shared
 CC			= g++
 CCC			= gcc
 
-all: libcppserver.so RCDimCpp testClient RCDimC
+all: xmlproxy libcppserver.so RCDimCpp testClient RCDimC
 
 # Tool invocations
-RCDimCpp: $(CppServerOBJ)
-	$(CC) -o $@ $^ $(CFLAGS) $(LIBSDIR) $(LIBS) -lcppserver
+RCDimCpp:
+	make -C CppServer RCDimCpp
 
-$(OBJDIR)/%.o: $(CppServerDIR)/%.cpp $(CppServerDIR)/%.h
-	@mkdir -p $(OBJDIR)
-	$(CC) -o $@ -c $< $(CFLAGS) $(HDRDIR)
-
-libcppserver.so: $(CppLibOBJ)
-	$(CC) $(SOFLAGS) -Wl,-soname,$@ -o $@ $^ $(CFLAGS)
-
-$(OBJDIR)/%CppServer.o: $(CppServerDIR)/main.cpp
-	@mkdir -p $(OBJDIR)
-	$(CC) -o $@ -c $< $(CFLAGS) $(HDRDIR)
-
-RCDimC: $(CServerOBJ)
-	$(CCC) -o $@ $^ $(CFLAGS) $(LIBSDIR) $(LIBS)
-
-$(OBJDIR)/%.o: $(CServerDIR)/%.c $(CServerDIR)/%.h
-	@mkdir -p $(OBJDIR)
-	$(CCC) -o $@ -c $< $(CFLAGS) $(HDRDIR)
-
-$(OBJDIR)/%CServer.o: $(CServerDIR)/main.c
-	@mkdir -p $(OBJDIR)
-	$(CCC) -o $@ -c $< $(CFLAGS) $(HDRDIR)
+libcppserver.so:
+	make -C CppServer libcppserver.so
 	
-testClient: $(TestClientOBJ)
-	$(CC) -o $@ $^ $(CFLAGS) $(LIBSDIR) $(LIBS)
+xmlproxy:
+	make -C xmlproxy
 
-$(OBJDIR)/%.o: $(TestClientDIR)/%.cpp $(TestClientDIR)/%.h
-	@mkdir -p $(OBJDIR)
-	$(CC) -o $@ -c $< $(CFLAGS) $(HDRDIR)
+testClient:
+	make -C TestClient
 
-$(OBJDIR)/%TestClient.o: $(TestClientDIR)/main.cpp
-	@mkdir -p $(OBJDIR)
-	$(CC) -o $@ -c $< $(CFLAGS) $(HDRDIR)
-
-
+RCDimC:
+	make -C CServer
 	
 # Other Targets
 clean:
-	rm -f RCDimCpp
-	rm -f RCDimC
-	rm -f testClient
 	rm -rf obj
-	rm -rf *.so
+	make -C CppServer clean
 
 .PHONY: all clean dependents
 .SECONDARY:
