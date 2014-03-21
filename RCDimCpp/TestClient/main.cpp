@@ -20,7 +20,10 @@ void sighandler(int signum){
 
 int main(int argc, char** argv){
 	signal(SIGINT, sighandler);
-	client = new TestDimClient("dimExample");
+
+	std::string serverName = "dimExample";
+	if(argc>1) serverName = argv[1];
+	client = new TestDimClient(serverName);
 
 	string input;
 	while(true){

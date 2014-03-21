@@ -1,15 +1,22 @@
 include ../makefile_common
 
-CServerSRC = mainCServer helper commands decoder
+CLibSRC  = server commands helper
+CLibOBJ  = $(addprefix $(OBJDIR)/,$(addsuffix .o,$(CLibSRC)))
+CServerSRC = mainCServer decoder
 CServerOBJ = $(addprefix $(OBJDIR)/,$(addsuffix .o,$(CServerSRC)))
 
 
-all: RCDimC
+all: RCDimC libcserver.so
 
-RCDimC: ../RCDimC
+RCDimC: libcserver.so ../RCDimC
+
+libcserver.so: ../libcserver.so
 
 ../RCDimC: $(CServerOBJ) $(xmlproxyDIR)/xmlconfig_TestNode.h $(xmlproxyOBJ)
-	$(CCC) -o $@ $^ $(CFLAGS) $(LIBSDIR) $(LIBS)
+	$(CCC) -o $@ $^ $(CFLAGS) $(LIBSDIR) $(LIBS) -lcserver
+
+../libcserver.so: $(CLibOBJ)
+	$(CCC) $(SOFLAGS) -Wl,-soname,libcserver.so -o $@ $^ $(CFLAGS)
 
 $(OBJDIR)/%.o: %.c %.h
 	@mkdir -p $(OBJDIR)
@@ -22,6 +29,7 @@ $(OBJDIR)/%CServer.o: main.c
 # Other Targets
 clean:
 	rm -f ../RCDimC
+	rm -f ../libcserver.so
 
 .PHONY: all clean dependents
 .SECONDARY:

@@ -11,7 +11,7 @@
 #include "xmlconfig_TestNode.h"
 #include <stdio.h>
 
-void parseFile(char *content, TestNode *s){
+int parseFile(char *content, struct configStruct_t *s){
 	/*char lines[10][STRING_MAX_LENGTH];
 
 	int linesNb = tokenize(lines, content, "\n");
@@ -23,22 +23,12 @@ void parseFile(char *content, TestNode *s){
 	FILE *myfile = fopen("receivedfile.xml", "w+");
 	fprintf(myfile, content);
 	fclose(myfile);
-	inxmlfile_TestNode(s,"toto", "receivedfile.xml");
+	inxmlfile_TestNode(s->t,"toto", "receivedfile.xml");
+
+	return 0;
 }
 
-int tokenize(char tok[][STRING_MAX_LENGTH], char*s, const char *delim){
-	char *t;
-	int i=0;
-	t = strtok(s, delim);
-	while(t != NULL){
-		strcpy(tok[i], t);
-		t = strtok(NULL, delim);
-		i++;
-	}
-	return i;
-}
-
-void decodeLine(char *line){
+/*void decodeLine(char *line){
 	char tok[2][STRING_MAX_LENGTH];
 
 	if(tokenize(tok, line, "=")!=2) return;
@@ -47,4 +37,4 @@ void decodeLine(char *line){
 	if(strcmp(tok[0],"sourceID")==0) sourceID = strtol(tok[1], NULL, 16);
 	if(strcmp(tok[0],"frequency")==0) frequency = atof(tok[1]);
 	if(strcmp(tok[0],"uselessString")==0) strcpy(uselessString,tok[1]);
-}
+}*/

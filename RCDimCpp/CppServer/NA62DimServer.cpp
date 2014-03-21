@@ -31,7 +31,7 @@ NA62DimServer::NA62DimServer(std::string name, int sourceID):
 	fInfoIndex(0),
 	fDimState(new DimService((fDimServerName + "/State").c_str(), fState)),
 	fDimInfo(new DimService((fDimServerName + "/Info").c_str(), fInfo)),
-	fDimLogging(new DimService((fDimServerName + "/Logging").c_str(), fLogging)),
+	fDimLogging(new DimService((fDimServerName).c_str(), fLogging)),
 	fDimConfig(new DimService((fDimServerName + "/Config").c_str(), fConfig)),
 	fDimCommand(NULL),
 	fDimFileContent(NULL),
@@ -270,7 +270,9 @@ void NA62DimServer::centralizedLog(int severity, std::string text, int priority,
 
 	time_t mtime = time(NULL);
 	char *time= ctime(&mtime);
+	int len = strlen(time);
 
+	time[len-1	] = '\0';
 	ss << "ErrTime:" << time << "<[|]>";
 	ss << "SysName:" << std::hex << fSourceID << "<[|]>";
 	ss << "Username:n/a<[|]>";
@@ -280,6 +282,8 @@ void NA62DimServer::centralizedLog(int severity, std::string text, int priority,
 	ss << "ErrType:0<[|]>";
 	ss << "ErrCode:" << errCode << "<[|]>";
 	ss << "ErrText:" << text << "<[|]>" << std::endl;
+
+	//ss << "ErrTime:2014.03.20 09:34:39.035<[|]>SysName:dist_5<[|]>Username:n/a<[|]>Manager:WCCILdatabg  (1)<[|]>DpId:-2<[|]>ErrPrio:3<[|]>ErrType:2<[|]>ErrCode:6<[|]>ErrText:Initialization by Data Manager finished<[|]>";
 
 	strcpy(fLogging,ss.str().c_str());
 	fDimLogging->updateService();

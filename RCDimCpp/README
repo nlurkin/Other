@@ -12,7 +12,7 @@ with testClient. They are behaving according to the interface described in the n
 In the testClient, you can control them by issuing the following commands:
 	init 	-> send initialize command and the configuration file ColdConfig.xml
 	start 	-> send startun command and the configuration file WarmConfig.xml
-	end		-> send endrun command
+	end	-> send endrun command
 	reset	-> send resetstate command
 
 To implement your own server, I advise the C++ version that can be used as a library (libcppserver.so).

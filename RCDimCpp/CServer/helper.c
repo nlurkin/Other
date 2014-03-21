@@ -11,8 +11,8 @@
 
 void print(const char * s){
 	printf("%s",s);
-	strcpy(info+infoIndex, s);
-	infoIndex+=strlen(s);
+	strcpy(fInfo+fInfoIndex, s);
+	fInfoIndex+=strlen(s);
 }
 void printi(int s){
 	char dest[STRING_MAX_LENGTH];
@@ -21,11 +21,11 @@ void printi(int s){
 }
 void println(const char *s){
 	printf("%s\n",s);
-	strcpy(info+infoIndex, s);
-	info[infoIndex+strlen(s)] = '\n';
-	info[infoIndex+strlen(s)+1] = '\0';
-	infoIndex = 0;
-	dis_update_service(dimInfo);
+	strcpy(fInfo+fInfoIndex, s);
+	fInfo[fInfoIndex+strlen(s)] = '\n';
+	fInfo[fInfoIndex+strlen(s)+1] = '\0';
+	fInfoIndex = 0;
+	dis_update_service(fDimInfo);
 }
 void printlni(int s){
 	char dest[STRING_MAX_LENGTH];
@@ -45,7 +45,7 @@ void centralizedLog(int severity, char* text, int priority, int errCode)
 	strcat(str, time);
 	strcat(str, "<[|]>");
 	strcat(str, "SysName:");
-	sprintf(numValue, "%#x", sourceID);
+	sprintf(numValue, "%#x", fSourceID);
 	strcat(str, numValue);
 	strcat(str, "<[|]>");
 	strcat(str, "Username:n/a<[|]>");
@@ -64,6 +64,18 @@ void centralizedLog(int severity, char* text, int priority, int errCode)
 	strcat(str, text);
 	strcat(str, "<[|]>");
 
-	strcpy(logging,str);
-	dis_update_service(dimLogging);
+	strcpy(fLogging,str);
+	dis_update_service(fDimLogging);
+}
+
+int tokenize(char tok[][STRING_MAX_LENGTH], char*s, const char *delim){
+	char *t;
+	int i=0;
+	t = strtok(s, delim);
+	while(t != NULL){
+		strcpy(tok[i], t);
+		t = strtok(NULL, delim);
+		i++;
+	}
+	return i;
 }

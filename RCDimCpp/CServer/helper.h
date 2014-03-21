@@ -4,35 +4,27 @@
 #define STRING_MAX_LENGTH 500
 #define CONFIG_MAX_LENGTH 1000
 
-extern int state;
-extern int nextState;
-extern char info[STRING_MAX_LENGTH];
-extern char logging[STRING_MAX_LENGTH];
-extern char config[CONFIG_MAX_LENGTH];
-
-extern int infoIndex;
-
-extern int dimState;
-extern int dimInfo;
-extern int dimLogging;
-//extern int dimWaiting;
-extern int dimConfig;
-
-extern int runNumber;
-extern double frequency;
-extern int sourceID;
-extern char uselessString[STRING_MAX_LENGTH];
-extern int uselessInt;
-extern int param;
-
 enum FSMState {kIDLE=0, kINITIALIZED=1, kREADY=2};
-enum ErrorState {kHARDWAREFAILURE=-10, kWRONGCONFIG=-11, kWRONGSTATE=-12, kUNKNOWN=-20};
+enum ErrorState {kHARDWAREFAILURE=-10, kCONFIGERROR=-11, kWRONGSTATE=-12, kUNKNOWN=-20};
+
+int tokenize(char tok[][STRING_MAX_LENGTH], char* s, const char *delim);
 
 void print(const char * s);
 void printi(int s);
 void println(const char *s);
 void printlni(int s);
 void centralizedLog(int severity, char* text, int priority, int errCode);
+
+
+// To be found in server.c
+extern int fDimInfo;
+extern int fDimLogging;
+
+extern char fInfo[STRING_MAX_LENGTH];
+extern char fLogging[STRING_MAX_LENGTH];
+
+extern int fInfoIndex;
+extern int fSourceID;
 
 
 #endif

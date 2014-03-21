@@ -67,6 +67,7 @@ void TestServer::mainLoop()
 }
 
 void TestServer::generateConfig(std::stringstream& ss) {
+	centralizedLog(0, "Toto", 1);
 	//Generate the current configuration stream using the same format as the input file.
 	ss << "uselessInt=" << fUselessInt << std::endl;
 	ss << "param=" << fParam << std::endl;
