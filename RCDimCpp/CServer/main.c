@@ -59,7 +59,7 @@ int applyConfiguration(){
 }
 
 
-void main_loop(){
+int main_loop(){
 	sleep(10);
 }
 

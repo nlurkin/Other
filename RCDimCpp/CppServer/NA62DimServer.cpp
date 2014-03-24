@@ -233,7 +233,7 @@ void NA62DimServer::setNextState(int nextState) {
 
 /**
  * Publish the current configuration to dimServerName/Config.
- * The current configuration is request to generateConfig (to be implemented in the derived class)
+ * The current configuration is requested to generateConfig (to be implemented in the derived class)
  */
 void NA62DimServer::publishConfig(){
 	std::stringstream ss;

@@ -1,9 +1,7 @@
-typedef struct configStruct_t configStruct;
+#ifndef COMMANDS_H
+#define COMMANDS_H
 
-//To be implemented by user
-extern int selectCommand(char commandName[STRING_MAX_LENGTH], char tok[5][STRING_MAX_LENGTH]);
-extern int parseFile(char* content, configStruct *s);
-extern int applyConfiguration();
+typedef struct configStruct_t configStruct;
 
 void doStdInitialize(char tok[5][STRING_MAX_LENGTH]);
 void doStdStartRun(char tok[5][STRING_MAX_LENGTH]);
@@ -16,6 +14,7 @@ void stdDimRequestConfig(long* tag, char* cmnd_buffer, int*size);
 
 int stdSelectCommand(char commandName[STRING_MAX_LENGTH], char tok[5][STRING_MAX_LENGTH]);
 
+//#########################
 //To be found in server.c
 extern void publishConfig();
 
@@ -23,3 +22,13 @@ extern int fState;
 extern int fNextState;
 extern int fDimConfig;
 extern int fRunNumber;
+//#########################
+
+//#########################
+//To be implemented by user
+extern int selectCommand(char commandName[STRING_MAX_LENGTH], char tok[5][STRING_MAX_LENGTH]);
+extern int parseFile(char* content, configStruct *s);
+extern int applyConfiguration();
+//#########################
+
+#endif

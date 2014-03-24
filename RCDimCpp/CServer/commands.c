@@ -2,10 +2,8 @@
  * commands.c
  *
  *  Created on: 31 Jan 2014
- *      Author: ncl
+ *      Author: Nicolas Lurkin
  */
-
-//TODO review do... commands
 
 #include "helper.h"
 #include "commands.h"
@@ -14,6 +12,18 @@
 #include <stdlib.h>
 #include <string.h>
 
+/**
+ * Standard Command handler.
+ *
+ * This function is called when a command is received on dimServerName/Command.
+ * The string is tokenized (blank space as separator).
+ * The first token is considered as the command and all following tokens are
+ * considered as parameters. The parameters are placed in an array.
+ * The command and parameters are passed to the selectCommand function (to be implemented by user).
+ * @param tag
+ * @param cmnd_buffer
+ * @param size
+ */
 void stdDimCommand(long* tag, char* cmnd_buffer, int*size){
 	print("Command port receiving: ");
 	println(cmnd_buffer);
@@ -25,6 +35,12 @@ void stdDimCommand(long* tag, char* cmnd_buffer, int*size){
 	}
 }
 
+/**
+ * Decide which command we received on the dimServerName/Command command port.
+ * @param commandName: command
+ * @param tok: array of parameters (entry 0 is the command name)
+ * @return 0 if the command was recognized, else -1.
+ */
 int stdSelectCommand(char commandName[STRING_MAX_LENGTH], char tok[5][STRING_MAX_LENGTH]){
 	if(strcmp(commandName, "initialize")==0) doStdInitialize(tok);
 	else if(strcmp(commandName, "startrun")==0) doStdStartRun(tok);
@@ -35,6 +51,14 @@ int stdSelectCommand(char commandName[STRING_MAX_LENGTH], char tok[5][STRING_MAX
 	return 0;
 }
 
+/**
+ * Standard handler for the initialize command.
+ *
+ * If the current state is kIDLE or kINITIALIZED, wait for a configuration file
+ * and set the next expected state to kINITIALIZED.
+ * Else set the state to kWRONGSTATE
+ * @param tok: list of parameters (entry 0 is the command name)
+ */
 void doStdInitialize(char tok[5][STRING_MAX_LENGTH]){
 	if(fState==kIDLE || fState==kINITIALIZED){
 		//If in one off the right state, wait for a config file
@@ -47,6 +71,15 @@ void doStdInitialize(char tok[5][STRING_MAX_LENGTH]){
 		setState(kWRONGSTATE);
 	}
 }
+
+/**
+ * Standard handler for the startrun command.
+ *
+ * If the current state is kINITIALIZED, wait for a configuration file
+ * and set the next expected state to kREADY.
+ * Else set the state to kWRONGSTATE
+ * @param tok: list of parameters (entry 0 is the command name)
+ */
 void doStdStartRun(char tok[5][STRING_MAX_LENGTH]){
 	if(fState==kINITIALIZED){
 		//If in one off the right state, wait for a config file
@@ -62,6 +95,15 @@ void doStdStartRun(char tok[5][STRING_MAX_LENGTH]){
 	}
 
 }
+
+/**
+ * Standard handler for the endrun command.
+ *
+ * If the current state is kREADY, wait for a configuration file
+ * and set the next expected state to kINITIALIZED.
+ * Else set the state to kWRONGSTATE
+ * @param tok: list of parameters (entry 0 is the command name)
+ */
 void doStdEndRun(char tok[5][STRING_MAX_LENGTH]){
 	//If in one off the right state, wait for a config file
 	if(getState()==kREADY){
@@ -76,11 +118,29 @@ void doStdEndRun(char tok[5][STRING_MAX_LENGTH]){
 		setState(kWRONGSTATE);
 	}
 }
+
+/**
+ * Standard handler for the resetstate command.
+ *
+ * Wait for a configuration file and set the next expected state to kIDLE.
+ * @param tok: list of parameters (entry 0 is the command name)
+ */
 void doStdResetState(char tok[5][STRING_MAX_LENGTH]){
 	println("Reset requested");
 	waitConfigurationFile(kIDLE);
 }
 
+/**
+ * Standard FileContent handler.
+ *
+ * Calls the parseFile method (to be implemented by user). If successful (parseFile returns 0),
+ * tries to apply the configuration by calling applyConfiguration (to be implemented by user)
+ * If both are successful, move to the next expected state.
+ * If one of them fails, move to kCONFIGERROR.
+ * @param tag
+ * @param cmnd_buffer
+ * @param size
+ */
 void stdDimFileContent(long* tag, char* cmnd_buffer, int*size){
 	int success;
 
@@ -103,14 +163,20 @@ void stdDimFileContent(long* tag, char* cmnd_buffer, int*size){
 	}
 }
 
+/**
+ * RequestConfig handler.
+ *
+ * Calls the publishConfig() function.
+ * @param tag
+ * @param cmnd_buffer
+ * @param size
+ */
 void stdDimRequestConfig(long* tag, char* cmnd_buffer, int*size){
 	print("RequestConfig port receiving: ");
 	printlni(*cmnd_buffer);
 
 	if(*cmnd_buffer==1){
 		publishConfig();
-
-		dis_update_service(fDimConfig);
 	}
 	else{
 		println("Unexpected value received from FileContent port.");

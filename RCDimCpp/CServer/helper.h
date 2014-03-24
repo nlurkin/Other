@@ -4,9 +4,6 @@
 #define STRING_MAX_LENGTH 500
 #define CONFIG_MAX_LENGTH 1000
 
-enum FSMState {kIDLE=0, kINITIALIZED=1, kREADY=2};
-enum ErrorState {kHARDWAREFAILURE=-10, kCONFIGERROR=-11, kWRONGSTATE=-12, kUNKNOWN=-20};
-
 int tokenize(char tok[][STRING_MAX_LENGTH], char* s, const char *delim);
 
 void print(const char * s);
@@ -15,7 +12,7 @@ void println(const char *s);
 void printlni(int s);
 void centralizedLog(int severity, char* text, int priority, int errCode);
 
-
+//###################
 // To be found in server.c
 extern int fDimInfo;
 extern int fDimLogging;
@@ -25,6 +22,6 @@ extern char fLogging[STRING_MAX_LENGTH];
 
 extern int fInfoIndex;
 extern int fSourceID;
-
+//###################
 
 #endif

@@ -1,4 +1,5 @@
 all: 
+	- make -C xmlproxy
 	make -C xmlproxy
 	make -C CppServer
 	make -C TestClient
