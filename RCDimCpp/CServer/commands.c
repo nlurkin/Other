@@ -13,6 +13,11 @@
 #include <string.h>
 
 /**
+ * @file commands.c
+ * Contains functions implementing the commands described in the note NA62-14-02
+ */
+
+/**
  * Standard Command handler.
  *
  * This function is called when a command is received on dimServerName/Command.

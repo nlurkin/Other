@@ -5,6 +5,12 @@
  *      Author: nlurkin
  */
 
+/**
+ * @file server.c
+ * Contains the functions necessary to initialize and run the DIM server
+ * with the behavior described in the Note NA62-14-02.
+ */
+
 #include "server.h"
 #include "helper.h"
 #include "commands.h"

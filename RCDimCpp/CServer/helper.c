@@ -10,6 +10,11 @@
 #include "dis.h"
 
 /**
+ * @file helper.c
+ * Contains some useful functions.
+ */
+
+/**
  * Output to cout without endline and without flushing
  * and append to the dimServerName/Info buffer without updating the service (wait for more data).
  * @param s value to append
@@ -98,9 +103,10 @@ void centralizedLog(int severity, char* text, int priority, int errCode)
 
 /**
  * Tokenize a string according to the specified delimiter
+ * @param tok: array of char to place the tokens
  * @param s: string to tokenize
- * @param delim: delimiter (default=' ')
- * @return std::vector of string containing all the tokens.
+ * @param delim: delimiter
+ * @return
  */
 int tokenize(char tok[][STRING_MAX_LENGTH], char*s, const char *delim){
 	char *t;

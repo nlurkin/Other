@@ -1,0 +1,62 @@
+/**
+ * @mainpage
+ * \section Building Building
+ * <ul>
+ * 	<li>DIM need to be installed. Download and compile it following the instructions given on the DIM website (http://dim.web.cern.ch/dim/).
+ * 	<li>Point the environment variable DIMDIR to your DIM install directory.
+ * 	<li>The XML proxy from Vladimir Cerny need to be available. You can obtain it from https://twiki.cern.ch/twiki/bin/viewauth/NA62/ConfigurationDataScheme
+ * 	<li>Point the environment variable XMLPROXY to the XML proxy directory.
+ * 	<li>Add the path to the dim libraries to your LD_LIBRARY_PATH.
+ * 	<li>Compile the examples with make
+ * </ul>
+ * \section Running Running
+ * <ul>
+ * 	<li>Start a DIM dns server
+ * 	<li>Set DIM_DNS_NODE to the hostname or ip address of the host running the DIM dns server
+ * 	<li>Start one of the example server (RCDimC or RCDimCPP)
+ * 	<li>Start the client (testClient)
+ * 	<li>Send RunControl commands by typing one of the following in the client : init, start, end, reset, request
+ * 	<li>Verify that you server is behaving as expected when receiving the commands
+ * </ul>
+ * \section createcpp Create your own server using the C++ library
+ * Class documentation <a href="annotated.html">here</a>
+ * 
+ * The C++ library contains 4 base classes. Three DIM commands classes:
+ * <ul>
+ * 	<li>Command: implementing the dimServerName/Command command described in the note
+ * 	<li>FileContent: implementing the dimServerName/FileContent command described in the note
+ * 	<li>RequestConfig: implementing the dimServerName/RequestConfig command described in the note
+ * </ul>
+ * These classes are fully documented in the documentation attached in the archive, including their default behavior.
+ * If you are not satisfied with the default behavior, you can derive any of these classes and overload any of the virtual methods.
+ * The last base class is NA62DimServer. This class is a pure virtual one and you have to derive it and implement the following methods:
+ * <ul>
+ * 	<li>void mainLoop();
+ * 	<li>void generateConfig(std::stringstream& ss);
+ * 	<li>bool applyConfiguration();
+ * </ul>
+ * 
+ * You can again find the documentation and the instructions for these classes in the attached documentation.
+ * 
+ * You can start by looking at the test server implementation (TestServer.h/.cpp). 
+ * 
+ * \section createc Create your own server using the C library
+ * Functions documentation <a href="globals.html">here</a>
+ * 
+ * The C library implements a default behavior but relies on user functions to call some of them. This gives the user the possibility to choose between the standard behavior or its own implementation. 5 functions whose implementation is left to the user are called by the library:
+ * <ul>
+ * 	<li>int main_loop(): Called in an infinite loop. The server exits when this function return 1.
+ * 	<li>void generateConfig(char* configString): The user should fill the configString buffer with the current configuration of the device for reporting in the dimServerName/Config service.
+ * 	<li>int applyConfiguration(): The user should apply the configuration that has been loaded in the fConfigStruct structure. Returns 0 when successful.
+ * 	<li>int selectCommand(char commandName[STRING_MAX_LENGTH], char tok[5][STRING_MAX_LENGTH]): The function takes the command name and options received on dimServerName/Command. Its purpose is to check the command name and choose the appropriate function to call. If you want the standard behavior, you can call stdSelectCommand. If you want standard behavior for only some commands, you can call doStdInitializate, doStdStartRun, doStdEndRun or doStdResetState.
+ * 	<li>int parseFile(char *content, struct configStruct_t *s): This function receives the content of dimServerName/FileContent command and a pointer to a structure. This function should fill the structure with the configuration extracted from the file.
+ * </ul>
+ * 
+ * In addition you have to provide the global pointer variable fConfigStruct of type struct configStruct_t* which is undefined. This pointer will be passed to the parseFile function whose job is to fill the structure.
+ * 
+ * The main() function should allocate the memory for fConfigStruct, call initCommands and startServer. 
+ * 
+ * You can find the documentation and instructions for the C library in the attached documentation.
+ * 
+ * You can start by looking at the test server implementation (main.c and decoder.h/.c). 
+ */
