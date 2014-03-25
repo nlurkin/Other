@@ -6,3 +6,4 @@
 /doc
 /libcppserver.so
 /.cproject
+*.svn
