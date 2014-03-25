@@ -28,6 +28,10 @@ void ConfigDecoder::parseFile(std::string content, TestNode *s){
 	inxmlfile_TestNode(s,"toto", "receivedfile.xml");
 }
 
+void ConfigDecoder::writeFile(std::string content, TestNode *s){
+	outxmlfile_TestNode((void*)s, "toto", (char*)content.c_str());
+}
+
 /*void ConfigDecoder::decodeLine(std::string line, TestNode *s){
 	std::vector<std::string> elem = tokenize(line, '=');
 

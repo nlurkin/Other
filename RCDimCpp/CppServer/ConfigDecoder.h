@@ -27,6 +27,7 @@ public:
 	virtual ~ConfigDecoder();
 
 	void parseFile(std::string content, TestNode *s);
+	void writeFile(std::string content, TestNode *s);
 
 	static const std::vector<std::string> tokenize(std::string s, const char delim = ' ');
 

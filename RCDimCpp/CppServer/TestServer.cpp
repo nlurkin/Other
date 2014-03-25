@@ -68,12 +68,19 @@ void TestServer::mainLoop()
 
 void TestServer::generateConfig(std::stringstream& ss) {
 	centralizedLog(0, "Toto", 1);
+	TestNode *t = (TestNode*)NA62DimServer::fConfigStruct;
+
+	ss << "/home/nlurkin/Config/Report/RunControl/na62L0TP";
+
 	//Generate the current configuration stream using the same format as the input file.
-	ss << "uselessInt=" << fUselessInt << std::endl;
-	ss << "param=" << fParam << std::endl;
-	ss << "sourceID=0x" << std::hex << fSourceID << std::endl;
-	ss << "frequency=" << fFrequency << std::endl;
-	ss << "uselessString=" << fUselessString << std::endl;
+	t->frequency = fFrequency;
+	t->param = fParam;
+	t->sourceID = fSourceID;
+	t->uselessInt = fUselessInt;
+	strcpy(t->uselessString, fUselessString.c_str());
+
+	ConfigDecoder dec;
+	dec.writeFile(ss.str(), t);
 }
 
 void TestServer::setParam(int param) {
