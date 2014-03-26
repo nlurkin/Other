@@ -14,6 +14,8 @@ int param=0;
 
 struct configStruct_t *fConfigStruct;
 
+char dimServerName[STRING_MAX_LENGTH] = "dimExample";
+
 void doEndRun(char tok[5][STRING_MAX_LENGTH]){
 	if(fState==kREADY){
 		print("Stopping current run (");
@@ -35,7 +37,15 @@ void doResetState(char tok[5][STRING_MAX_LENGTH]) {
 void generateConfig(char* configString){
 	centralizedLog(0, "Toto", 1, 0);
 	//Generate the current configuration stream using the same format as the input file.
-	sprintf(configString, "uselessInt=%i\nparam=%i\nsourceID=%#x\nfrequency=%f\nuselessString=%s", uselessInt, param, sourceID, frequency, uselessString);
+	sprintf(configString, "Configuration/Report/SubSystem/%s/report.xml", dimServerName);
+
+	fConfigStruct->t->frequency = frequency;
+	fConfigStruct->t->param = param;
+	fConfigStruct->t->sourceID = sourceID;
+	fConfigStruct->t->uselessInt = uselessInt;
+	strcpy(fConfigStruct->t->uselessString, uselessString);
+
+	writeFile(configString, fConfigStruct);
 }
 
 int selectCommand(char commandName[STRING_MAX_LENGTH], char tok[5][STRING_MAX_LENGTH]){
@@ -61,11 +71,11 @@ int applyConfiguration(){
 
 int main_loop(){
 	sleep(10);
+	return 0;
 }
 
 
 int main(int argc, char** argv){
-	char dimServerName[STRING_MAX_LENGTH] = "dimExample";
 	if(argc>1) strcpy(dimServerName, argv[1]);
 
 	fConfigStruct = (configStruct*)malloc(sizeof(configStruct));

@@ -20,11 +20,20 @@ int parseFile(char *content, struct configStruct_t *s){
 		decodeLine(lines[i]);
 	}*/
 
-	FILE *myfile = fopen("receivedfile.xml", "w+");
-	fprintf(myfile, content);
-	fclose(myfile);
-	inxmlfile_TestNode(s->t,"toto", "receivedfile.xml");
+	inxmlfile_TestNode(s->t,"toto", content);
+	return 0;
+}
 
+int writeFile(char *content, struct configStruct_t *s){
+	/*char lines[10][STRING_MAX_LENGTH];
+
+	int linesNb = tokenize(lines, content, "\n");
+	int i;
+	for(i=0; i<linesNb; i++){
+		decodeLine(lines[i]);
+	}*/
+
+	outxmlfile_TestNode((void*)s->t, "toto", content);
 	return 0;
 }
 
