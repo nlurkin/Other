@@ -70,7 +70,7 @@ void TestServer::generateConfig(std::stringstream& ss) {
 	centralizedLog(0, "Toto", 1);
 	TestNode *t = (TestNode*)NA62DimServer::fConfigStruct;
 
-	ss << "/home/nlurkin/Config/Report/RunControl/na62L0TP";
+	ss << "Configuration/Report/SubSystem/" << getDimServerName() << "/report.xml";
 
 	//Generate the current configuration stream using the same format as the input file.
 	t->frequency = fFrequency;

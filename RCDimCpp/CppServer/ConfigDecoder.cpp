@@ -21,11 +21,11 @@ ConfigDecoder::~ConfigDecoder() {
 }
 
 void ConfigDecoder::parseFile(std::string content, TestNode *s){
-	std::ofstream myfile;
-	myfile.open ("receivedfile.xml");
-	myfile << content;
-	myfile.close();
-	inxmlfile_TestNode(s,"toto", "receivedfile.xml");
+	//std::ofstream myfile;
+	//myfile.open ("receivedfile.xml");
+	//myfile << content;
+	//myfile.close();
+	inxmlfile_TestNode(s,"toto", (char*)content.c_str());
 }
 
 void ConfigDecoder::writeFile(std::string content, TestNode *s){

@@ -158,26 +158,26 @@
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.97087011;cdt.managedbuild.config.gnu.exe.debug.97087011.;cdt.managedbuild.tool.gnu.cpp.compiler.base.1579575511;cdt.managedbuild.tool.gnu.cpp.compiler.input.2146397000">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
 		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.release.650179664;cdt.managedbuild.config.gnu.exe.release.650179664.;cdt.managedbuild.tool.gnu.c.compiler.exe.release.1475275262;cdt.managedbuild.tool.gnu.c.compiler.input.2040700261">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
-		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.625366093;cdt.managedbuild.config.gnu.exe.debug.625366093.;cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.2067142872;cdt.managedbuild.tool.gnu.cpp.compiler.input.557115459">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.make.core.GCCStandardMakePerFileProfile"/>
 		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.release.650179664;cdt.managedbuild.config.gnu.exe.release.650179664.;cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.797786853;cdt.managedbuild.tool.gnu.cpp.compiler.input.588434092">
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.release.650179664;cdt.managedbuild.config.gnu.exe.release.650179664.;cdt.managedbuild.tool.gnu.c.compiler.exe.release.1475275262;cdt.managedbuild.tool.gnu.c.compiler.input.2040700261">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.97087011;cdt.managedbuild.config.gnu.exe.debug.97087011.;cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1467848612;cdt.managedbuild.tool.gnu.cpp.compiler.input.1075395250">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.make.core.GCCStandardMakePerFileProfile"/>
 		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.97087011;cdt.managedbuild.config.gnu.exe.debug.97087011.;cdt.managedbuild.tool.gnu.c.compiler.base.2070679640;cdt.managedbuild.tool.gnu.c.compiler.input.1805386956">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.97087011;cdt.managedbuild.config.gnu.exe.debug.97087011.;cdt.managedbuild.tool.gnu.c.compiler.exe.debug.670374260;cdt.managedbuild.tool.gnu.c.compiler.input.187629711">
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.release.650179664;cdt.managedbuild.config.gnu.exe.release.650179664.;cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.797786853;cdt.managedbuild.tool.gnu.cpp.compiler.input.588434092">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.625366093;cdt.managedbuild.config.gnu.exe.debug.625366093.;cdt.managedbuild.tool.gnu.c.compiler.exe.debug.1222289313;cdt.managedbuild.tool.gnu.c.compiler.input.1779604166">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.97087011;cdt.managedbuild.config.gnu.exe.debug.97087011.;cdt.managedbuild.tool.gnu.c.compiler.exe.debug.670374260;cdt.managedbuild.tool.gnu.c.compiler.input.187629711">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.97087011;cdt.managedbuild.config.gnu.exe.debug.97087011.;cdt.managedbuild.tool.gnu.c.compiler.base.2070679640;cdt.managedbuild.tool.gnu.c.compiler.input.1805386956">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
 	</storageModule>
 </cproject>

@@ -114,25 +114,37 @@ void TestDimClient::requestConfig(){
 }
 
 void TestDimClient::handleConfig(string s) {
+	string line;
 	print("Full config received");
 	print(s);
+
+	std::ifstream src(s.c_str());
+
+	while(getline(src,line)){
+		print(line);
+	}
+	src.close();
 }
 
 void TestDimClient::sendFile(string fileName){
 	ifstream fd;
 	string content;
+	string path = "Configuration/Config/SubSystem/";
+	path += dimServerName;
+	path += "/";
+	path += fileName;
 	char *c = new char[1000];
 	cout << "Sending file " << fileName << endl;
-	fd.open(fileName.c_str());
 
-	fd.seekg(0,ios::end);
-	content.reserve(fd.tellg());
-	fd.seekg(0, ios::beg);
+	std::ifstream  src(fileName.c_str(), ios::binary);
+	std::ofstream  dst(path.c_str(), ios::binary);
 
-	content.assign((istreambuf_iterator<char>(fd)), istreambuf_iterator<char>());
+	dst << src.rdbuf();
 
-	fd.close();
-	strcpy(c, content.c_str());
+	src.close();
+	dst.close();
+
+	strcpy(c, path.c_str());
 	sendCommandNB((dimServerName + "/FileContent").c_str(), c);
 	delete[] c;
 }

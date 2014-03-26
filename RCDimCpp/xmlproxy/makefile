@@ -3,9 +3,10 @@ include ../makefile_common
 xmlproxySRC = TestNodeProxy
 xmlproxyOBJ = $(addprefix $(OBJDIR)/,$(addsuffix .o,$(xmlproxySRC)))
 
-all: xml $(OBJDIR)/TestNodeProxy.o demo
+all: xmlconfig_TestNode.h $(OBJDIR)/TestNodeProxy.o demo
 
-xml:
+xmlconfig_TestNode.h:
+	@echo "Doing XML"
 	$(XMLPROXY)/xmlpp TestNode.h
 
 $(OBJDIR)/%Proxy.o: %Proxy.cpp xmlconfig_%.h
