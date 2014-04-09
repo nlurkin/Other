@@ -1,0 +1,45 @@
+#!/bin/sh
+
+echo "
+Opening file /home/na62bham/data/cdr_2014_04_08_10_11_12
+Burst (    0) 2014-04-07 16:56:34
+NEventsPerBurst = 601701
+NLostEvents = 0
+NGoodEvents = 601702
+NBadEvents = 0
+NHitWords = 48136160
+NBadHitWords = 0
+Closing file /home/na62bham/data/cdr_2014_04_08_10_11_12
+Opening file /home/na62bham/data/cdr_2014_04_08_10_11_20
+Burst (    1) 2014-04-07 16:56:34
+NEventsPerBurst = 601701
+NLostEvents = 0
+NGoodEvents = 601702
+NBadEvents = 0
+NHitWords = 48136160
+NBadHitWords = 0
+Closing file /home/na62bham/data/cdr_2014_04_08_10_11_20
+Opening file /home/na62bham/data/cdr_2014_04_08_10_11_28
+Burst (    2) 2014-04-07 16:56:34
+NEventsPerBurst = 601701
+NLostEvents = 0
+NGoodEvents = 601702
+NBadEvents = 0
+NHitWords = 48136160
+NBadHitWords = 0
+Closing file /home/na62bham/data/cdr_2014_04_08_10_11_28
+Opening file /home/na62bham/data/cdr_2014_04_08_10_11_36
+Burst (   33) 2014-04-07 16:56:34
+NEventsPerBurst = 601701
+NLostEvents = 0
+NGoodEvents = 601702
+NBadEvents = 0
+NHitWords = 48136160
+NBadHitWords = 0
+Closing file /home/na62bham/data/cdr_2014_04_08_10_11_36
+"
+
+
+while [ 1 ]; do
+	echo "toto"
+done

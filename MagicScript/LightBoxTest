@@ -1,0 +1,13 @@
+#!/bin/sh
+
+echo "
+blah
+blah
+blah
+Analysis complete
+"
+
+while [ 1 ];
+do
+	echo "xxx"
+done
