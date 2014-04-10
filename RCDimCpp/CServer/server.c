@@ -46,7 +46,7 @@ int fSourceID=0;	/*!< Source ID of the device */
  * @param fileContentRoutine Function pointer to the function handling dimServerName/FileContent
  * @param requestConfigRoutine Function pointer to the function handling dimServerName/RequestConfig
  */
-void initCommands(char* dimServerName, void (*commandRoutine)(void*,void*,int*), void (*fileContentRoutine)(void*,void*,int*), void (*requestConfigRoutine)(void*,void*,int*)){
+void initCommands(char* dimServerName, void (*commandRoutine)(long int*,char*,int*), void (*fileContentRoutine)(long int*,char*,int*), void (*requestConfigRoutine)(long int*,char*,int*)){
 	char commandName[CONFIG_MAX_LENGTH];
 	char fileContentName[CONFIG_MAX_LENGTH];
 	char requestConfigName[CONFIG_MAX_LENGTH];

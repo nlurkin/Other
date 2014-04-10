@@ -11,7 +11,7 @@
 enum FSMState {kIDLE=0, kINITIALIZED=1, kREADY=2};
 enum ErrorState {kHARDWAREFAILURE=-10, kCONFIGERROR=-11, kWRONGSTATE=-12, kUNKNOWN=-20};
 
-void initCommands(char* dimServerName, void (*commandRoutine)(void*,void*,int*), void (*fileContentRoutine)(void*,void*,int*), void (*requestConfigRoutine)(void*,void*,int*));
+void initCommands(char* dimServerName, void (*commandRoutine)(long int*,char*,int*), void (*fileContentRoutine)(long int*,char*,int*), void (*requestConfigRoutine)(long int*,char*,int*));
 void startServer(char* dimServerName, int sourceID);
 
 int getRunNumber();

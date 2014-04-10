@@ -9,7 +9,7 @@ LIBSDIR = -L$(DIMDIR)/linux -L../
 HDRDIR = -I$(DIMDIR)/dim -I$(XMLPROXY) -I../xmlproxy
 
 #COMPILER
-CFLAGS		= -O -Wall -fPIC -g3
+CFLAGS		= -O -Wall -fPIC -g3 -m32
 SOFLAGS		= -shared
 CC			= g++
 CCC			= gcc
