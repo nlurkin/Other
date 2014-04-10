@@ -16,8 +16,10 @@ from argparse import ArgumentParser, RawDescriptionHelpFormatter
 import os
 import socket
 import sys
+import time
 import subprocess
 from Cheetah.Template import Template
+from os import getenv
 
 
 
@@ -36,21 +38,37 @@ class CLIError(Exception):
 	def __unicode__(self):
 		return self.msg
 
-def mapPMs(fileName, datasheet):
-	with open(fileName, 'r') as fd:
-		pms = list(fd)
+class MagicScriptError(Exception):
+	def __init__(self, value):
+		self.value = value
+	def __str__(self):
+		return repr(self.value)
 
+def mapPMs(fileName, datasheet):
+	
+	try:
+		with open(fileName, 'r') as fd:
+			pms = list(fd)
+	except IOError as e:
+		print "Unable to open PM map file ('{0}'): {1}".format(fileName, e.strerror)
+		raise(MagicScriptError("Fatal"))
+	
 	pmMap = dict([[x, {'GeoPos':int(y)}] for x, y in [x.rstrip('\n').split(' ') for x in pms]])
 	
-	with open(datasheet, 'r') as fd:
-		pms = list(fd)
+	try:
+		with open(datasheet, 'r') as fd:
+			pms = list(fd)
+	except IOError as e:
+		print "Unable to open PM datasheet file ('{0}'): {1}".format(datasheet, e.strerror)
+		raise(MagicScriptError("Fatal"))				
 		
 	pms.pop(0)
 	pmsData = [[snum, {"CatLum":float(cat_lum), "AnLum":float(an_lum), "DarkCurr":float(d_curr), "BlueSens":float(b_sens), "Gain":float(gain)}] for 
 			snum, cat_lum, an_lum, d_curr, b_sens, gain in [x.strip('\n').split(' ') for x in pms]]
 	
-	if pmMap.has_key(pmsData[0][0]):
-		pmMap[pmsData[0][0]].update(pmsData[0][1]) 
+	for pm in pmsData:
+		if pmMap.has_key(pm[0]):
+			pmMap[pm[0]].update(pm[1]) 
 	
 	return pmMap
 
@@ -90,20 +108,28 @@ def parseDaqOutput(daq, args):
 	
 def rundaq(args):
 	if not args.dryRun:
-		sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		sock.connect(("localhost", 10))
+		try:
+			sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+			sock.connect(("tel62", 41988))
+		except socket.error as e:
+			print "Unable to establish communication with tdspy [Error {0}]: {1}".format(e.errno, e.strerror)
+			raise(MagicScriptError("Fatal"))
 		
-	# subprocess.Popen("na62daq", stdout=open("na62daq.out",'w'))
-	daq = subprocess.Popen("na62daq", stdout=subprocess.PIPE)
+	try:
+		daq = subprocess.Popen("./na62daq", stdout=subprocess.PIPE)
+	except OSError as e:
+		print "Unable to run na62daq [Error {0}]: {1}".format(e.errno, e.strerror)
+		raise(MagicScriptError("Fatal"))		
 	
 	if not args.dryRun:
 		raw_input("Press enter to start run (at least 1s before next SOB)")
+		#TODO solve here
 		sock.sendall("@startrun2.spy")
-	
+	#time.sleep(3)
 	daqResults = parseDaqOutput(daq, args)
 	
 	if not args.dryRun:
-		sock.sendall("@endrun2.spy")
+		sock.sendall("@endrun2.spy\n")
 	
 	daq.kill()
 	if not args.dryRun:
@@ -111,58 +137,160 @@ def rundaq(args):
 	
 	return daqResults
 
-def runReco(daqResults):
-	fileList = open("LightBoxN.list", 'w')
-	for f in [x['File'] for x in daqResults[1:-1]]:
-		fileList.write(f + "\n")
+def runReco(daqResults, listFile, recoFile, NA62RecoPath):
+	try:
+		fd = open(listFile, 'w')
+		for f in [x['File'] for x in daqResults[1:-1]]:
+			fd.write(f + "\n")
 	
-	fileList.close()
-	
-	reco = subprocess.Popen(["NA62Reco", "-l LightBoxN.list", "-o LightBoxN.root"])
-	print "Running reconstruction... please wait"
-	reco.wait()
-	print "Reconstruction finished"
+		fd.close()
+	except IOError as e:
+		print "Unable to open run file list ('{0}'): {1}".format(listFile, e.strerror)
+		raise(MagicScriptError("Fatal"))
 
-def runAnalysis():
-	analysis = subprocess.Popen(["LightBoxTest", "-i LightBoxN.root", "-o LightBoxNTest.root", "-g"], stdout=subprocess.PIPE)
-	print "Running analysis... please wait"
-	for line in analysis.stdout:
-		if "Analysis complete" in line:
-			print "Analysis complete ..."
-			answer = raw_input("Are the plots ok? [y/n] ")
-			break;
+	savedPath = os.getcwd()
+	os.chdir(NA62RecoPath)	
+	try:
+		print "./NA62Reco -l "+savedPath+"/"+listFile+" -o "+savedPath+"/"+recoFile
+		reco = subprocess.Popen(["./NA62Reco", "-l", savedPath+"/"+listFile, "-o", savedPath+"/"+recoFile])
+		print "Running reconstruction... please wait"
+		reco.wait()
+		print "Reconstruction finished"
+	except OSError as e:
+		print "Unable to run NA62Reco [Error {0}]: {1}".format(e.errno, e.strerror)
+		raise(MagicScriptError("Fatal"))
+	finally:
+		os.chdir(savedPath)		
+
+
+def runAnalysis(recoFile, anaFile, NA62AnalysisPath):
+	try:
+		#todo solve this
+		analysis = subprocess.Popen([NA62AnalysisPath+"/LightBoxTest", "-i", recoFile, "-o", anaFile], stdout=subprocess.PIPE)
+		print "Running analysis... please wait"
+		for line in analysis.stdout:
+			if "Analysis complete" in line:
+				print "Analysis complete ..."
+				answer = raw_input("Are the plots ok? [y/n] ")
+				break;
 	
-	analysis.kill()
+		analysis.kill()
+	except OSError as e:
+		print "Unable to run LightBoxTest [Error {0}]: {1}".format(e.errno, e.strerror)
+		raise(MagicScriptError("Fatal"))
+	
 	return answer
 
-def GenerateTex(pmMap, fileName):
-	searchList= [{'lightBoxNumber':0, 'pmSN':pmMap.keys()[0], 'pm':pmMap[pmMap.keys()[0]]}]
+def GenerateTex(pmMap, texPath):
+	#todo solve this
+	pmGeoPos = pmMap[pmMap.keys()[0]]['GeoPos']
+	shortPath = texPath[texPath.find("/")+1:]
+	searchList= [{'pmSN':pmMap.keys()[0], 'pm':pmMap[pmMap.keys()[0]], 'SlewCorr':shortPath+'/SlewPlot'+str(pmGeoPos)+'.pdf', 'TRes':shortPath+'/TRes'+str(pmGeoPos)+'.pdf'}]
 	t = Template(file='PMTemplate.tex', searchList=searchList)
 	
-	fd = open(fileName, 'w')
-	fd.writelines(str(t))
+	try:
+		fd = open(texPath+"/PM"+str(pmGeoPos)+".tex", 'w')
+		fd.writelines(str(t))
+		fd.close()
+	except IOError as e:
+		print "Unable to open PM tex file ('{0}'): {1}".format(texPath+"/PM"+pmGeoPos+".tex", e.strerror)
+		raise(MagicScriptError("Fatal"))
 	
-	
+	return "\input{"+shortPath+"/PM"+str(pmGeoPos)+"}\n"
 	
 
 def process(args):
+
+	lightBoxDir = "results/"+args.LightBox+"/"
+	listFile = lightBoxDir+args.LightBox+".list"
+	recoFile = lightBoxDir+args.LightBox+".root"
+	anaFile = lightBoxDir+args.LightBox+"Test.root"
+	extractDir = lightBoxDir+"tex"
+	texPath = lightBoxDir+"tex"
+	texFile = texPath+"/"+args.LightBox+".tex"
+	
+	
+	if getenv("NA62RECOSOURCE") == None:
+		print "Missing NA62RECOSOURCE environment variable"
+		raise(MagicScriptError("Fatal"))
+	if getenv("NA62ANALYSIS") == None:
+		print "Missing NA62ANALYSIS environment variable"
+		raise(MagicScriptError("Fatal"))
+	
+	NA62Reco = getenv("NA62RECOSOURCE")
+	NA62Analysis = getenv("NA62ANALYSIS")
+
+	if not os.path.exists("results"):
+		os.mkdir("results")
+	
+	if not os.path.exists(lightBoxDir):
+		os.mkdir(lightBoxDir)
+	
 	pmMap = mapPMs(args.mapFile, "datasheet.dat")
 	
 	daqResults = rundaq(args)
 	
-	runReco(daqResults)
+	runReco(daqResults, listFile, recoFile, NA62Reco)
 	
-	answer = runAnalysis()
+	answer = runAnalysis(recoFile, anaFile, NA62Analysis)
 	
 	if answer.lower() == 'n':
 		return
 	
+	
+	lightBoxContent = ""
+	
 	for pm in pmMap:
-		extract = subprocess.Popen(["ExtractPlots", "-n " + str(pmMap[pm]['GeoPos']), "-i LightBoxN.root", "-I LightBoxNTest.root", "-o path/to/tex/dir/LighBoxN"])
-		extract.wait()
-		GenerateTex(pmMap, "test.tex")
-		latex = subprocess.Popen(["pdflatex", "test.tex"])
+		try:
+			extract = subprocess.Popen(["./ExtractPlots", "-n", str(pmMap[pm]['GeoPos']), "-i", recoFile, "-I", anaFile, "-o", extractDir])
+			extract.wait()
+		except OSError as e:
+			print "Unable to run ExtractPlots [Error {0}]: {1}".format(e.errno, e.strerror)
+			raise(MagicScriptError("Fatal"))
+		lightBoxContent += GenerateTex(pmMap, texPath)
+	
+	t = Template(file='LightBoxTemplate.tex', searchList=[{'lightBoxNumber':args.lightBoxNumber, 'pmList':lightBoxContent}])
+	try:
+		fd = open(texFile, 'w')
+		fd.writelines(str(t))
+		fd.close()
+	except IOError as e:
+		print "Unable to open LightBox tex file ('{0}'): {1}".format(texFile, e.strerror)
+		raise(MagicScriptError("Fatal"))
+
+def makeLatex():
+	path = "results"
+	lightboxes = os.listdir(path)
+	texFiles = []
+	print lightboxes
+	for l in lightboxes:
+		if os.path.isdir(os.path.join(path,l)):
+			texFiles += [l+"/tex/"+x for x in os.listdir(os.path.join(path,l+"/tex")) if (x[-4:]==".tex" and "LightBox" in x)]
+	
+	
+	print texFiles
+	
+	lightBoxList = ""
+	for f in texFiles:
+		lightBoxList += "\input{"+f+"}\n"
+		
+	t = Template(file='BookTemplate.tex', searchList=[{'lightBoxList':lightBoxList}])
+	try:
+		fd = open(path+"/PMBook.tex", 'w')
+		fd.writelines(str(t))
+		fd.close()
+	except IOError as e:
+		print "Unable to open Book tex file ('{0}'): {1}".format("PMBook.tex", e.strerror)
+		raise(MagicScriptError("Fatal"))
+
+	os.chdir(path)
+	try:
+		latex = subprocess.Popen(["pdflatex", "PMBook.tex"])
+		latex = subprocess.Popen(["pdflatex", "PMBook.tex"])
 		latex.wait()
+	except OSError as e:
+		print "Unable to run pdflatex [Error {0}]: {1}".format(e.errno, e.strerror)
+		raise(MagicScriptError("Fatal"))
 	
 	
 	
@@ -187,16 +315,25 @@ def main(argv=None):  # IGNORE:C0111
 USAGE
 ''' % (program_shortdesc, str(__date__))
 
+	if len(sys.argv)==2:
+		if sys.argv[1]=="-f":
+			makeLatex()
+			return
+		
 	try:
 		# Setup argument parser
 		parser = ArgumentParser(description=program_license, formatter_class=RawDescriptionHelpFormatter)
 		parser.add_argument("-m", "--mapfile", dest="mapFile", required=True, help="Path to file containing PM geo position in the box (SN Pos)")
-		parser.add_argument("-n", "--nEvents", dest="nEvents", required=True, help="Number of events required")
+		parser.add_argument("-n", "--nevents", dest="nEvents", required=True, help="Number of events required")
+		parser.add_argument("-l", "--lightbox", dest="lightBoxNumber", type=int, required=True, help="LightBox number currently being tested")
 		parser.add_argument("-d", "--dryrun", dest="dryRun", action="store_true", help="Don't try to establish socket connection with tel62")
+		parser.add_argument("-f", action="count", help="Generate final pdf book")
 		parser.add_argument('-V', '--version', action='version', version=program_version_message)
 		
 		# Process arguments
 		args = parser.parse_args()
+		
+		args.LightBox = "LightBox"+str(args.lightBoxNumber)
 		
 	except KeyboardInterrupt:
 		### handle keyboard interrupt ###
@@ -207,7 +344,10 @@ USAGE
 		sys.stderr.write(indent + "  for help use --help")
 		return 2
 	
-	process(args)
+	try:
+		process(args)
+	except MagicScriptError as e:
+		print "\nScript exiting with error: {0}".format(e.value)
 
 
 if __name__ == "__main__":

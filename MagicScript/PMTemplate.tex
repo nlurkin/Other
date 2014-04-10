@@ -1,37 +1,8 @@
-\documentclass[a4paper]{article}
+\subsection{$pmSN}
 
-\usepackage{geometry}
-\usepackage{graphicx}
-\usepackage{array}
-
-\newcolumntype{L}{>{\centering\arraybackslash}p{3.3cm}}
-\newcolumntype{D}{>{\centering\arraybackslash}p{5cm}}
-\newcolumntype{I}{>{\centering\arraybackslash}p{3cm}}
-
-\title{LightBox $lightBoxNumber - $pmSN}
-\author{}
-
-\begin{document}
-\maketitle
-
-
-\section{PM infos}
-
+%\subsubsection{PM Infos}
 \def\imagetop#1{\vtop{\null\hbox{#1}}}
 \begin{tabular}{lr}
-% \begin{tabular}{|L|L|L|L|}
-% 	\hline
-% 	Serial Number		& Position in LightBox 		& Cathode Luminous Sens. 	& Anode Luminous Sens.\\
-% 						&							& \$\mu A/lm\$				& \$A/lm\$ \\
-% 	\hline
-% 	HB9050 				& 12						& 74.7						& 89.6 \\
-% 	\hline
-% 	Anode Dark Current 	& Cathode Blue Sens. Index 	& Gain Anode/Cathode 		& \\
-% 	nA					& 							&  							& \\
-% 	\hline
-% 	0.01 				& 9.44						& 1.20E+06					& \\
-% 	\hline
-% \end{tabular}
 \begin{tabular}[t]{|D|I|}
 	\hline
 	Serial Number			& $pmSN \\
@@ -48,11 +19,19 @@
 	\hline
 	Gain Anode/Cathode 		& $pm.Gain \\
 	\hline
+	Time resolution \newline\$ps\$ & xxx \\
+	\hline
+			&	\\
+	\hline
 \end{tabular}
 &
-\imagetop{\includegraphics[scale=0.3]{lightBoxGeo.pdf}}\\
+\imagetop{\includegraphics[scale=0.3]{../lightBoxGeo.pdf}}\\
 
 \end{tabular}
-\section{Run results}
+%\subsubsection{Run results}
 
-\end{document}
+\begin{center}
+\includegraphics[scale=0.47]{$SlewCorr}
+\newline 
+\includegraphics[scale=0.47]{$TRes}
+\end{center}
