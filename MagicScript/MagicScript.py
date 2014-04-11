@@ -20,6 +20,7 @@ import time
 import subprocess
 from Cheetah.Template import Template
 from os import getenv
+import signal
 
 
 
@@ -152,7 +153,7 @@ def runReco(daqResults, listFile, recoFile, NA62RecoPath):
 	savedPath = os.getcwd()
 	os.chdir(NA62RecoPath)	
 	try:
-		print "./NA62Reco -l "+savedPath+"/"+listFile+" -o "+savedPath+"/"+recoFile
+		print ' '.join(["./NA62Reco", "-l", savedPath+"/"+listFile, "-o", savedPath+"/"+recoFile])
 		reco = subprocess.Popen(["./NA62Reco", "-l", savedPath+"/"+listFile, "-o", savedPath+"/"+recoFile])
 		print "Running reconstruction... please wait"
 		reco.wait()
@@ -164,21 +165,39 @@ def runReco(daqResults, listFile, recoFile, NA62RecoPath):
 		os.chdir(savedPath)		
 
 
+def timeout(sig,frm):
+	raise(signal.ItimerError("Too Long"))
+
 def runAnalysis(recoFile, anaFile, NA62AnalysisPath):
 	try:
-		analysis = subprocess.Popen([NA62AnalysisPath+"/LightBoxTest", "-i", recoFile, "-o", anaFile], stdout=subprocess.PIPE)
+		print ' '.join([NA62AnalysisPath+"/LightBoxTest", "-i", recoFile, "-o", anaFile])
+		analysis = subprocess.Popen([NA62AnalysisPath+"/LightBoxTest", "-i", recoFile, "-o", anaFile, "-g"], stdout=subprocess.PIPE)
 		print "Running analysis... please wait"
+		answer = None
+		signal.signal(signal.SIGALRM, timeout)
+		signal.alarm(3)
 		for line in analysis.stdout:
+			signal.alarm(3)
 			if "Analysis complete" in line:
 				print "Analysis complete ..."
 				answer = raw_input("Are the plots ok? [y/n] ")
 				break;
+			if "Bye!" in line:
+				print "Analysis failed ..."
+				raise(MagicScriptError("Fatal"))
 	
-		analysis.kill()
 	except OSError as e:
 		print "Unable to run LightBoxTest [Error {0}]: {1}".format(e.errno, e.strerror)
 		raise(MagicScriptError("Fatal"))
+	except signal.ItimerError as e:
+		print "Analysis timeout ... expecting plots to be displayed now"
+		answer = raw_input("Are the plots ok? [y/n] ")
 	
+	if answer==None:
+		print "Analysis failed ..."
+		raise(MagicScriptError("Fatal"))
+		
+	analysis.kill()
 	return answer
 
 def GenerateTex(pmMap, texPath):
