@@ -24,9 +24,9 @@ from os import getenv
 
 
 __all__ = []
-__version__ = 0.1
+__version__ = 0.2
 __date__ = '2014-04-09'
-__updated__ = '2014-04-09'
+__updated__ = '2014-04-11'
 
 class CLIError(Exception):
 	'''Generic exception to raise and log different fatal errors.'''
@@ -110,7 +110,7 @@ def rundaq(args):
 	if not args.dryRun:
 		try:
 			sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-			sock.connect(("tel62", 41988))
+			sock.connect(("localhost", 41988))
 		except socket.error as e:
 			print "Unable to establish communication with tdspy [Error {0}]: {1}".format(e.errno, e.strerror)
 			raise(MagicScriptError("Fatal"))
@@ -123,13 +123,14 @@ def rundaq(args):
 	
 	if not args.dryRun:
 		raw_input("Press enter to start run (at least 1s before next SOB)")
-		#TODO solve here
 		sock.sendall("@startrun2.spy")
-	#time.sleep(3)
+		sock.recv(1024, 0)
+		
 	daqResults = parseDaqOutput(daq, args)
 	
 	if not args.dryRun:
-		sock.sendall("@endrun2.spy\n")
+		sock.sendall("@endrun2.spy")
+		sock.recv(1024, 0)
 	
 	daq.kill()
 	if not args.dryRun:
@@ -165,7 +166,6 @@ def runReco(daqResults, listFile, recoFile, NA62RecoPath):
 
 def runAnalysis(recoFile, anaFile, NA62AnalysisPath):
 	try:
-		#todo solve this
 		analysis = subprocess.Popen([NA62AnalysisPath+"/LightBoxTest", "-i", recoFile, "-o", anaFile], stdout=subprocess.PIPE)
 		print "Running analysis... please wait"
 		for line in analysis.stdout:
@@ -182,7 +182,6 @@ def runAnalysis(recoFile, anaFile, NA62AnalysisPath):
 	return answer
 
 def GenerateTex(pmMap, texPath):
-	#todo solve this
 	pmGeoPos = pmMap[pmMap.keys()[0]]['GeoPos']
 	shortPath = texPath[texPath.find("/")+1:]
 	searchList= [{'pmSN':pmMap.keys()[0], 'pm':pmMap[pmMap.keys()[0]], 'SlewCorr':shortPath+'/SlewPlot'+str(pmGeoPos)+'.pdf', 'TRes':shortPath+'/TRes'+str(pmGeoPos)+'.pdf'}]
@@ -193,7 +192,7 @@ def GenerateTex(pmMap, texPath):
 		fd.writelines(str(t))
 		fd.close()
 	except IOError as e:
-		print "Unable to open PM tex file ('{0}'): {1}".format(texPath+"/PM"+pmGeoPos+".tex", e.strerror)
+		print "Unable to open PM tex file ('{0}'): {1}".format(texPath+"/PM"+str(pmGeoPos)+".tex", e.strerror)
 		raise(MagicScriptError("Fatal"))
 	
 	return "\input{"+shortPath+"/PM"+str(pmGeoPos)+"}\n"
@@ -201,6 +200,8 @@ def GenerateTex(pmMap, texPath):
 
 def process(args):
 
+	args.LightBox = "LightBox"+str(args.lightBoxNumber)
+	
 	lightBoxDir = "results/"+args.LightBox+"/"
 	listFile = lightBoxDir+args.LightBox+".list"
 	recoFile = lightBoxDir+args.LightBox+".root"
@@ -225,6 +226,9 @@ def process(args):
 	
 	if not os.path.exists(lightBoxDir):
 		os.mkdir(lightBoxDir)
+	
+	if not os.path.exists(texPath):
+		os.mkdir(texPath)
 	
 	pmMap = mapPMs(args.mapFile, "datasheet.dat")
 	
@@ -258,7 +262,7 @@ def process(args):
 		print "Unable to open LightBox tex file ('{0}'): {1}".format(texFile, e.strerror)
 		raise(MagicScriptError("Fatal"))
 
-def makeLatex():
+def makeLatex(args):
 	path = "results"
 	lightboxes = os.listdir(path)
 	texFiles = []
@@ -315,25 +319,22 @@ def main(argv=None):  # IGNORE:C0111
 USAGE
 ''' % (program_shortdesc, str(__date__))
 
-	if len(sys.argv)==2:
-		if sys.argv[1]=="-f":
-			makeLatex()
-			return
-		
 	try:
 		# Setup argument parser
 		parser = ArgumentParser(description=program_license, formatter_class=RawDescriptionHelpFormatter)
-		parser.add_argument("-m", "--mapfile", dest="mapFile", required=True, help="Path to file containing PM geo position in the box (SN Pos)")
-		parser.add_argument("-n", "--nevents", dest="nEvents", required=True, help="Number of events required")
-		parser.add_argument("-l", "--lightbox", dest="lightBoxNumber", type=int, required=True, help="LightBox number currently being tested")
-		parser.add_argument("-d", "--dryrun", dest="dryRun", action="store_true", help="Don't try to establish socket connection with tel62")
-		parser.add_argument("-f", action="count", help="Generate final pdf book")
 		parser.add_argument('-V', '--version', action='version', version=program_version_message)
+		subparsers = parser.add_subparsers()
+		parser_run = subparsers.add_parser('run', help='Run the acquisition for a lightbox')
+		parser_run.set_defaults(func=process)
+		parser_run.add_argument("-m", "--mapfile", dest="mapFile", required=True, help="Path to file containing PM geo position in the box (SN Pos)")
+		parser_run.add_argument("-n", "--nevents", dest="nEvents", required=True, help="Number of events required")
+		parser_run.add_argument("-l", "--lightbox", dest="lightBoxNumber", type=int, required=True, help="LightBox number currently being tested")
+		parser_run.add_argument("-d", "--dryrun", dest="dryRun", action="store_true", help="Don't try to establish socket connection with tel62")
+		parser_finalize = subparsers.add_parser('finalize', help='Compile the full pdf book for all tested lightboxes')
+		parser_finalize.set_defaults(func=makeLatex)
 		
 		# Process arguments
 		args = parser.parse_args()
-		
-		args.LightBox = "LightBox"+str(args.lightBoxNumber)
 		
 	except KeyboardInterrupt:
 		### handle keyboard interrupt ###
@@ -345,7 +346,7 @@ USAGE
 		return 2
 	
 	try:
-		process(args)
+		args.func(args)
 	except MagicScriptError as e:
 		print "\nScript exiting with error: {0}".format(e.value)
 
