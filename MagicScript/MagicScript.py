@@ -12,15 +12,16 @@ It defines classes_and_methods
 @deffield    updated: Updated
 '''
 
+from Cheetah.Template import Template
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
+from os import getenv
+from dimBurst import dimBurst
+import fcntl
 import os
 import socket
+import subprocess
 import sys
 import time
-import subprocess
-from Cheetah.Template import Template
-from os import getenv
-import signal
 
 
 
@@ -28,6 +29,18 @@ __all__ = []
 __version__ = 0.2
 __date__ = '2014-04-09'
 __updated__ = '2014-04-11'
+
+
+channels = [1, 2]
+
+scanVoltages = {1:[x for x in range(0,10)], 
+			2:[x for x in range(0,10)]}
+defaultVoltages = {1:1, 2:2}
+
+scanThresholds = {1:[x/10. for x in range(0,10)], 
+				2:[x/20. for x in range(0,10)]}
+defaultThresholds = {1:0.1, 2:0.05}
+
 
 class CLIError(Exception):
 	'''Generic exception to raise and log different fatal errors.'''
@@ -44,6 +57,20 @@ class MagicScriptError(Exception):
 		self.value = value
 	def __str__(self):
 		return repr(self.value)
+
+class Answer(object):
+	Bool = 'n'
+	Data = 0
+	def __init__(self):
+		pass
+
+tdSpy_Sock = None
+
+def startRun():
+	global tdSpy_Sock
+	tdSpy_Sock.sendall("@startrun2.spy")
+	
+dimClient = dimBurst(["BhamLab/Timing", startRun])
 
 def mapPMs(fileName, datasheet):
 	
@@ -82,9 +109,16 @@ def parseDaqOutput(daq, args):
 	currIndex = -1;
 	
 	lastFileIndex = 0;
-	
-	for line in daq.stdout:
+	while True:
+		while True:
+			try:
+				line = daq.stdout.readline()
+			except IOError:
+				continue
+			else:
+				break
 		line = line.rstrip('\n')
+		print line
 		if line.startswith("Opening"):
 			currFile = line[line.find("/"):]
 			currIndex = currIndex + 1
@@ -94,49 +128,87 @@ def parseDaqOutput(daq, args):
 			nBursts += 1
 		if line.startswith('NEventsPerBurst'):
 			daqResults[currIndex]['NTriggers'] = int(line.split('=')[1])
-			nTriggers += daqResults[currIndex]['NTriggers']
+			if not currIndex == 0:
+				nTriggers += daqResults[currIndex]['NTriggers']
 		if line.startswith('NGoodEvents'):
 			daqResults[currIndex]['NEvent'] = int(line.split('=')[1])
-			nEvents += daqResults[currIndex]['NEvent']
+			if not currIndex == 0:
+				nEvents += daqResults[currIndex]['NEvent']
 	
-		if nEvents >= int(args.nEvents) and not lastFileIndex == 0:
+		if nTriggers >= int(args.nEvents) and lastFileIndex == 0:
 			lastFileIndex = currIndex
 		
-		if currIndex > lastFileIndex and currIndex > 2:
+		if currIndex > lastFileIndex and currIndex > 2 and not lastFileIndex == 0:
 			break
 	
 	return daqResults
 	
+def setNonBlocking(fd):
+	"""
+	Set the file description of the given file descriptor to non-blocking.
+	"""
+	flags = fcntl.fcntl(fd, fcntl.F_GETFL)
+	flags = flags | os.O_NONBLOCK
+	fcntl.fcntl(fd, fcntl.F_SETFL, flags)
+	
 def rundaq(args):
+	global tdSpy_Sock
+	global dimClient
+	
 	if not args.dryRun:
 		try:
-			sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-			sock.connect(("localhost", 41988))
+			tdSpy_Sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+			tdSpy_Sock.connect(("tel62", 41988))
 		except socket.error as e:
 			print "Unable to establish communication with tdspy [Error {0}]: {1}".format(e.errno, e.strerror)
 			raise(MagicScriptError("Fatal"))
+		tdSpy_Sock.settimeout(1)
 		
 	try:
-		daq = subprocess.Popen("./na62daq", stdout=subprocess.PIPE)
+		#daq = subprocess.Popen("./na62daq", stdout=subprocess.PIPE)
+		daq = subprocess.Popen(["/usr/bin/stdbuf", "-o", "0", "./na62daq"], stdout=subprocess.PIPE)
 	except OSError as e:
 		print "Unable to run na62daq [Error {0}]: {1}".format(e.errno, e.strerror)
 		raise(MagicScriptError("Fatal"))		
-	
+	setNonBlocking(daq.stdout)
+
 	if not args.dryRun:
-		raw_input("Press enter to start run (at least 1s before next SOB)")
-		sock.sendall("@startrun2.spy")
-		sock.recv(1024, 0)
+		#if not args.autoRun:
+		#	raw_input("Press enter to start run (at least 1s before next SOB)")
+		#tdSpy_Sock.sendall("@startrun2.spy")
+		#startRun()
+		dimClient.activateHandler()
+		while not dimClient.fired():
+			time.sleep(0.5)
+		
+		while True:
+			try:
+				data = tdSpy_Sock.recv(4096, 0)
+				print data,
+				if not data: break
+			except IOError:
+				break
+		print '\033[0m'
 		
 	daqResults = parseDaqOutput(daq, args)
 	
 	if not args.dryRun:
-		sock.sendall("@endrun2.spy")
-		sock.recv(1024, 0)
+		dimClient.stop()
+		tdSpy_Sock.sendall("@endrun2.spy")
+		data = tdSpy_Sock.recv(1024, 0)
+		while True:
+			try:
+				data = tdSpy_Sock.recv(4096, 0)
+				print data,
+				if not data: break
+			except IOError:
+				break
+		print '\033[0m'
+	
+	if not args.dryRun:
+		tdSpy_Sock.close()
 	
 	daq.kill()
-	if not args.dryRun:
-		sock.close()
-	
 	return daqResults
 
 def runReco(daqResults, listFile, recoFile, NA62RecoPath):
@@ -153,8 +225,9 @@ def runReco(daqResults, listFile, recoFile, NA62RecoPath):
 	savedPath = os.getcwd()
 	os.chdir(NA62RecoPath)	
 	try:
-		print ' '.join(["./NA62Reco", "-l", savedPath+"/"+listFile, "-o", savedPath+"/"+recoFile])
-		reco = subprocess.Popen(["./NA62Reco", "-l", savedPath+"/"+listFile, "-o", savedPath+"/"+recoFile])
+		cmd = ["./NA62Reco", "-b", "100", "-l", listFile, "-o", recoFile]
+		print ' '.join(cmd)
+		reco = subprocess.Popen(cmd)
 		print "Running reconstruction... please wait"
 		reco.wait()
 		print "Reconstruction finished"
@@ -164,24 +237,46 @@ def runReco(daqResults, listFile, recoFile, NA62RecoPath):
 	finally:
 		os.chdir(savedPath)		
 
-
-def timeout(sig,frm):
-	raise(signal.ItimerError("Too Long"))
-
-def runAnalysis(recoFile, anaFile, NA62AnalysisPath):
+def runAnalysis(args, recoFile, anaFile, NA62AnalysisPath):
 	try:
 		print ' '.join([NA62AnalysisPath+"/LightBoxTest", "-i", recoFile, "-o", anaFile])
-		analysis = subprocess.Popen([NA62AnalysisPath+"/LightBoxTest", "-i", recoFile, "-o", anaFile, "-g"], stdout=subprocess.PIPE)
+		if args.autoRun and args.testRun:
+			#analysis = subprocess.Popen(["/usr/bin/stdbuf", "-o", "0", NA62AnalysisPath+"/LightBoxTest", "-i", recoFile, "-o", anaFile], stdout=subprocess.PIPE)
+			analysis = subprocess.Popen([NA62AnalysisPath+"/LightBoxTest", "-i", recoFile, "-o", anaFile], stdout=subprocess.PIPE)
+		else:
+			#analysis = subprocess.Popen(["/usr/bin/stdbuf", "-o", "0", NA62AnalysisPath+"/LightBoxTest", "-i", recoFile, "-o", anaFile, "-g"], stdout=subprocess.PIPE)
+			analysis = subprocess.Popen([NA62AnalysisPath+"/LightBoxTest", "-i", recoFile, "-o", anaFile, "-g"], stdout=subprocess.PIPE)
+		setNonBlocking(analysis.stdout)
 		print "Running analysis... please wait"
-		answer = None
-		signal.signal(signal.SIGALRM, timeout)
-		signal.alarm(3)
-		for line in analysis.stdout:
-			signal.alarm(3)
+		answer = Answer()
+		answer.Bool = None
+		illum = 0
+		while True:
+			while True:
+				try:
+					line = analysis.stdout.readline()
+				except IOError:
+					continue
+				else:
+					break
+			line = line.rstrip('\n')
+			print line
+			print '\033[0m',
+			if "100.00%" in line:
+				nEvt = line.strip('\n').split(' ')[3].split('/')[1]
+				print "nEvt is "+nEvt
+			if "llll" in line:
+				illum = line.strip('\n').split(' ')[2]
+				print "Illumination is "+illum
 			if "Analysis complete" in line:
 				print "Analysis complete ..."
-				answer = raw_input("Are the plots ok? [y/n] ")
-				break;
+				answer.Data = 100.0*float(illum)/float(nEvt)
+				if args.autoRun and args.testRun:
+					answer.Bool = 'y'
+				else:
+					answer.Bool = raw_input("Are the plots ok? [y/n] ")
+				time.sleep(1);
+				break
 			if "Bye!" in line:
 				print "Analysis failed ..."
 				raise(MagicScriptError("Fatal"))
@@ -189,15 +284,12 @@ def runAnalysis(recoFile, anaFile, NA62AnalysisPath):
 	except OSError as e:
 		print "Unable to run LightBoxTest [Error {0}]: {1}".format(e.errno, e.strerror)
 		raise(MagicScriptError("Fatal"))
-	except signal.ItimerError as e:
-		print "Analysis timeout ... expecting plots to be displayed now"
-		answer = raw_input("Are the plots ok? [y/n] ")
 	
-	if answer==None:
+	if answer.Bool==None:
 		print "Analysis failed ..."
 		raise(MagicScriptError("Fatal"))
 		
-	analysis.kill()
+	analysis.terminate()
 	return answer
 
 def GenerateTex(pmMap, texPath):
@@ -215,20 +307,73 @@ def GenerateTex(pmMap, texPath):
 		raise(MagicScriptError("Fatal"))
 	
 	return "\input{"+shortPath+"/PM"+str(pmGeoPos)+"}\n"
+
+
+def setLowVoltage(channels, values):
+	channelSetString = "ch %s setval %s "
+	lvString = "lv v "
 	
+	for c,v in zip(channels,values):
+		lvString += channelSetString % (c, v)
+	
+	print lvString
+
+def setThresholds(channels, values):
+	channelSetString = "ch %s setval %s "
+	thString = "th "
+	
+	for c,v in zip(channels,values):
+		thString += channelSetString % (c, v)
+	
+	print thString
+
+def singleRun(args, listFile, recoFile, anaFile, NA62Reco, NA62Analysis, i):
+	
+	if args.scanV or args.scanT:
+		listFile=listFile+"scan_%s_" % (i)
+		recoFile=recoFile+"scan_%s_" % (i)
+		anaFile=anaFile+"scan_%s_" % (i)
+
+	print listFile
+	daqResults = rundaq(args)
+	
+	if args.testRun:
+		listFile=listFile+daqResults[1]['File'][24:]
+		recoFile=recoFile+daqResults[1]['File'][24:]+".root"
+		anaFile=anaFile+daqResults[1]['File'][24:]+".root"
+	
+	runReco(daqResults, listFile, recoFile, NA62Reco)
+	
+	answer = runAnalysis(args, recoFile, anaFile, NA62Analysis)
+
+	if answer.Bool.lower() == 'n':
+		if not args.testRun:
+			return
+		else:
+			os.remove(listFile)
+			os.remove(recoFile)
+			os.remove(anaFile)
+			for f in [x['File'] for x in daqResults]:
+				os.remove(f)
+	
+	if args.testRun:
+		print daqResults[1]['File'][35:37]+"."+daqResults[1]['File'][38:40]+" AllPM ON: Run_"+daqResults[1]['File'][24:]+": Laser On -> "+str(answer.Data)+"\n"
+		if answer.Bool.lower() == 'y':
+			fd = open("/home/na62bham/LogBook.txt", 'a')
+			fd.write(daqResults[1]['File'][35:37]+"."+daqResults[1]['File'][38:40]+" AllPM ON: Run_"+daqResults[1]['File'][24:]+": Laser On -> "+str(answer.Data)+"\n")
+			fd.close()
+	
+	return (listFile,recoFile,anaFile)
 
 def process(args):
+	global dimClient
+	global channels
+	global scanVoltages
+	global nScanValues
+	global defaultVoltages
+	global scanThresholds
+	global defaultThresholds
 
-	args.LightBox = "LightBox"+str(args.lightBoxNumber)
-	
-	lightBoxDir = "results/"+args.LightBox+"/"
-	listFile = lightBoxDir+args.LightBox+".list"
-	recoFile = lightBoxDir+args.LightBox+".root"
-	anaFile = lightBoxDir+args.LightBox+"Test.root"
-	extractDir = lightBoxDir+"tex"
-	texPath = lightBoxDir+"tex"
-	texFile = texPath+"/"+args.LightBox+".tex"
-	
 	
 	if getenv("NA62RECOSOURCE") == None:
 		print "Missing NA62RECOSOURCE environment variable"
@@ -239,7 +384,25 @@ def process(args):
 	
 	NA62Reco = getenv("NA62RECOSOURCE")
 	NA62Analysis = getenv("NA62ANALYSIS")
-
+	
+	args.LightBox = "LightBox"+str(args.lightBoxNumber)
+	lightBoxDir = os.getcwd()+"/results/"+args.LightBox+"/"
+	if not args.testRun:
+		listFile = lightBoxDir+args.LightBox+".list"
+		recoFile = lightBoxDir+args.LightBox+".root"
+		anaFile = lightBoxDir+args.LightBox+"Test.root"
+		extractDir = lightBoxDir+"tex"
+		texFile = lightBoxDir+"tex/"+args.LightBox+".tex"
+		BlueIndexMapFile = lightBoxDir+args.LightBox+"BlueIndexMap.txt"
+		texPath = lightBoxDir+"tex"
+		texFile = texPath+"/"+args.LightBox+".tex"
+	else:
+		listFile = NA62Reco+"/list_"
+		recoFile = NA62Reco+"/Run_"
+		anaFile = NA62Analysis+"/TRes_"
+		BlueIndexMapFile = "results/"+args.LightBox+"/"+args.LightBox+"BlueIndexMap.txt"
+		texPath = "results/"+args.LightBox+"/tex"
+	
 	if not os.path.exists("results"):
 		os.mkdir("results")
 	
@@ -250,19 +413,41 @@ def process(args):
 		os.mkdir(texPath)
 	
 	pmMap = mapPMs(args.mapFile, "datasheet.dat")
+
+	fd = open(BlueIndexMapFile, 'w')
+	for pm in pmMap:
+		fd.write(str(pmMap[pm]['GeoPos']) + " " + str(pmMap[pm]['BlueSens']) + "\n")
+	fd.close()
+
+	if os.path.lexists(os.getcwd()+"/LightBoxBlueIndexMap.txt"):
+		os.remove(os.getcwd()+"/LightBoxBlueIndexMap.txt")
+	os.symlink(BlueIndexMapFile,os.getcwd()+"/LightBoxBlueIndexMap.txt")
 	
-	daqResults = rundaq(args)
-	
-	runReco(daqResults, listFile, recoFile, NA62Reco)
-	
-	answer = runAnalysis(recoFile, anaFile, NA62Analysis)
-	
-	if answer.lower() == 'n':
-		return
-	
+	dimClient.start()
+		
+	if args.scanV:		
+		#voltage scan
+		for i,lv in enumerate(zip(*scanVoltages.itervalues())):
+			setLowVoltage(channels, lv)
+			
+			(listFile,recoFile,anaFile) = singleRun(args, listFile, recoFile, anaFile, NA62Reco, NA62Analysis, i)
+			
+		#reset voltages
+		setLowVoltage(channels, defaultVoltages.itervalues())
+	elif args.scanT:	
+		#threshold scan
+		for i,th in enumerate(zip(*scanThresholds.itervalues())):
+			setThresholds(channels, th)
+			
+			(listFile,recoFile,anaFile) = singleRun(args, listFile, recoFile, anaFile, NA62Reco, NA62Analysis, i)
+		
+		setThresholds(channels, defaultThresholds.itervalues())
+	else:
+		(listFile,recoFile,anaFile) = singleRun(args, listFile, recoFile, anaFile, NA62Reco, NA62Analysis,0)
+		
+	return
 	
 	lightBoxContent = ""
-	
 	for pm in pmMap:
 		try:
 			extract = subprocess.Popen(["./ExtractPlots", "-n", str(pmMap[pm]['GeoPos']), "-i", recoFile, "-I", anaFile, "-o", extractDir])
@@ -345,10 +530,14 @@ USAGE
 		subparsers = parser.add_subparsers()
 		parser_run = subparsers.add_parser('run', help='Run the acquisition for a lightbox')
 		parser_run.set_defaults(func=process)
+		parser_run.add_argument("-a", "--autorun", dest="autoRun", action="store_true", help="Don't ask for any confiramtion from user")
 		parser_run.add_argument("-m", "--mapfile", dest="mapFile", required=True, help="Path to file containing PM geo position in the box (SN Pos)")
 		parser_run.add_argument("-n", "--nevents", dest="nEvents", required=True, help="Number of events required")
 		parser_run.add_argument("-l", "--lightbox", dest="lightBoxNumber", type=int, required=True, help="LightBox number currently being tested")
 		parser_run.add_argument("-d", "--dryrun", dest="dryRun", action="store_true", help="Don't try to establish socket connection with tel62")
+		parser_run.add_argument("-t", "--testrun", dest="testRun", action="store_true", help="Don't save in the final result dir")
+		parser_run.add_argument("--scanV", dest="scanV", action="store_true", help="Run voltage scan")
+		parser_run.add_argument("--scanT", dest="scanT", action="store_true", help="Run threshold scan")
 		parser_finalize = subparsers.add_parser('finalize', help='Compile the full pdf book for all tested lightboxes')
 		parser_finalize.set_defaults(func=makeLatex)
 		
