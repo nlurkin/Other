@@ -7,3 +7,5 @@
 /libcppserver.so
 /.cproject
 *.svn
+/Configuration
+env.sh
