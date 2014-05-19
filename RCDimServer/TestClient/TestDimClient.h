@@ -32,6 +32,7 @@ public:
 
 	void test();
 
+	void sendFile(string fileName);
 private:
 	enum {kSTARTED, kSENDING, kWAITING, kENDED};
 	void handleState(int i);
@@ -45,8 +46,6 @@ private:
 	//void resetTransfer();
 
 	//void modifyTransferStatus(int st);
-
-	void sendFile(string fileName);
 
 	void print(string s);
 

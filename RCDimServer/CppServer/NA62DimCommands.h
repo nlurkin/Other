@@ -131,9 +131,15 @@ public:
 	 * @param parent Pointer to the parent dim server.
 	 */
 	FileContent(std::string dimServerName, NA62DimServer *parent):
-		NA62DimCommand(dimServerName, "FileContent", "C", parent){};
+		NA62DimCommand(dimServerName, "FileContent", "C", parent),
+		enabled(false){};
+
+	void enable();
+	void disable();
 private:
 	void commandHandler();
+
+	bool enabled;
 
 protected:
 	/**

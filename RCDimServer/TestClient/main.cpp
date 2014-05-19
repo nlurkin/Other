@@ -34,6 +34,7 @@ int main(int argc, char** argv){
 		if(input.compare("end")==0) client->endrun();
 		if(input.compare("reset")==0) client->reset();
 		if(input.compare("request")==0) client->requestConfig();
+		if(input.compare("sendfile")==0) client->sendFile("ColdConfig.xml");
 		if(input.compare("t")==0) client->test();
 	}
 }

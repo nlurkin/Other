@@ -142,6 +142,12 @@ void Command::doResetState(std::vector<std::string> tok){
 void FileContent::commandHandler(){
 	bool success;
 
+	std::cout << true << " " << enabled << std::endl;
+	if(!enabled){
+		p->println("Ignoring FileContent");
+		return;
+	}
+
 	p->print("FileContent port receiving: ");
 	p->println(getString());
 
@@ -159,6 +165,30 @@ void FileContent::commandHandler(){
 		p->println("Error while applying configuration.");
 		p->setState(kCONFIGERROR);
 	}
+}
+
+/**
+ * FileContent enable
+ *
+ * Enable the file decoding upon reception. Use with disable().
+ *
+ * Even if the RunControl send a configuration file, if this command is
+ * in a "disabled" state it will not decode the file.
+ */
+void FileContent::enable(){
+	enabled = true;
+}
+
+/**
+ * FileContent disable
+ *
+ * Disable the file decoding upon reception. Use with enable().
+ *
+ * Even if the RunControl send a configuration file, if this command is
+ * in a "disabled" state it will not decode the file.
+ */
+void FileContent::disable(){
+	enabled = false;
 }
 
 /**

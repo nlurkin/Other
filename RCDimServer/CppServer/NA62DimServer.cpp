@@ -216,11 +216,14 @@ void NA62DimServer::setState(int state) {
 /**
  * Set the current device state to the next expected state
  * (if set, else stay in the current state).
+ * Disable the FileContent command (not expecting configFile anymore).
  */
 void NA62DimServer::moveToExpectedState() {
-	//Update the current state to the next expected state only if sett (!=-1)
+	//Update the current state to the next expected state only if set (!=-1)
 	if(fNextState!=-1) setState(fNextState);
 	else setState(fState);
+	fDimFileContent->disable();
+	std::cout << "DIsabling FileContent" << std::endl;
 }
 
 /**
@@ -247,12 +250,14 @@ void NA62DimServer::publishConfig(){
 }
 
 /**
- * Wait for a configuration file and set the next expected state when
- * the file is correctly decoded and applied.
+ * Enable the FileContent command and wait for a configuration file.
+ * Set the next expected state when the file is correctly decoded and applied.
  * @param expectedState next expected state after successfully applying the configuration
  */
 void NA62DimServer::waitConfigurationFile(int expectedState) {
 	println("... Waiting for configuration file");
+	std::cout << "ENsabling FileContent" << std::endl;
+	fDimFileContent->enable();
 	setNextState(expectedState);
 }
 
