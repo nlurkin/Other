@@ -14,7 +14,7 @@ libcppserver.so: ../libcppserver.so
 ../RCDimCpp: $(CppServerOBJ) $(xmlproxyDIR)/xmlconfig_TestNode.h $(xmlproxyOBJ)
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBSDIR) $(LIBS) -lcppserver 
 
-$(OBJDIR)/%.o: %.cpp %.h
+$(OBJDIR)/%.o: %.cpp %.h ../Version.h
 	@mkdir -p $(OBJDIR)
 	$(CC) -o $@ -c $< $(CFLAGS) $(HDRDIR)
 	

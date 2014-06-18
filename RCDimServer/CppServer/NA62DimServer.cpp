@@ -8,10 +8,10 @@
 #include <iostream>
 #include <sstream>
 #include "NA62DimServer.h"
+#include "Version.h"
 
 #define STRING_MAX_LENGTH 500
 #define CONFIG_MAX_LENGTH 1000
-
 
 /**
  * Server constructor.
@@ -33,12 +33,14 @@ NA62DimServer::NA62DimServer(std::string name, int sourceID):
 	fDimInfo(new DimService((fDimServerName + "/Info").c_str(), fInfo)),
 	fDimLogging(new DimService((fDimServerName).c_str(), fLogging)),
 	fDimConfig(new DimService((fDimServerName + "/Config").c_str(), fConfig)),
+	fDimVersion(new DimService((fDimServerName + "/NA62_VERSION").c_str(), "I:3", &server_version, sizeof(server_version))),
 	fDimCommand(NULL),
 	fDimFileContent(NULL),
 	fDimRequestConfig(NULL),
 	fRunNumber(0),
 	fRunType(""),
 	fSourceID(sourceID),
+	fIsStarted(false),
 	fConfigStruct(0)
 {
 }
@@ -106,6 +108,7 @@ void NA62DimServer::start(){
 	DimServer::start(fDimServerName.c_str());
 
 	println(fDimServerName + " is starting.");
+	fIsStarted = true;
 }
 
 /**
@@ -157,7 +160,7 @@ void NA62DimServer::println(const char *s){
 	fInfoIndex = 0;
 
 	//Update the service
-	fDimInfo->updateService();
+	if(fIsStarted) fDimInfo->updateService();
 }
 /**
  * Output to cout with endline (and flush the stream)
@@ -210,7 +213,7 @@ int NA62DimServer::getState() const {
 void NA62DimServer::setState(int state) {
 	fState = state;
 	fNextState = -1;	// Reset the next expected state.
-	fDimState->updateService();
+	if(fIsStarted) fDimState->updateService();
 }
 
 /**
@@ -246,7 +249,7 @@ void NA62DimServer::publishConfig(){
 
 	//Put the config stream in the buffer
 	strcpy(fConfig, ss.str().c_str());
-	fDimConfig->updateService();
+	if(fIsStarted) fDimConfig->updateService();
 }
 
 /**
@@ -291,5 +294,5 @@ void NA62DimServer::centralizedLog(int severity, std::string text, int priority,
 	//ss << "ErrTime:2014.03.20 09:34:39.035<[|]>SysName:dist_5<[|]>Username:n/a<[|]>Manager:WCCILdatabg  (1)<[|]>DpId:-2<[|]>ErrPrio:3<[|]>ErrType:2<[|]>ErrCode:6<[|]>ErrText:Initialization by Data Manager finished<[|]>";
 
 	strcpy(fLogging,ss.str().c_str());
-	fDimLogging->updateService();
+	if(fIsStarted) fDimLogging->updateService();
 }

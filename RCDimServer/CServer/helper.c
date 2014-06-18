@@ -45,7 +45,7 @@ void println(const char *s){
 	fInfo[fInfoIndex+strlen(s)] = '\n';
 	fInfo[fInfoIndex+strlen(s)+1] = '\0';
 	fInfoIndex = 0;
-	dis_update_service(fDimInfo);
+	if(fIsStarted==1) dis_update_service(fDimInfo);
 }
 /**
  * Output to cout with endline (and flush the stream)
@@ -98,7 +98,7 @@ void centralizedLog(int severity, char* text, int priority, int errCode)
 	strcat(str, "<[|]>");
 
 	strcpy(fLogging,str);
-	dis_update_service(fDimLogging);
+	if(fIsStarted==1) dis_update_service(fDimLogging);
 }
 
 /**

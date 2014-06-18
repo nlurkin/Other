@@ -18,7 +18,7 @@ libcserver.so: ../libcserver.so
 ../libcserver.so: $(CLibOBJ)
 	$(CCC) $(SOFLAGS) -Wl,-soname,libcserver.so -o $@ $^ $(CFLAGS)
 
-$(OBJDIR)/%.o: %.c %.h
+$(OBJDIR)/%.o: %.c %.h ../Version.h
 	@mkdir -p $(OBJDIR)
 	$(CCC) -o $@ -c $< $(CFLAGS) $(HDRDIR)
 
