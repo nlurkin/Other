@@ -155,6 +155,7 @@ void moveToExpectedState() {
 	//Update the current state to the next expected state only if set (!=-1)
 	if(fNextState!=-1) setState(fNextState);
 	else setState(fState);
+	disableFileContent();
 }
 
 /**
@@ -187,6 +188,7 @@ void publishConfig(){
  */
 void waitConfigurationFile(int expectedState) {
 	println("... Waiting for configuration file");
+	enableFileContent();
 	setNextState(expectedState);
 }
 

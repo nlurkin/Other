@@ -9,6 +9,7 @@
 #include "dic.hxx"
 #include <iostream>
 #include <fstream>
+#include <sstream>
 //#include "Version.h"
 
 #define NONE "\x1b[0m"
@@ -29,6 +30,7 @@ TestDimClient::TestDimClient(string name) {
 	//infoWaiting = new DimInfo((name + "/Waiting").c_str(), -1, this);
 	infoConfig = new DimInfo((name + "/Config").c_str(), (char*)"", this);
 	infoVersion = new DimInfo((name + "/NA62_VERSION").c_str(), &version, sizeof(NA62Version_t), this);
+	rpcConfig = new DimRpcInfo((name + "/RequestConfig").c_str(), (char*)"");
 
 	//currentFile = -1;
 	deviceState = -1;
@@ -117,7 +119,15 @@ void TestDimClient::reset() {
 }
 
 void TestDimClient::requestConfig(){
-	sendCommand((dimServerName + "/RequestConfig").c_str(), 1);
+	std::stringstream path;
+	path << "Configuration/Report/SubSystem/" << dimServerName << "/report.xml";
+	//sendCommand((dimServerName + "/RequestConfig").c_str(), path.str().c_str());
+	char cPath[501];
+	char *rPath;
+	strcpy(cPath, path.str().c_str());
+	rpcConfig->setData(cPath);
+	rPath = rpcConfig->getString();
+	handleConfig(rPath);
 }
 
 void TestDimClient::handleConfig(string s) {

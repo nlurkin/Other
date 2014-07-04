@@ -12,6 +12,9 @@
 #include "dis.hxx"
 #include <sstream>
 
+#define STRING_MAX_LENGTH 500
+#define CONFIG_MAX_LENGTH 1000
+
 /**
  * Pure virtual base class NA62DimServer.
  *
@@ -45,7 +48,7 @@ public:
 	void println(int s);
 
 	//Logging
-	void centralizedLog(int severity, std::string text, int priority, int errCode=0);
+	void centralizedLog(int severity, std::string text, int priority=0, int errCode=0);
 
 	//State management
 	int getState() const;
@@ -68,7 +71,7 @@ public:
 	 * To be implemented in the derived class.
 	 * @param ss stringstream to fill
 	 */
-	virtual void generateConfig(std::stringstream& ss) = 0;
+	virtual void generateConfig(std::string &path) = 0;
 	/**
 	 * Apply the configuration decoded from the configuration file.
 	 *
@@ -105,7 +108,7 @@ public:
 	void* getConfigStruct() { return fConfigStruct;};
 
 	//Config publishing
-	void publishConfig();
+	void publishConfig(std::string &path);
 private:
 	/**
 	 * Default constructor. Not implemented.

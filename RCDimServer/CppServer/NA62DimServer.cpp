@@ -10,9 +10,6 @@
 #include "NA62DimServer.h"
 #include "Version.h"
 
-#define STRING_MAX_LENGTH 500
-#define CONFIG_MAX_LENGTH 1000
-
 /**
  * Server constructor.
  *
@@ -226,7 +223,6 @@ void NA62DimServer::moveToExpectedState() {
 	if(fNextState!=-1) setState(fNextState);
 	else setState(fState);
 	fDimFileContent->disable();
-	std::cout << "DIsabling FileContent" << std::endl;
 }
 
 /**
@@ -241,15 +237,15 @@ void NA62DimServer::setNextState(int nextState) {
  * Publish the current configuration to dimServerName/Config.
  * The current configuration is requested to generateConfig (to be implemented in the derived class)
  */
-void NA62DimServer::publishConfig(){
-	std::stringstream ss;
+void NA62DimServer::publishConfig(std::string &path){
+	//std::stringstream ss;
 
 	//Generate the config stream (implemented in derived class)
-	generateConfig(ss);
+	generateConfig(path);
 
 	//Put the config stream in the buffer
-	strcpy(fConfig, ss.str().c_str());
-	if(fIsStarted) fDimConfig->updateService();
+	//strcpy(fConfig, ss.str().c_str());
+	//if(fIsStarted) fDimConfig->updateService();
 }
 
 /**
@@ -259,7 +255,6 @@ void NA62DimServer::publishConfig(){
  */
 void NA62DimServer::waitConfigurationFile(int expectedState) {
 	println("... Waiting for configuration file");
-	std::cout << "ENsabling FileContent" << std::endl;
 	fDimFileContent->enable();
 	setNextState(expectedState);
 }

@@ -12,6 +12,9 @@ void stdDimRequestConfig(long* tag, char* cmnd_buffer, int*size);
 
 int stdSelectCommand(char commandName[STRING_MAX_LENGTH], char tok[5][STRING_MAX_LENGTH]);
 
+void enableFileContent();
+void disableFileContent();
+
 //#########################
 //To be found in server.c
 extern void publishConfig();

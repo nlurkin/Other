@@ -62,6 +62,37 @@ protected:
 };
 
 /**
+ * Base class for Dim RPC.
+ *
+ * Contains a pointer to the server: p(arent)
+ */
+class NA62DimRpc: public DimRpc
+{
+public:
+	/**
+	 * Constructor for a dim command dimServerName/commandName of type commandType
+	 *
+	 * (see dim documentation for the available types and format: http://dim.web.cern.ch/dim/)
+	 * @param dimServerName Name of the dim server
+	 * @param commandName Name of the command
+	 * @param commandType Type of the command
+	 * @param parent Pointer to parent server
+	 */
+	NA62DimRpc(std::string dimServerName, std::string commandName, std::string commandType, std::string outputType, NA62DimServer *parent):
+		DimRpc((dimServerName + "/" + commandName).c_str(), commandType.c_str(), outputType.c_str()),
+		p(parent){};
+
+private:
+	NA62DimRpc(); /*!< Default constructor. Not implemented */
+	NA62DimRpc(const NA62DimCommand &c); /*!< Copy constructor. Not implemented */
+
+	virtual void rpcHandler() = 0; /*!< Pure virtual commandHandler */
+
+protected:
+	NA62DimServer *p;	/*!< Pointer to the parent dim server*/
+};
+
+/**
  * Implement the Command dim command (dimServerName/Command).
  *
  * This implementation is able to receive and execute the default actions for:
@@ -164,7 +195,7 @@ protected:
  * The default behavior of this class should probably be enough as the device specific
  * implementation is done in the server part (generateConfig()).
  */
-class RequestConfig: public NA62DimCommand
+class RequestConfig: public NA62DimRpc
 {
 public:
 	/**
@@ -172,9 +203,9 @@ public:
 	 * @param dimServerName Name of the dim server
 	 * @param parent Pointer to the parent dim server.
 	 */
-	RequestConfig(std::string dimServerName, NA62DimServer *parent):NA62DimCommand(dimServerName, "RequestConfig", "I", parent){};
+	RequestConfig(std::string dimServerName, NA62DimServer *parent):NA62DimRpc(dimServerName, "RequestConfig", "C", "C", parent){};
 private:
-	void commandHandler();
+	void rpcHandler();
 };
 
 #endif /* NA62DIMCOMMANDS_H_ */

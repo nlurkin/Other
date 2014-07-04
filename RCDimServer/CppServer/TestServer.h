@@ -17,7 +17,7 @@ public:
 	virtual ~TestServer();
 
 	void mainLoop();
-	void generateConfig(std::stringstream& ss);
+	void generateConfig(std::string& path);
 	bool applyConfiguration();
 
 	void setFrequency(double frequency);

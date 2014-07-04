@@ -1,0 +1,4 @@
+/.settings
+/testConfig
+/armpy.py
+*.pyc

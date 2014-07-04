@@ -61,6 +61,8 @@ private:
 	DimInfo *infoConfig;
 	DimInfo *infoVersion;
 
+	DimRpcInfo *rpcConfig;
+
 	string dimServerName;
 
 	//vector<string> files;

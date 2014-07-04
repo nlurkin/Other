@@ -66,11 +66,11 @@ void TestServer::mainLoop()
 {
 }
 
-void TestServer::generateConfig(std::stringstream& ss) {
+void TestServer::generateConfig(std::string& path) {
 	centralizedLog(0, "Toto", 1);
 	TestNode *t = (TestNode*)NA62DimServer::fConfigStruct;
 
-	ss << "Configuration/Report/SubSystem/" << getDimServerName() << "/report.xml";
+	//ss << "Configuration/Report/SubSystem/" << getDimServerName() << "/report.xml";
 
 	//Generate the current configuration stream using the same format as the input file.
 	t->frequency = fFrequency;
@@ -80,7 +80,7 @@ void TestServer::generateConfig(std::stringstream& ss) {
 	strcpy(t->uselessString, fUselessString.c_str());
 
 	ConfigDecoder dec;
-	dec.writeFile(ss.str(), t);
+	dec.writeFile(path, t);
 }
 
 void TestServer::setParam(int param) {
