@@ -1,0 +1,20 @@
+Version 2.2.0 - 18/06/2014
+	* Add a NA62_VERSION service
+	* Update services only if the server has already been started
+
+Version 2.1.0 - 19/05/2014
+	* FileContent command is ignored if waitConfigurationFile has not been called
+
+Version 2.0.0 - 19/03/2014
+	* Transformed the simple skeleton into an interface
+	* Example make use of the xml proxy 
+
+Version 1.0.0 - 17/02/2014
+	* Configuration mechanism is modified to match the new simplified interface
+
+Version 0.2.0 - 31/01/2014
+ 	* Simple working C skeleton
+
+Version 0.1.0 - 30/01/2014
+	* Simple working C++ skeleton
+	* Testclient able to test skeleton

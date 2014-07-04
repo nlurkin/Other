@@ -11,6 +11,7 @@
  * with the behavior described in the Note NA62-14-02.
  */
 
+#include "Version.h"
 #include "server.h"
 #include "helper.h"
 #include "commands.h"
@@ -23,6 +24,7 @@ int fDimState=0;	/*!< Identifier of dimServerName/State service */
 int fDimInfo=0;		/*!< Identifier of dimServerName/Info service */
 int fDimLogging=0;	/*!< Identifier of dimServerName/Logging service */
 int fDimConfig=0;	/*!< Identifier of dimServerName/Config service */
+int fDimVersion=0;	/*!< Identifier of dimServerName/NA62VERSION service */
 
 int fRunNumber=0;	/*!< Current Run Number */
 
@@ -34,6 +36,8 @@ char fConfig[CONFIG_MAX_LENGTH];	/*!< Buffer for dimServerName/Config */
 
 int fInfoIndex=0;	/*!< Current index of the fInfo buffer */
 int fSourceID=0;	/*!< Source ID of the device */
+
+int fIsStarted=0;	/*!< Has the server already been started */
 
 /**
  * Initialize the dim commands.
@@ -79,16 +83,19 @@ void startServer(char* dimServerName, int sourceID){
 	char infoName[STRING_MAX_LENGTH];
 	char loggingName[STRING_MAX_LENGTH];
 	char configName[CONFIG_MAX_LENGTH];
+	char versionName[CONFIG_MAX_LENGTH];
 
 	sprintf(stateName, "%s/%s", dimServerName, "State");
 	sprintf(infoName, "%s/%s", dimServerName, "Info");
 	sprintf(loggingName, "%s/%s", dimServerName, "Logging");
 	sprintf(configName, "%s/%s", dimServerName, "Config");
+	sprintf(versionName, "%s/%s", dimServerName, "NA62_VERSION");
 
 	fDimState = dis_add_service(stateName, "I", &fState, sizeof(int), 0, 0);
 	fDimInfo = dis_add_service(infoName, "C", &fInfo, sizeof(fInfo), 0, 0);
 	fDimLogging = dis_add_service(loggingName, "C", &fLogging, sizeof(fLogging), 0, 0);
 	fDimConfig = dis_add_service(configName, "C", &fConfig, sizeof(fConfig), 0, 0);
+	fDimVersion = dis_add_service(versionName, "I:3", &server_version, sizeof(server_version), 0, 0);
 
 	fSourceID = sourceID;
 
@@ -98,6 +105,8 @@ void startServer(char* dimServerName, int sourceID){
 
 	println(" is starting.");
 	centralizedLog(0, "Starting server", 1, 0);
+
+	fIsStarted = 1;
 
 	while(main_loop()!=1){
 	}
@@ -135,7 +144,7 @@ int getState(){
 void setState(int state) {
 	fState = state;
 	fNextState = -1;	// Reset the next expected state.
-	dis_update_service(fDimState);
+	if(fIsStarted==1) dis_update_service(fDimState);
 }
 
 /**
@@ -168,7 +177,7 @@ void publishConfig(){
 
 	//Put the config stream in the buffer
 	strcpy(fConfig, ss);
-	dis_update_service(fDimConfig);
+	if(fIsStarted==1) dis_update_service(fDimConfig);
 }
 
 /**

@@ -13,6 +13,11 @@
 
 using namespace std;
 
+typedef struct NA62Version {
+	const int fMajor;
+	const int fMinor;
+	const int fPatch;
+} NA62Version_t;
 
 class TestDimClient : public DimClient{
 public:
@@ -54,6 +59,7 @@ private:
 	DimInfo *infoLogging;
 	//DimInfo *infoWaiting;
 	DimInfo *infoConfig;
+	DimInfo *infoVersion;
 
 	string dimServerName;
 

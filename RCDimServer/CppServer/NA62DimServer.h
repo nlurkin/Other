@@ -12,7 +12,6 @@
 #include "dis.hxx"
 #include <sstream>
 
-
 /**
  * Pure virtual base class NA62DimServer.
  *
@@ -139,6 +138,7 @@ private:
 	DimService *fDimInfo;	/*!< Pointer to dimServerName/Info service */
 	DimService *fDimLogging;/*!< Pointer to dimServerName/Logging service */
 	DimService *fDimConfig;	/*!< Pointer to dimServerName/Config service */
+	DimService *fDimVersion;	/*!< Pointer to dimServerName/NA62_VERSION service */
 
 	Command *fDimCommand;				/*!< Pointer to the implementation of the dimServerName/Command dim command */
 	FileContent *fDimFileContent;		/*!< Pointer to the implementation of the dimServerName/FileContent dim command */
@@ -149,6 +149,7 @@ private:
 
 	int fSourceID;			/*!< Source id of this device */
 
+	bool fIsStarted;			/*!< Has the server already been started */
 protected:
 	void* fConfigStruct;	/*!< Pointer to a structure containing the configuration parameters. Should be filled in FileContent derived class */
 };

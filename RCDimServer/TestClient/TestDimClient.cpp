@@ -9,6 +9,7 @@
 #include "dic.hxx"
 #include <iostream>
 #include <fstream>
+//#include "Version.h"
 
 #define NONE "\x1b[0m"
 #define YELLOW "\x1b[43m"
@@ -16,6 +17,7 @@
 #define GREEN "\x1b[42m"
 #define RED "\x1b[41m"
 
+static NA62Version_t version = {0,0,0};
 
 using namespace std;
 
@@ -26,6 +28,7 @@ TestDimClient::TestDimClient(string name) {
 	infoLogging = new DimInfo((name + "/Logging").c_str(), (char*)"", this);
 	//infoWaiting = new DimInfo((name + "/Waiting").c_str(), -1, this);
 	infoConfig = new DimInfo((name + "/Config").c_str(), (char*)"", this);
+	infoVersion = new DimInfo((name + "/NA62_VERSION").c_str(), &version, sizeof(NA62Version_t), this);
 
 	//currentFile = -1;
 	deviceState = -1;
@@ -59,6 +62,10 @@ void TestDimClient::infoHandler() {
 	//	}
 	else if(curr==infoConfig){
 		handleConfig(curr->getString());
+	}
+	else if(curr==infoVersion){
+		NA62Version_t *v = (NA62Version_t*)curr->getData();
+		cout << "NA62DimServer Version is " << v->fMajor << "." << v->fMinor << "." << v->fPatch << endl;
 	}
 }
 

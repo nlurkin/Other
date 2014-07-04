@@ -22,6 +22,8 @@ extern char fLogging[STRING_MAX_LENGTH];
 
 extern int fInfoIndex;
 extern int fSourceID;
+
+extern int fIsStarted;
 //###################
 
 #endif
