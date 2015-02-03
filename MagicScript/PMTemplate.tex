@@ -1,0 +1,37 @@
+\subsection{$pmSN}
+
+%\subsubsection{PM Infos}
+\def\imagetop#1{\vtop{\null\hbox{#1}}}
+\begin{tabular}{lr}
+\begin{tabular}[t]{|D|I|}
+	\hline
+	Serial Number			& $pmSN \\
+	\hline
+	Position in LightBox 	& $pm.GeoPos \\
+	\hline
+	Cathode Luminous Sens. \newline\$\mu A/lm\$	& $pm.CatLum \\
+	\hline
+	Anode Luminous Sens. \newline\$A/lm\$	& $pm.AnLum \\
+	\hline
+	Anode Dark Current 	\newline\$nA\$	& $pm.DarkCurr \\
+	\hline
+	Cathode Blue Sens. Index 	& $pm.BlueSens \\
+	\hline
+	Gain Anode/Cathode 		& $pm.Gain \\
+	\hline
+	Time resolution \newline\$ps\$ & xxx \\
+	\hline
+			&	\\
+	\hline
+\end{tabular}
+&
+\imagetop{\includegraphics[scale=0.3]{../lightBoxGeo.pdf}}\\
+
+\end{tabular}
+%\subsubsection{Run results}
+
+\begin{center}
+\includegraphics[scale=0.47]{$SlewCorr}
+\newline 
+\includegraphics[scale=0.47]{$TRes}
+\end{center}
