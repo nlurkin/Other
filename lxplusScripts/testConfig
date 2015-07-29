@@ -1,0 +1,11 @@
+executable = /afs/cern.ch/user/n/nlurkin/Compact/compactjob
+listFile = scmp.p5.pass2.list
+outputDir = output_test
+maxJobs = 40
+outputFile = job_data$jobIndex.root
+
+optTemplate = -string prefix=job_data$jobIndex:can=pi0d:nooutput=1 -i $fileName
+
+preExecute = export HOME=/afs/cern.ch/user/n/nlurkin
+	source ~/env.sh
+	mv $outputFile $outputDir/job_data$jobIndex.root
