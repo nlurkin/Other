@@ -1,0 +1,120 @@
+devices:
+ - &TELL
+   Name: NA62TellBoardBasic
+   States: [ERROR, NOT_CONNECTED, IDLE, INITIALIZED, READY, WARNING]
+ - &Trigger
+   Name: NA62TriggerAlgoBasic
+   States: [IDLE, INITIALIZED, READY]
+ - &SRB
+   Name: NA62SRBControlBasic
+   States: [ERROR, NOT_CONNECTED, IDLE, INITIALIZED, READY, WARNING]
+ - &LKrL0
+   Name: NA62SLMLKrL0
+   States: [ERROR, NOT_CONNECTED, IDLE, INITIALIZED, READY]
+ - &SLM
+   Name: NA62SLMBasic
+   States: [ERROR, NOT_CONNECTED, IDLE, INITIALIZED, READY, WARNING]
+ - &RunManager
+   Name: NA62RunManagerBasic
+   States: [ERROR, NOT_READY, READY]
+ - &PCFarm
+   Name: NA62PCFarmBasic
+   States: [ERROR, IDLE, STARTING, WARNING, READY]
+ - &OM
+   Name: NA62OnlineMonitorBasic
+   States: [ERROR, NOT_CONNECTED, IDLE, INITIALIZED, READY, WARNING]
+ - &LTU
+   Name: NA62LTUBasic
+   States: [ERROR, NOT_CONNECTED, IDLE, INITIALIZED, READY]
+ - &LAVPi
+   Name: NA62LAVPiBasic
+   States: [ERROR, NOT_CONNECTED, NOT_READY, READY]
+ - &L0TP
+   Name: NA62L0TPTorino
+   States: [ERROR, NOT_CONNECTED, IDLE, INITIALIZED, READY, RUNNING]
+ - &GTKReset
+   Name: NA62GTKControlReset
+   States: [ERROR, IDLE, READY]
+ - &GTK
+   Name: NA62GTKControlBasic
+   States: [ERROR, NOT_CONNECTED, IDLE, INITIALIZED, READY, WARNING]
+ - &DimDB
+   Name: NA62DimDBConnectorBasic
+   States: [ERROR, NOT_READY, READY]
+ - &CFD
+   Name: NA62CFDControlBasic
+   States: [ERROR, NOT_CONNECTED, NOT_READY, READY]
+ - &FMC
+   Name: FwFMCNodeBasic
+   States: [UNKNOWN, COMM_ERROR, 'OFF', 'ON']
+   
+logical:
+ - &NA62PiGroup
+   Name: NA62PiGroup
+   States: [NOT_CONNECTED, ERROR, NOT_READY, READY]
+   Colors: {NOT_CONNECTED: unDataNoAccess, ERROR: FwStateAttention3, NOT_READY: FwStateOKNotPhysics, READY: FwStateOKPhysics}
+   Children:
+    - Node: *LAVPi
+
+ - &NA62PCNode
+   Name: NA62PCNode
+   States: [ERROR, 'OFF', IDLE, WARNING, READY]
+   Colors: {ERROR: FwStateAttention3, 'OFF': FwStateAttention1, IDLE: FwStateOKNotPhysics, WARNING: FwStateAttention2, READY: FwStateOKPhysics}
+   Children:
+    - Node: *FMC
+      Mapping: {ERROR: [UNKNOWN, COMM_ERROR], IDLE: ['ON']}
+    - Node: *PCFarm
+      Mapping: {'OFF': [], IDLE: [STARTING]}
+
+ - &NA62PCNodeGroup
+   Name: NA62PCNodeGroup
+   States: [ERROR, 'OFF', IDLE, WARNING, READY]
+   Colors: {ERROR: FwStateAttention3, 'OFF': FwStateAttention1, IDLE: FwStateOKNotPhysics, WARNING: FwStateAttention2, READY: FwStateOKPhysics}
+   Children:
+    - Node: *NA62PCNode
+
+ - &NA62
+   Name: NA62
+   States: [ERROR, NOT_CONNECTED, IDLE, INITIALIZED, READY, WARNING]
+   Colors: {ERROR: FwStateAttention3, NOT_CONNECTED: unDataNoAccess, IDLE: FwStateAttention1, INITIALIZED: FwStateOKNotPhysics, READY: FwStateOKPhysics, WARNING: FwStateAttention2}
+   Children:
+    - Node: *LTU
+      Mapping: {WARNING: []}
+    - Node: *TELL
+    - Node: *RunManager
+      Mapping: {WARNING: [], IDLE: [NOT_READY], INITIALIZED: [NOT_READY], NOT_CONNECTED: []}
+    - Node: *NA62
+#    - Node: *GTKReset
+#      Mapping: {WARNING: [], INITIALIZED: [READY], NOT_CONNECTED: []}
+    - Node: *GTK
+    - Node: *NA62PiGroup
+      Mapping: {WARNING: [], INITIALIZED: [NOT_READY], IDLE: []}
+    - Node: *SRB
+    - Node: *NA62PCNodeGroup
+      Mapping: {INITIALIZED: [IDLE], NOT_CONNECTED: []}
+    - Node: *SLM
+    - Node: *LKrL0
+      Mapping: {WARNING: []}
+    - Node: *CFD
+      Mapping: {WARNING: [], INITIALIZED: [NOT_READY], IDLE: []}
+
+ - &NA62_EN
+   Name: NA62_EN
+   States: [ERROR, IDLE, INITIALIZED, READY, RUNNING]
+   Colors: {ERROR: FwStateAttention3, IDLE: FwStateAttention1, INITIALIZED: FwStateOKNotPhysics, READY: FwStateOKNotPhysics, RUNNING: FwStateOKPhysics}
+   Children:
+    - Node: *RunManager
+      Mapping: {IDLE: [NOT_READY], INITIALIZED: [READY], NOT_CONNECTED: []}
+    - Node: *L0TP
+      Mappings: {RUNNING: READY}
+    - Node: *NA62
+      Mapping: {RUNNING: []}
+    - Node: *NA62PCNodeGroup
+      Mapping: {RUNNING: [], INITIALIZED: [IDLE], NOT_CONNECTED: []}
+    - Node: *OM
+      Mapping: {RUNNING: []}
+    - Node: *DimDB
+      Mapping: {RUNNING: [], INITIALIZED: [], IDLE: [], NOT_CONNECTED: []}
+    - Node: *Trigger
+      Mapping: {RUNNING: [], NOT_CONNECTED: [], ERROR: []}
+ 

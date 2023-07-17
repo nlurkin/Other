@@ -1,0 +1,817 @@
+---------------------------------------
+Generating rules for NA62PiGroup
+############
+Rules for state: NOT_CONNECTED
+############
+when ( ( $ALL$NA62LAVPiBasic in_state { READY } ) ) move_to READY
+
+when ( ( $ALL$NA62LAVPiBasic in_state { READY,NOT_READY } ) ) move_to NOT_READY
+
+when ( ( $ALL$NA62LAVPiBasic in_state { READY,NOT_READY,ERROR } ) ) move_to ERROR
+
+
+############
+Rules for state: ERROR
+############
+when ( ( $ANY$NA62LAVPiBasic in_state { NOT_CONNECTED } ) ) move_to NOT_CONNECTED
+
+when ( ( $ALL$NA62LAVPiBasic in_state { READY } ) ) move_to READY
+
+when ( ( $ALL$NA62LAVPiBasic in_state { READY,NOT_READY } ) ) move_to NOT_READY
+
+
+############
+Rules for state: NOT_READY
+############
+when ( ( $ANY$NA62LAVPiBasic in_state { NOT_CONNECTED } ) ) move_to NOT_CONNECTED
+
+when ( ( $ANY$NA62LAVPiBasic in_state { ERROR } ) ) move_to ERROR
+
+when ( ( $ALL$NA62LAVPiBasic in_state { READY } ) ) move_to READY
+
+
+############
+Rules for state: READY
+############
+when ( ( $ANY$NA62LAVPiBasic in_state { NOT_CONNECTED } ) ) move_to NOT_CONNECTED
+
+when ( ( $ANY$NA62LAVPiBasic in_state { ERROR } ) ) move_to ERROR
+
+when ( ( $ANY$NA62LAVPiBasic in_state { NOT_READY } ) ) move_to NOT_READY
+
+
+---------------------------------------
+Generating rules for NA62PCNode
+############
+Rules for state: ERROR
+############
+when ( ( $ALL$FwFMCNodeBasic in_state { ON } ) and 
+( $ALL$NA62PCFarmBasic in_state { READY } ) ) move_to READY
+
+when ( ( $ALL$FwFMCNodeBasic in_state { ON } ) and 
+( $ALL$NA62PCFarmBasic in_state { READY,WARNING } ) ) move_to WARNING
+
+when ( ( $ALL$FwFMCNodeBasic in_state { ON } ) and 
+( $ALL$NA62PCFarmBasic in_state { READY,IDLE,WARNING,STARTING } ) ) move_to IDLE
+
+when ( ( $ALL$FwFMCNodeBasic in_state { ON,OFF } ) and 
+( $ALL$NA62PCFarmBasic in_state { READY,IDLE,WARNING,STARTING } ) ) move_to OFF
+
+
+############
+Rules for state: OFF
+############
+when ( ( $ANY$FwFMCNodeBasic in_state { UNKNOWN,COMM_ERROR } ) or 
+( $ANY$NA62PCFarmBasic in_state { ERROR } ) ) move_to ERROR
+
+when ( ( $ALL$FwFMCNodeBasic in_state { ON } ) and 
+( $ALL$NA62PCFarmBasic in_state { READY } ) ) move_to READY
+
+when ( ( $ALL$FwFMCNodeBasic in_state { ON } ) and 
+( $ALL$NA62PCFarmBasic in_state { READY,WARNING } ) ) move_to WARNING
+
+when ( ( $ALL$FwFMCNodeBasic in_state { ON } ) and 
+( $ALL$NA62PCFarmBasic in_state { READY,IDLE,WARNING,STARTING } ) ) move_to IDLE
+
+
+############
+Rules for state: IDLE
+############
+when ( ( $ANY$FwFMCNodeBasic in_state { UNKNOWN,COMM_ERROR } ) or 
+( $ANY$NA62PCFarmBasic in_state { ERROR } ) ) move_to ERROR
+
+when ( ( $ANY$FwFMCNodeBasic in_state { OFF } ) ) move_to OFF
+
+when ( ( $ALL$FwFMCNodeBasic in_state { ON } ) and 
+( $ALL$NA62PCFarmBasic in_state { READY } ) ) move_to READY
+
+when ( ( $ALL$FwFMCNodeBasic in_state { ON } ) and 
+( $ALL$NA62PCFarmBasic in_state { READY,WARNING } ) ) move_to WARNING
+
+
+############
+Rules for state: WARNING
+############
+when ( ( $ANY$FwFMCNodeBasic in_state { UNKNOWN,COMM_ERROR } ) or 
+( $ANY$NA62PCFarmBasic in_state { ERROR } ) ) move_to ERROR
+
+when ( ( $ANY$FwFMCNodeBasic in_state { OFF } ) ) move_to OFF
+
+when ( ( $ANY$NA62PCFarmBasic in_state { IDLE } ) ) move_to IDLE
+
+when ( ( $ALL$FwFMCNodeBasic in_state { ON } ) and 
+( $ALL$NA62PCFarmBasic in_state { READY } ) ) move_to READY
+
+
+############
+Rules for state: READY
+############
+when ( ( $ANY$FwFMCNodeBasic in_state { UNKNOWN,COMM_ERROR } ) or 
+( $ANY$NA62PCFarmBasic in_state { ERROR } ) ) move_to ERROR
+
+when ( ( $ANY$FwFMCNodeBasic in_state { OFF } ) ) move_to OFF
+
+when ( ( $ANY$NA62PCFarmBasic in_state { IDLE } ) ) move_to IDLE
+
+when ( ( $ANY$NA62PCFarmBasic in_state { WARNING } ) ) move_to WARNING
+
+
+---------------------------------------
+Generating rules for NA62PCNodeGroup
+############
+Rules for state: ERROR
+############
+when ( ( $ALL$NA62PCNode in_state { READY } ) ) move_to READY
+
+when ( ( $ALL$NA62PCNode in_state { READY,WARNING } ) ) move_to WARNING
+
+when ( ( $ALL$NA62PCNode in_state { READY,IDLE,WARNING } ) ) move_to IDLE
+
+when ( ( $ALL$NA62PCNode in_state { READY,IDLE,WARNING,OFF } ) ) move_to OFF
+
+
+############
+Rules for state: OFF
+############
+when ( ( $ANY$NA62PCNode in_state { ERROR } ) ) move_to ERROR
+
+when ( ( $ALL$NA62PCNode in_state { READY } ) ) move_to READY
+
+when ( ( $ALL$NA62PCNode in_state { READY,WARNING } ) ) move_to WARNING
+
+when ( ( $ALL$NA62PCNode in_state { READY,IDLE,WARNING } ) ) move_to IDLE
+
+
+############
+Rules for state: IDLE
+############
+when ( ( $ANY$NA62PCNode in_state { ERROR } ) ) move_to ERROR
+
+when ( ( $ANY$NA62PCNode in_state { OFF } ) ) move_to OFF
+
+when ( ( $ALL$NA62PCNode in_state { READY } ) ) move_to READY
+
+when ( ( $ALL$NA62PCNode in_state { READY,WARNING } ) ) move_to WARNING
+
+
+############
+Rules for state: WARNING
+############
+when ( ( $ANY$NA62PCNode in_state { ERROR } ) ) move_to ERROR
+
+when ( ( $ANY$NA62PCNode in_state { OFF } ) ) move_to OFF
+
+when ( ( $ANY$NA62PCNode in_state { IDLE } ) ) move_to IDLE
+
+when ( ( $ALL$NA62PCNode in_state { READY } ) ) move_to READY
+
+
+############
+Rules for state: READY
+############
+when ( ( $ANY$NA62PCNode in_state { ERROR } ) ) move_to ERROR
+
+when ( ( $ANY$NA62PCNode in_state { OFF } ) ) move_to OFF
+
+when ( ( $ANY$NA62PCNode in_state { IDLE } ) ) move_to IDLE
+
+when ( ( $ANY$NA62PCNode in_state { WARNING } ) ) move_to WARNING
+
+
+---------------------------------------
+Generating rules for NA62
+############
+Rules for state: ERROR
+############
+when ( ( $ALL$NA62LTUBasic in_state { READY,INITIALIZED,IDLE,NOT_CONNECTED } ) and 
+( $ALL$NA62TellBoardBasic in_state { WARNING } ) and 
+( $ALL$NA62RunManagerBasic in_state { READY,NOT_READY } ) and 
+( $ALL$NA62 in_state { WARNING } ) and 
+( $ALL$NA62GTKControlReset in_state { READY,IDLE } ) and 
+( $ALL$NA62GTKControlBasic in_state { WARNING } ) and 
+( $ALL$NA62PiGroup in_state { READY,NOT_READY,NOT_CONNECTED } ) and 
+( $ALL$NA62SRBControlBasic in_state { WARNING } ) and 
+( $ALL$NA62PCNodeGroup in_state { READY,WARNING } ) and 
+( $ALL$NA62SLMBasic in_state { WARNING } ) and 
+( $ALL$NA62SLMLKrL0 in_state { READY,INITIALIZED,IDLE,NOT_CONNECTED } ) and 
+( $ALL$NA62CFDControlBasic in_state { READY,NOT_READY,NOT_CONNECTED } ) ) move_to WARNING
+
+when ( ( $ALL$NA62LTUBasic in_state { READY } ) and 
+( $ALL$NA62TellBoardBasic in_state { READY,WARNING } ) and 
+( $ALL$NA62RunManagerBasic in_state { READY } ) and 
+( $ALL$NA62 in_state { READY,WARNING } ) and 
+( $ALL$NA62GTKControlReset in_state { READY } ) and 
+( $ALL$NA62GTKControlBasic in_state { READY,WARNING } ) and 
+( $ALL$NA62PiGroup in_state { READY } ) and 
+( $ALL$NA62SRBControlBasic in_state { READY,WARNING } ) and 
+( $ALL$NA62PCNodeGroup in_state { READY } ) and 
+( $ALL$NA62SLMBasic in_state { READY,WARNING } ) and 
+( $ALL$NA62SLMLKrL0 in_state { READY } ) and 
+( $ALL$NA62CFDControlBasic in_state { READY } ) ) move_to READY
+
+when ( ( $ALL$NA62LTUBasic in_state { READY,INITIALIZED } ) and 
+( $ALL$NA62TellBoardBasic in_state { READY,INITIALIZED,WARNING } ) and 
+( $ALL$NA62RunManagerBasic in_state { READY } ) and 
+( $ALL$NA62 in_state { READY,INITIALIZED,WARNING } ) and 
+( $ALL$NA62GTKControlReset in_state { READY } ) and 
+( $ALL$NA62GTKControlBasic in_state { READY,INITIALIZED,WARNING } ) and 
+( $ALL$NA62PiGroup in_state { READY,NOT_READY } ) and 
+( $ALL$NA62SRBControlBasic in_state { READY,INITIALIZED,WARNING } ) and 
+( $ALL$NA62PCNodeGroup in_state { READY,IDLE,WARNING } ) and 
+( $ALL$NA62SLMBasic in_state { READY,INITIALIZED,WARNING } ) and 
+( $ALL$NA62SLMLKrL0 in_state { READY,INITIALIZED } ) and 
+( $ALL$NA62CFDControlBasic in_state { READY,NOT_READY } ) ) move_to INITIALIZED
+
+when ( ( $ALL$NA62LTUBasic in_state { READY,INITIALIZED,IDLE } ) and 
+( $ALL$NA62TellBoardBasic in_state { READY,INITIALIZED,IDLE,WARNING } ) and 
+( $ALL$NA62RunManagerBasic in_state { READY,NOT_READY } ) and 
+( $ALL$NA62 in_state { READY,INITIALIZED,IDLE,WARNING } ) and 
+( $ALL$NA62GTKControlReset in_state { READY,IDLE } ) and 
+( $ALL$NA62GTKControlBasic in_state { READY,INITIALIZED,IDLE,WARNING } ) and 
+( $ALL$NA62PiGroup in_state { READY,NOT_READY,NOT_CONNECTED } ) and 
+( $ALL$NA62SRBControlBasic in_state { READY,INITIALIZED,IDLE,WARNING } ) and 
+( $ALL$NA62PCNodeGroup in_state { READY,IDLE,WARNING } ) and 
+( $ALL$NA62SLMBasic in_state { READY,INITIALIZED,IDLE,WARNING } ) and 
+( $ALL$NA62SLMLKrL0 in_state { READY,INITIALIZED,IDLE } ) and 
+( $ALL$NA62CFDControlBasic in_state { READY,NOT_READY,NOT_CONNECTED } ) ) move_to IDLE
+
+when ( ( $ALL$NA62LTUBasic in_state { READY,INITIALIZED,IDLE,NOT_CONNECTED } ) and 
+( $ALL$NA62TellBoardBasic in_state { READY,INITIALIZED,IDLE,WARNING,NOT_CONNECTED } ) and 
+( $ALL$NA62RunManagerBasic in_state { READY,NOT_READY } ) and 
+( $ALL$NA62 in_state { READY,INITIALIZED,IDLE,WARNING,NOT_CONNECTED } ) and 
+( $ALL$NA62GTKControlReset in_state { READY,IDLE } ) and 
+( $ALL$NA62GTKControlBasic in_state { READY,INITIALIZED,IDLE,WARNING,NOT_CONNECTED } ) and 
+( $ALL$NA62PiGroup in_state { READY,NOT_READY,NOT_CONNECTED } ) and 
+( $ALL$NA62SRBControlBasic in_state { READY,INITIALIZED,IDLE,WARNING,NOT_CONNECTED } ) and 
+( $ALL$NA62PCNodeGroup in_state { READY,IDLE,WARNING,OFF } ) and 
+( $ALL$NA62SLMBasic in_state { READY,INITIALIZED,IDLE,WARNING,NOT_CONNECTED } ) and 
+( $ALL$NA62SLMLKrL0 in_state { READY,INITIALIZED,IDLE,NOT_CONNECTED } ) and 
+( $ALL$NA62CFDControlBasic in_state { READY,NOT_READY,NOT_CONNECTED } ) ) move_to NOT_CONNECTED
+
+
+############
+Rules for state: NOT_CONNECTED
+############
+when ( ( $ANY$NA62LTUBasic in_state { ERROR } ) or 
+( $ANY$NA62TellBoardBasic in_state { ERROR } ) or 
+( $ANY$NA62RunManagerBasic in_state { ERROR } ) or 
+( $ANY$NA62 in_state { ERROR } ) or 
+( $ANY$NA62GTKControlReset in_state { ERROR } ) or 
+( $ANY$NA62GTKControlBasic in_state { ERROR } ) or 
+( $ANY$NA62PiGroup in_state { ERROR } ) or 
+( $ANY$NA62SRBControlBasic in_state { ERROR } ) or 
+( $ANY$NA62PCNodeGroup in_state { ERROR } ) or 
+( $ANY$NA62SLMBasic in_state { ERROR } ) or 
+( $ANY$NA62SLMLKrL0 in_state { ERROR } ) or 
+( $ANY$NA62CFDControlBasic in_state { ERROR } ) ) move_to ERROR
+
+when ( ( $ALL$NA62LTUBasic in_state { READY,INITIALIZED,IDLE,ERROR } ) and 
+( $ALL$NA62TellBoardBasic in_state { WARNING } ) and 
+( $ALL$NA62RunManagerBasic in_state { READY,NOT_READY,ERROR } ) and 
+( $ALL$NA62 in_state { WARNING } ) and 
+( $ALL$NA62GTKControlReset in_state { READY,IDLE,ERROR } ) and 
+( $ALL$NA62GTKControlBasic in_state { WARNING } ) and 
+( $ALL$NA62PiGroup in_state { READY,NOT_READY,ERROR } ) and 
+( $ALL$NA62SRBControlBasic in_state { WARNING } ) and 
+( $ALL$NA62PCNodeGroup in_state { READY,WARNING } ) and 
+( $ALL$NA62SLMBasic in_state { WARNING } ) and 
+( $ALL$NA62SLMLKrL0 in_state { READY,INITIALIZED,IDLE,ERROR } ) and 
+( $ALL$NA62CFDControlBasic in_state { READY,NOT_READY,ERROR } ) ) move_to WARNING
+
+when ( ( $ALL$NA62LTUBasic in_state { READY } ) and 
+( $ALL$NA62TellBoardBasic in_state { READY,WARNING } ) and 
+( $ALL$NA62RunManagerBasic in_state { READY } ) and 
+( $ALL$NA62 in_state { READY,WARNING } ) and 
+( $ALL$NA62GTKControlReset in_state { READY } ) and 
+( $ALL$NA62GTKControlBasic in_state { READY,WARNING } ) and 
+( $ALL$NA62PiGroup in_state { READY } ) and 
+( $ALL$NA62SRBControlBasic in_state { READY,WARNING } ) and 
+( $ALL$NA62PCNodeGroup in_state { READY } ) and 
+( $ALL$NA62SLMBasic in_state { READY,WARNING } ) and 
+( $ALL$NA62SLMLKrL0 in_state { READY } ) and 
+( $ALL$NA62CFDControlBasic in_state { READY } ) ) move_to READY
+
+when ( ( $ALL$NA62LTUBasic in_state { READY,INITIALIZED } ) and 
+( $ALL$NA62TellBoardBasic in_state { READY,INITIALIZED,WARNING } ) and 
+( $ALL$NA62RunManagerBasic in_state { READY } ) and 
+( $ALL$NA62 in_state { READY,INITIALIZED,WARNING } ) and 
+( $ALL$NA62GTKControlReset in_state { READY } ) and 
+( $ALL$NA62GTKControlBasic in_state { READY,INITIALIZED,WARNING } ) and 
+( $ALL$NA62PiGroup in_state { READY,NOT_READY } ) and 
+( $ALL$NA62SRBControlBasic in_state { READY,INITIALIZED,WARNING } ) and 
+( $ALL$NA62PCNodeGroup in_state { READY,IDLE,WARNING } ) and 
+( $ALL$NA62SLMBasic in_state { READY,INITIALIZED,WARNING } ) and 
+( $ALL$NA62SLMLKrL0 in_state { READY,INITIALIZED } ) and 
+( $ALL$NA62CFDControlBasic in_state { READY,NOT_READY } ) ) move_to INITIALIZED
+
+when ( ( $ALL$NA62LTUBasic in_state { READY,INITIALIZED,IDLE } ) and 
+( $ALL$NA62TellBoardBasic in_state { READY,INITIALIZED,IDLE,WARNING } ) and 
+( $ALL$NA62RunManagerBasic in_state { READY,NOT_READY } ) and 
+( $ALL$NA62 in_state { READY,INITIALIZED,IDLE,WARNING } ) and 
+( $ALL$NA62GTKControlReset in_state { READY,IDLE } ) and 
+( $ALL$NA62GTKControlBasic in_state { READY,INITIALIZED,IDLE,WARNING } ) and 
+( $ALL$NA62PiGroup in_state { READY,NOT_READY,ERROR } ) and 
+( $ALL$NA62SRBControlBasic in_state { READY,INITIALIZED,IDLE,WARNING } ) and 
+( $ALL$NA62PCNodeGroup in_state { READY,IDLE,WARNING } ) and 
+( $ALL$NA62SLMBasic in_state { READY,INITIALIZED,IDLE,WARNING } ) and 
+( $ALL$NA62SLMLKrL0 in_state { READY,INITIALIZED,IDLE } ) and 
+( $ALL$NA62CFDControlBasic in_state { READY,NOT_READY,ERROR } ) ) move_to IDLE
+
+
+############
+Rules for state: IDLE
+############
+when ( ( $ANY$NA62LTUBasic in_state { ERROR } ) or 
+( $ANY$NA62TellBoardBasic in_state { ERROR } ) or 
+( $ANY$NA62RunManagerBasic in_state { ERROR } ) or 
+( $ANY$NA62 in_state { ERROR } ) or 
+( $ANY$NA62GTKControlReset in_state { ERROR } ) or 
+( $ANY$NA62GTKControlBasic in_state { ERROR } ) or 
+( $ANY$NA62PiGroup in_state { ERROR } ) or 
+( $ANY$NA62SRBControlBasic in_state { ERROR } ) or 
+( $ANY$NA62PCNodeGroup in_state { ERROR } ) or 
+( $ANY$NA62SLMBasic in_state { ERROR } ) or 
+( $ANY$NA62SLMLKrL0 in_state { ERROR } ) or 
+( $ANY$NA62CFDControlBasic in_state { ERROR } ) ) move_to ERROR
+
+when ( ( $ANY$NA62LTUBasic in_state { NOT_CONNECTED } ) or 
+( $ANY$NA62TellBoardBasic in_state { NOT_CONNECTED } ) or 
+( $ANY$NA62 in_state { NOT_CONNECTED } ) or 
+( $ANY$NA62GTKControlBasic in_state { NOT_CONNECTED } ) or 
+( $ANY$NA62PiGroup in_state { NOT_CONNECTED } ) or 
+( $ANY$NA62SRBControlBasic in_state { NOT_CONNECTED } ) or 
+( $ANY$NA62SLMBasic in_state { NOT_CONNECTED } ) or 
+( $ANY$NA62SLMLKrL0 in_state { NOT_CONNECTED } ) or 
+( $ANY$NA62CFDControlBasic in_state { NOT_CONNECTED } ) ) move_to NOT_CONNECTED
+
+when ( ( $ALL$NA62LTUBasic in_state { READY,INITIALIZED,NOT_CONNECTED,ERROR } ) and 
+( $ALL$NA62TellBoardBasic in_state { WARNING } ) and 
+( $ALL$NA62RunManagerBasic in_state { READY,NOT_READY,ERROR } ) and 
+( $ALL$NA62 in_state { WARNING } ) and 
+( $ALL$NA62GTKControlReset in_state { READY,ERROR } ) and 
+( $ALL$NA62GTKControlBasic in_state { WARNING } ) and 
+( $ALL$NA62PiGroup in_state { READY,NOT_READY,NOT_CONNECTED,ERROR } ) and 
+( $ALL$NA62SRBControlBasic in_state { WARNING } ) and 
+( $ALL$NA62PCNodeGroup in_state { READY,WARNING } ) and 
+( $ALL$NA62SLMBasic in_state { WARNING } ) and 
+( $ALL$NA62SLMLKrL0 in_state { READY,INITIALIZED,NOT_CONNECTED,ERROR } ) and 
+( $ALL$NA62CFDControlBasic in_state { READY,NOT_READY,NOT_CONNECTED,ERROR } ) ) move_to WARNING
+
+when ( ( $ALL$NA62LTUBasic in_state { READY } ) and 
+( $ALL$NA62TellBoardBasic in_state { READY,WARNING } ) and 
+( $ALL$NA62RunManagerBasic in_state { READY } ) and 
+( $ALL$NA62 in_state { READY,WARNING } ) and 
+( $ALL$NA62GTKControlReset in_state { READY } ) and 
+( $ALL$NA62GTKControlBasic in_state { READY,WARNING } ) and 
+( $ALL$NA62PiGroup in_state { READY } ) and 
+( $ALL$NA62SRBControlBasic in_state { READY,WARNING } ) and 
+( $ALL$NA62PCNodeGroup in_state { READY } ) and 
+( $ALL$NA62SLMBasic in_state { READY,WARNING } ) and 
+( $ALL$NA62SLMLKrL0 in_state { READY } ) and 
+( $ALL$NA62CFDControlBasic in_state { READY } ) ) move_to READY
+
+when ( ( $ALL$NA62LTUBasic in_state { READY,INITIALIZED } ) and 
+( $ALL$NA62TellBoardBasic in_state { READY,INITIALIZED,WARNING } ) and 
+( $ALL$NA62RunManagerBasic in_state { READY } ) and 
+( $ALL$NA62 in_state { READY,INITIALIZED,WARNING } ) and 
+( $ALL$NA62GTKControlReset in_state { READY } ) and 
+( $ALL$NA62GTKControlBasic in_state { READY,INITIALIZED,WARNING } ) and 
+( $ALL$NA62PiGroup in_state { READY,NOT_READY } ) and 
+( $ALL$NA62SRBControlBasic in_state { READY,INITIALIZED,WARNING } ) and 
+( $ALL$NA62PCNodeGroup in_state { READY,WARNING } ) and 
+( $ALL$NA62SLMBasic in_state { READY,INITIALIZED,WARNING } ) and 
+( $ALL$NA62SLMLKrL0 in_state { READY,INITIALIZED } ) and 
+( $ALL$NA62CFDControlBasic in_state { READY,NOT_READY } ) ) move_to INITIALIZED
+
+
+############
+Rules for state: INITIALIZED
+############
+when ( ( $ANY$NA62LTUBasic in_state { ERROR } ) or 
+( $ANY$NA62TellBoardBasic in_state { ERROR } ) or 
+( $ANY$NA62RunManagerBasic in_state { ERROR } ) or 
+( $ANY$NA62 in_state { ERROR } ) or 
+( $ANY$NA62GTKControlReset in_state { ERROR } ) or 
+( $ANY$NA62GTKControlBasic in_state { ERROR } ) or 
+( $ANY$NA62PiGroup in_state { ERROR } ) or 
+( $ANY$NA62SRBControlBasic in_state { ERROR } ) or 
+( $ANY$NA62PCNodeGroup in_state { ERROR } ) or 
+( $ANY$NA62SLMBasic in_state { ERROR } ) or 
+( $ANY$NA62SLMLKrL0 in_state { ERROR } ) or 
+( $ANY$NA62CFDControlBasic in_state { ERROR } ) ) move_to ERROR
+
+when ( ( $ANY$NA62LTUBasic in_state { NOT_CONNECTED } ) or 
+( $ANY$NA62TellBoardBasic in_state { NOT_CONNECTED } ) or 
+( $ANY$NA62 in_state { NOT_CONNECTED } ) or 
+( $ANY$NA62GTKControlBasic in_state { NOT_CONNECTED } ) or 
+( $ANY$NA62PiGroup in_state { NOT_CONNECTED } ) or 
+( $ANY$NA62SRBControlBasic in_state { NOT_CONNECTED } ) or 
+( $ANY$NA62SLMBasic in_state { NOT_CONNECTED } ) or 
+( $ANY$NA62SLMLKrL0 in_state { NOT_CONNECTED } ) or 
+( $ANY$NA62CFDControlBasic in_state { NOT_CONNECTED } ) ) move_to NOT_CONNECTED
+
+when ( ( $ANY$NA62LTUBasic in_state { IDLE } ) or 
+( $ANY$NA62TellBoardBasic in_state { IDLE } ) or 
+( $ANY$NA62RunManagerBasic in_state { NOT_READY } ) or 
+( $ANY$NA62 in_state { IDLE } ) or 
+( $ANY$NA62GTKControlReset in_state { IDLE } ) or 
+( $ANY$NA62GTKControlBasic in_state { IDLE } ) or 
+( $ANY$NA62SRBControlBasic in_state { IDLE } ) or 
+( $ANY$NA62PCNodeGroup in_state { IDLE } ) or 
+( $ANY$NA62SLMBasic in_state { IDLE } ) or 
+( $ANY$NA62SLMLKrL0 in_state { IDLE } ) ) move_to IDLE
+
+when ( ( $ALL$NA62LTUBasic in_state { READY,IDLE,NOT_CONNECTED,ERROR } ) and 
+( $ALL$NA62TellBoardBasic in_state { WARNING } ) and 
+( $ALL$NA62RunManagerBasic in_state { READY,NOT_READY,ERROR } ) and 
+( $ALL$NA62 in_state { WARNING } ) and 
+( $ALL$NA62GTKControlReset in_state { READY,IDLE,ERROR } ) and 
+( $ALL$NA62GTKControlBasic in_state { WARNING } ) and 
+( $ALL$NA62PiGroup in_state { READY,NOT_READY,NOT_CONNECTED,ERROR } ) and 
+( $ALL$NA62SRBControlBasic in_state { WARNING } ) and 
+( $ALL$NA62PCNodeGroup in_state { READY,WARNING } ) and 
+( $ALL$NA62SLMBasic in_state { WARNING } ) and 
+( $ALL$NA62SLMLKrL0 in_state { READY,IDLE,NOT_CONNECTED,ERROR } ) and 
+( $ALL$NA62CFDControlBasic in_state { READY,NOT_READY,NOT_CONNECTED,ERROR } ) ) move_to WARNING
+
+when ( ( $ALL$NA62LTUBasic in_state { READY } ) and 
+( $ALL$NA62TellBoardBasic in_state { READY,WARNING } ) and 
+( $ALL$NA62RunManagerBasic in_state { READY } ) and 
+( $ALL$NA62 in_state { READY,WARNING } ) and 
+( $ALL$NA62GTKControlReset in_state { READY } ) and 
+( $ALL$NA62GTKControlBasic in_state { READY,WARNING } ) and 
+( $ALL$NA62PiGroup in_state { READY } ) and 
+( $ALL$NA62SRBControlBasic in_state { READY,WARNING } ) and 
+( $ALL$NA62PCNodeGroup in_state { READY } ) and 
+( $ALL$NA62SLMBasic in_state { READY,WARNING } ) and 
+( $ALL$NA62SLMLKrL0 in_state { READY } ) and 
+( $ALL$NA62CFDControlBasic in_state { READY } ) ) move_to READY
+
+
+############
+Rules for state: READY
+############
+when ( ( $ANY$NA62LTUBasic in_state { ERROR } ) or 
+( $ANY$NA62TellBoardBasic in_state { ERROR } ) or 
+( $ANY$NA62RunManagerBasic in_state { ERROR } ) or 
+( $ANY$NA62 in_state { ERROR } ) or 
+( $ANY$NA62GTKControlReset in_state { ERROR } ) or 
+( $ANY$NA62GTKControlBasic in_state { ERROR } ) or 
+( $ANY$NA62PiGroup in_state { ERROR } ) or 
+( $ANY$NA62SRBControlBasic in_state { ERROR } ) or 
+( $ANY$NA62PCNodeGroup in_state { ERROR } ) or 
+( $ANY$NA62SLMBasic in_state { ERROR } ) or 
+( $ANY$NA62SLMLKrL0 in_state { ERROR } ) or 
+( $ANY$NA62CFDControlBasic in_state { ERROR } ) ) move_to ERROR
+
+when ( ( $ANY$NA62LTUBasic in_state { NOT_CONNECTED } ) or 
+( $ANY$NA62TellBoardBasic in_state { NOT_CONNECTED } ) or 
+( $ANY$NA62 in_state { NOT_CONNECTED } ) or 
+( $ANY$NA62GTKControlBasic in_state { NOT_CONNECTED } ) or 
+( $ANY$NA62PiGroup in_state { NOT_CONNECTED } ) or 
+( $ANY$NA62SRBControlBasic in_state { NOT_CONNECTED } ) or 
+( $ANY$NA62SLMBasic in_state { NOT_CONNECTED } ) or 
+( $ANY$NA62SLMLKrL0 in_state { NOT_CONNECTED } ) or 
+( $ANY$NA62CFDControlBasic in_state { NOT_CONNECTED } ) ) move_to NOT_CONNECTED
+
+when ( ( $ANY$NA62LTUBasic in_state { IDLE } ) or 
+( $ANY$NA62TellBoardBasic in_state { IDLE } ) or 
+( $ANY$NA62RunManagerBasic in_state { NOT_READY } ) or 
+( $ANY$NA62 in_state { IDLE } ) or 
+( $ANY$NA62GTKControlReset in_state { IDLE } ) or 
+( $ANY$NA62GTKControlBasic in_state { IDLE } ) or 
+( $ANY$NA62SRBControlBasic in_state { IDLE } ) or 
+( $ANY$NA62PCNodeGroup in_state { IDLE } ) or 
+( $ANY$NA62SLMBasic in_state { IDLE } ) or 
+( $ANY$NA62SLMLKrL0 in_state { IDLE } ) ) move_to IDLE
+
+when ( ( $ANY$NA62LTUBasic in_state { INITIALIZED } ) or 
+( $ANY$NA62TellBoardBasic in_state { INITIALIZED } ) or 
+( $ANY$NA62RunManagerBasic in_state { READY } ) or 
+( $ANY$NA62 in_state { INITIALIZED } ) or 
+( $ANY$NA62GTKControlReset in_state { READY } ) or 
+( $ANY$NA62GTKControlBasic in_state { INITIALIZED } ) or 
+( $ANY$NA62PiGroup in_state { NOT_READY } ) or 
+( $ANY$NA62SRBControlBasic in_state { INITIALIZED } ) or 
+( $ANY$NA62PCNodeGroup in_state { IDLE } ) or 
+( $ANY$NA62SLMBasic in_state { INITIALIZED } ) or 
+( $ANY$NA62SLMLKrL0 in_state { INITIALIZED } ) or 
+( $ANY$NA62CFDControlBasic in_state { NOT_READY } ) ) move_to INITIALIZED
+
+when ( ( $ALL$NA62LTUBasic in_state { INITIALIZED,IDLE,NOT_CONNECTED,ERROR } ) and 
+( $ALL$NA62TellBoardBasic in_state { WARNING } ) and 
+( $ALL$NA62RunManagerBasic in_state { NOT_READY,ERROR } ) and 
+( $ALL$NA62 in_state { WARNING } ) and 
+( $ALL$NA62GTKControlReset in_state { IDLE,ERROR } ) and 
+( $ALL$NA62GTKControlBasic in_state { WARNING } ) and 
+( $ALL$NA62PiGroup in_state { NOT_READY,NOT_CONNECTED,ERROR } ) and 
+( $ALL$NA62SRBControlBasic in_state { WARNING } ) and 
+( $ALL$NA62PCNodeGroup in_state { WARNING } ) and 
+( $ALL$NA62SLMBasic in_state { WARNING } ) and 
+( $ALL$NA62SLMLKrL0 in_state { INITIALIZED,IDLE,NOT_CONNECTED,ERROR } ) and 
+( $ALL$NA62CFDControlBasic in_state { NOT_READY,NOT_CONNECTED,ERROR } ) ) move_to WARNING
+
+
+############
+Rules for state: WARNING
+############
+when ( ( $ANY$NA62LTUBasic in_state { ERROR } ) or 
+( $ANY$NA62TellBoardBasic in_state { ERROR } ) or 
+( $ANY$NA62RunManagerBasic in_state { ERROR } ) or 
+( $ANY$NA62 in_state { ERROR } ) or 
+( $ANY$NA62GTKControlReset in_state { ERROR } ) or 
+( $ANY$NA62GTKControlBasic in_state { ERROR } ) or 
+( $ANY$NA62PiGroup in_state { ERROR } ) or 
+( $ANY$NA62SRBControlBasic in_state { ERROR } ) or 
+( $ANY$NA62PCNodeGroup in_state { ERROR } ) or 
+( $ANY$NA62SLMBasic in_state { ERROR } ) or 
+( $ANY$NA62SLMLKrL0 in_state { ERROR } ) or 
+( $ANY$NA62CFDControlBasic in_state { ERROR } ) ) move_to ERROR
+
+when ( ( $ANY$NA62LTUBasic in_state { NOT_CONNECTED } ) or 
+( $ANY$NA62TellBoardBasic in_state { NOT_CONNECTED } ) or 
+( $ANY$NA62 in_state { NOT_CONNECTED } ) or 
+( $ANY$NA62GTKControlBasic in_state { NOT_CONNECTED } ) or 
+( $ANY$NA62PiGroup in_state { NOT_CONNECTED } ) or 
+( $ANY$NA62SRBControlBasic in_state { NOT_CONNECTED } ) or 
+( $ANY$NA62SLMBasic in_state { NOT_CONNECTED } ) or 
+( $ANY$NA62SLMLKrL0 in_state { NOT_CONNECTED } ) or 
+( $ANY$NA62CFDControlBasic in_state { NOT_CONNECTED } ) ) move_to NOT_CONNECTED
+
+when ( ( $ANY$NA62LTUBasic in_state { IDLE } ) or 
+( $ANY$NA62TellBoardBasic in_state { IDLE } ) or 
+( $ANY$NA62RunManagerBasic in_state { NOT_READY } ) or 
+( $ANY$NA62 in_state { IDLE } ) or 
+( $ANY$NA62GTKControlReset in_state { IDLE } ) or 
+( $ANY$NA62GTKControlBasic in_state { IDLE } ) or 
+( $ANY$NA62SRBControlBasic in_state { IDLE } ) or 
+( $ANY$NA62PCNodeGroup in_state { IDLE } ) or 
+( $ANY$NA62SLMBasic in_state { IDLE } ) or 
+( $ANY$NA62SLMLKrL0 in_state { IDLE } ) ) move_to IDLE
+
+when ( ( $ANY$NA62LTUBasic in_state { INITIALIZED } ) or 
+( $ANY$NA62TellBoardBasic in_state { INITIALIZED } ) or 
+( $ANY$NA62RunManagerBasic in_state { READY } ) or 
+( $ANY$NA62 in_state { INITIALIZED } ) or 
+( $ANY$NA62GTKControlReset in_state { READY } ) or 
+( $ANY$NA62GTKControlBasic in_state { INITIALIZED } ) or 
+( $ANY$NA62PiGroup in_state { NOT_READY } ) or 
+( $ANY$NA62SRBControlBasic in_state { INITIALIZED } ) or 
+( $ANY$NA62PCNodeGroup in_state { IDLE } ) or 
+( $ANY$NA62SLMBasic in_state { INITIALIZED } ) or 
+( $ANY$NA62SLMLKrL0 in_state { INITIALIZED } ) or 
+( $ANY$NA62CFDControlBasic in_state { NOT_READY } ) ) move_to INITIALIZED
+
+when ( ( $ANY$NA62LTUBasic in_state { READY } ) or 
+( $ANY$NA62TellBoardBasic in_state { READY } ) or 
+( $ANY$NA62RunManagerBasic in_state { READY } ) or 
+( $ANY$NA62 in_state { READY } ) or 
+( $ANY$NA62GTKControlReset in_state { READY } ) or 
+( $ANY$NA62GTKControlBasic in_state { READY } ) or 
+( $ANY$NA62PiGroup in_state { READY } ) or 
+( $ANY$NA62SRBControlBasic in_state { READY } ) or 
+( $ANY$NA62PCNodeGroup in_state { READY } ) or 
+( $ANY$NA62SLMBasic in_state { READY } ) or 
+( $ANY$NA62SLMLKrL0 in_state { READY } ) or 
+( $ANY$NA62CFDControlBasic in_state { READY } ) ) move_to READY
+
+
+---------------------------------------
+Generating rules for NA62_EN
+############
+Rules for state: ERROR
+############
+when ( ( $ALL$NA62RunManagerBasic in_state { READY } ) and 
+( $ALL$NA62L0TPTorino in_state { RUNNING } ) and 
+( $ALL$NA62 in_state { NOT_CONNECTED,IDLE,WARNING,READY,INITIALIZED } ) and 
+( $ALL$NA62PCNodeGroup in_state { READY,IDLE,WARNING,OFF } ) and 
+( $ALL$NA62OnlineMonitorBasic in_state { NOT_CONNECTED,IDLE,WARNING,READY,INITIALIZED } ) and 
+( $ALL$NA62DimDBConnectorBasic in_state { READY,NOT_READY } ) and 
+( $ALL$NA62TriggerAlgoBasic in_state { READY,INITIALIZED,IDLE } ) ) move_to RUNNING
+
+when ( ( $ALL$NA62RunManagerBasic in_state { READY } ) and 
+( $ALL$NA62L0TPTorino in_state { READY,RUNNING } ) and 
+( $ALL$NA62 in_state { READY,WARNING } ) and 
+( $ALL$NA62PCNodeGroup in_state { READY } ) and 
+( $ALL$NA62OnlineMonitorBasic in_state { READY,WARNING } ) and 
+( $ALL$NA62DimDBConnectorBasic in_state { READY } ) and 
+( $ALL$NA62TriggerAlgoBasic in_state { READY } ) ) move_to READY
+
+when ( ( $ALL$NA62RunManagerBasic in_state { READY } ) and 
+( $ALL$NA62L0TPTorino in_state { READY,INITIALIZED,RUNNING } ) and 
+( $ALL$NA62 in_state { READY,INITIALIZED,WARNING } ) and 
+( $ALL$NA62PCNodeGroup in_state { READY,IDLE,WARNING } ) and 
+( $ALL$NA62OnlineMonitorBasic in_state { READY,INITIALIZED,WARNING } ) and 
+( $ALL$NA62DimDBConnectorBasic in_state { READY,NOT_READY } ) and 
+( $ALL$NA62TriggerAlgoBasic in_state { READY,INITIALIZED } ) ) move_to INITIALIZED
+
+when ( ( $ALL$NA62RunManagerBasic in_state { READY,NOT_READY } ) and 
+( $ALL$NA62L0TPTorino in_state { READY,INITIALIZED,IDLE,RUNNING } ) and 
+( $ALL$NA62 in_state { READY,INITIALIZED,IDLE,WARNING } ) and 
+( $ALL$NA62PCNodeGroup in_state { READY,IDLE,WARNING } ) and 
+( $ALL$NA62OnlineMonitorBasic in_state { READY,INITIALIZED,IDLE,WARNING } ) and 
+( $ALL$NA62DimDBConnectorBasic in_state { READY,NOT_READY } ) and 
+( $ALL$NA62TriggerAlgoBasic in_state { READY,INITIALIZED,IDLE } ) ) move_to IDLE
+
+when ( ( $ALL$NA62RunManagerBasic in_state { READY,NOT_READY } ) and 
+( $ALL$NA62L0TPTorino in_state { READY,INITIALIZED,IDLE,RUNNING,NOT_CONNECTED } ) and 
+( $ALL$NA62 in_state { READY,INITIALIZED,IDLE,WARNING,NOT_CONNECTED } ) and 
+( $ALL$NA62PCNodeGroup in_state { READY,IDLE,WARNING,OFF } ) and 
+( $ALL$NA62OnlineMonitorBasic in_state { READY,INITIALIZED,IDLE,WARNING,NOT_CONNECTED } ) and 
+( $ALL$NA62DimDBConnectorBasic in_state { READY,NOT_READY } ) and 
+( $ALL$NA62TriggerAlgoBasic in_state { READY,INITIALIZED,IDLE } ) ) move_to NOT_CONNECTED
+
+
+############
+Rules for state: NOT_CONNECTED
+############
+when ( ( $ANY$NA62RunManagerBasic in_state { ERROR } ) or 
+( $ANY$NA62L0TPTorino in_state { ERROR } ) or 
+( $ANY$NA62 in_state { ERROR } ) or 
+( $ANY$NA62PCNodeGroup in_state { ERROR } ) or 
+( $ANY$NA62OnlineMonitorBasic in_state { ERROR } ) or 
+( $ANY$NA62DimDBConnectorBasic in_state { ERROR } ) ) move_to ERROR
+
+when ( ( $ALL$NA62RunManagerBasic in_state { READY } ) and 
+( $ALL$NA62L0TPTorino in_state { RUNNING } ) and 
+( $ALL$NA62 in_state { IDLE,WARNING,ERROR,READY,INITIALIZED } ) and 
+( $ALL$NA62PCNodeGroup in_state { READY,IDLE,WARNING,OFF,ERROR } ) and 
+( $ALL$NA62OnlineMonitorBasic in_state { IDLE,WARNING,ERROR,READY,INITIALIZED } ) and 
+( $ALL$NA62DimDBConnectorBasic in_state { READY,NOT_READY,ERROR } ) and 
+( $ALL$NA62TriggerAlgoBasic in_state { READY,INITIALIZED,IDLE } ) ) move_to RUNNING
+
+when ( ( $ALL$NA62RunManagerBasic in_state { READY } ) and 
+( $ALL$NA62L0TPTorino in_state { READY,RUNNING } ) and 
+( $ALL$NA62 in_state { READY,WARNING } ) and 
+( $ALL$NA62PCNodeGroup in_state { READY } ) and 
+( $ALL$NA62OnlineMonitorBasic in_state { READY,WARNING } ) and 
+( $ALL$NA62DimDBConnectorBasic in_state { READY } ) and 
+( $ALL$NA62TriggerAlgoBasic in_state { READY } ) ) move_to READY
+
+when ( ( $ALL$NA62RunManagerBasic in_state { READY } ) and 
+( $ALL$NA62L0TPTorino in_state { READY,INITIALIZED,RUNNING } ) and 
+( $ALL$NA62 in_state { READY,INITIALIZED,WARNING } ) and 
+( $ALL$NA62PCNodeGroup in_state { READY,IDLE,WARNING } ) and 
+( $ALL$NA62OnlineMonitorBasic in_state { READY,INITIALIZED,WARNING } ) and 
+( $ALL$NA62DimDBConnectorBasic in_state { READY,NOT_READY,ERROR } ) and 
+( $ALL$NA62TriggerAlgoBasic in_state { READY,INITIALIZED } ) ) move_to INITIALIZED
+
+when ( ( $ALL$NA62RunManagerBasic in_state { READY,NOT_READY } ) and 
+( $ALL$NA62L0TPTorino in_state { READY,INITIALIZED,IDLE,RUNNING } ) and 
+( $ALL$NA62 in_state { READY,INITIALIZED,IDLE,WARNING } ) and 
+( $ALL$NA62PCNodeGroup in_state { READY,IDLE,WARNING } ) and 
+( $ALL$NA62OnlineMonitorBasic in_state { READY,INITIALIZED,IDLE,WARNING } ) and 
+( $ALL$NA62DimDBConnectorBasic in_state { READY,NOT_READY,ERROR } ) and 
+( $ALL$NA62TriggerAlgoBasic in_state { READY,INITIALIZED,IDLE } ) ) move_to IDLE
+
+
+############
+Rules for state: IDLE
+############
+when ( ( $ANY$NA62RunManagerBasic in_state { ERROR } ) or 
+( $ANY$NA62L0TPTorino in_state { ERROR } ) or 
+( $ANY$NA62 in_state { ERROR } ) or 
+( $ANY$NA62PCNodeGroup in_state { ERROR } ) or 
+( $ANY$NA62OnlineMonitorBasic in_state { ERROR } ) or 
+( $ANY$NA62DimDBConnectorBasic in_state { ERROR } ) ) move_to ERROR
+
+when ( ( $ANY$NA62L0TPTorino in_state { NOT_CONNECTED } ) or 
+( $ANY$NA62 in_state { NOT_CONNECTED } ) or 
+( $ANY$NA62OnlineMonitorBasic in_state { NOT_CONNECTED } ) ) move_to NOT_CONNECTED
+
+when ( ( $ALL$NA62RunManagerBasic in_state { READY } ) and 
+( $ALL$NA62L0TPTorino in_state { RUNNING } ) and 
+( $ALL$NA62 in_state { NOT_CONNECTED,WARNING,ERROR,READY,INITIALIZED } ) and 
+( $ALL$NA62PCNodeGroup in_state { READY,WARNING,OFF,ERROR } ) and 
+( $ALL$NA62OnlineMonitorBasic in_state { NOT_CONNECTED,WARNING,ERROR,READY,INITIALIZED } ) and 
+( $ALL$NA62DimDBConnectorBasic in_state { READY,NOT_READY,ERROR } ) and 
+( $ALL$NA62TriggerAlgoBasic in_state { READY,INITIALIZED } ) ) move_to RUNNING
+
+when ( ( $ALL$NA62RunManagerBasic in_state { READY } ) and 
+( $ALL$NA62L0TPTorino in_state { READY,RUNNING } ) and 
+( $ALL$NA62 in_state { READY,WARNING } ) and 
+( $ALL$NA62PCNodeGroup in_state { READY } ) and 
+( $ALL$NA62OnlineMonitorBasic in_state { READY,WARNING } ) and 
+( $ALL$NA62DimDBConnectorBasic in_state { READY } ) and 
+( $ALL$NA62TriggerAlgoBasic in_state { READY } ) ) move_to READY
+
+when ( ( $ALL$NA62RunManagerBasic in_state { READY } ) and 
+( $ALL$NA62L0TPTorino in_state { READY,INITIALIZED,RUNNING } ) and 
+( $ALL$NA62 in_state { READY,INITIALIZED,WARNING } ) and 
+( $ALL$NA62PCNodeGroup in_state { READY,WARNING } ) and 
+( $ALL$NA62OnlineMonitorBasic in_state { READY,INITIALIZED,WARNING } ) and 
+( $ALL$NA62DimDBConnectorBasic in_state { READY,NOT_READY,ERROR } ) and 
+( $ALL$NA62TriggerAlgoBasic in_state { READY,INITIALIZED } ) ) move_to INITIALIZED
+
+
+############
+Rules for state: INITIALIZED
+############
+when ( ( $ANY$NA62RunManagerBasic in_state { ERROR } ) or 
+( $ANY$NA62L0TPTorino in_state { ERROR } ) or 
+( $ANY$NA62 in_state { ERROR } ) or 
+( $ANY$NA62PCNodeGroup in_state { ERROR } ) or 
+( $ANY$NA62OnlineMonitorBasic in_state { ERROR } ) or 
+( $ANY$NA62DimDBConnectorBasic in_state { ERROR } ) ) move_to ERROR
+
+when ( ( $ANY$NA62L0TPTorino in_state { NOT_CONNECTED } ) or 
+( $ANY$NA62 in_state { NOT_CONNECTED } ) or 
+( $ANY$NA62OnlineMonitorBasic in_state { NOT_CONNECTED } ) ) move_to NOT_CONNECTED
+
+when ( ( $ANY$NA62RunManagerBasic in_state { NOT_READY } ) or 
+( $ANY$NA62L0TPTorino in_state { IDLE } ) or 
+( $ANY$NA62 in_state { IDLE } ) or 
+( $ANY$NA62PCNodeGroup in_state { IDLE } ) or 
+( $ANY$NA62OnlineMonitorBasic in_state { IDLE } ) or 
+( $ANY$NA62TriggerAlgoBasic in_state { IDLE } ) ) move_to IDLE
+
+when ( ( $ALL$NA62RunManagerBasic in_state { READY } ) and 
+( $ALL$NA62L0TPTorino in_state { RUNNING } ) and 
+( $ALL$NA62 in_state { NOT_CONNECTED,IDLE,WARNING,ERROR,READY } ) and 
+( $ALL$NA62PCNodeGroup in_state { READY,IDLE,WARNING,OFF,ERROR } ) and 
+( $ALL$NA62OnlineMonitorBasic in_state { NOT_CONNECTED,IDLE,WARNING,ERROR,READY } ) and 
+( $ALL$NA62DimDBConnectorBasic in_state { READY,NOT_READY,ERROR } ) and 
+( $ALL$NA62TriggerAlgoBasic in_state { READY,IDLE } ) ) move_to RUNNING
+
+when ( ( $ALL$NA62RunManagerBasic in_state { READY } ) and 
+( $ALL$NA62L0TPTorino in_state { READY,RUNNING } ) and 
+( $ALL$NA62 in_state { READY,WARNING } ) and 
+( $ALL$NA62PCNodeGroup in_state { READY } ) and 
+( $ALL$NA62OnlineMonitorBasic in_state { READY,WARNING } ) and 
+( $ALL$NA62DimDBConnectorBasic in_state { READY } ) and 
+( $ALL$NA62TriggerAlgoBasic in_state { READY } ) ) move_to READY
+
+
+############
+Rules for state: READY
+############
+when ( ( $ANY$NA62RunManagerBasic in_state { ERROR } ) or 
+( $ANY$NA62L0TPTorino in_state { ERROR } ) or 
+( $ANY$NA62 in_state { ERROR } ) or 
+( $ANY$NA62PCNodeGroup in_state { ERROR } ) or 
+( $ANY$NA62OnlineMonitorBasic in_state { ERROR } ) or 
+( $ANY$NA62DimDBConnectorBasic in_state { ERROR } ) ) move_to ERROR
+
+when ( ( $ANY$NA62L0TPTorino in_state { NOT_CONNECTED } ) or 
+( $ANY$NA62 in_state { NOT_CONNECTED } ) or 
+( $ANY$NA62OnlineMonitorBasic in_state { NOT_CONNECTED } ) ) move_to NOT_CONNECTED
+
+when ( ( $ANY$NA62RunManagerBasic in_state { NOT_READY } ) or 
+( $ANY$NA62L0TPTorino in_state { IDLE } ) or 
+( $ANY$NA62 in_state { IDLE } ) or 
+( $ANY$NA62PCNodeGroup in_state { IDLE } ) or 
+( $ANY$NA62OnlineMonitorBasic in_state { IDLE } ) or 
+( $ANY$NA62TriggerAlgoBasic in_state { IDLE } ) ) move_to IDLE
+
+when ( ( $ANY$NA62RunManagerBasic in_state { READY } ) or 
+( $ANY$NA62L0TPTorino in_state { INITIALIZED } ) or 
+( $ANY$NA62 in_state { INITIALIZED } ) or 
+( $ANY$NA62PCNodeGroup in_state { IDLE } ) or 
+( $ANY$NA62OnlineMonitorBasic in_state { INITIALIZED } ) or 
+( $ANY$NA62TriggerAlgoBasic in_state { INITIALIZED } ) ) move_to INITIALIZED
+
+when ( ( $ALL$NA62RunManagerBasic in_state {  } ) and 
+( $ALL$NA62L0TPTorino in_state { RUNNING } ) and 
+( $ALL$NA62 in_state { NOT_CONNECTED,IDLE,WARNING,ERROR,INITIALIZED } ) and 
+( $ALL$NA62PCNodeGroup in_state { IDLE,WARNING,OFF,ERROR } ) and 
+( $ALL$NA62OnlineMonitorBasic in_state { NOT_CONNECTED,IDLE,WARNING,ERROR,INITIALIZED } ) and 
+( $ALL$NA62DimDBConnectorBasic in_state { NOT_READY,ERROR } ) and 
+( $ALL$NA62TriggerAlgoBasic in_state { INITIALIZED,IDLE } ) ) move_to RUNNING
+
+
+############
+Rules for state: RUNNING
+############
+when ( ( $ANY$NA62RunManagerBasic in_state { ERROR } ) or 
+( $ANY$NA62L0TPTorino in_state { ERROR } ) or 
+( $ANY$NA62 in_state { ERROR } ) or 
+( $ANY$NA62PCNodeGroup in_state { ERROR } ) or 
+( $ANY$NA62OnlineMonitorBasic in_state { ERROR } ) or 
+( $ANY$NA62DimDBConnectorBasic in_state { ERROR } ) ) move_to ERROR
+
+when ( ( $ANY$NA62L0TPTorino in_state { NOT_CONNECTED } ) or 
+( $ANY$NA62 in_state { NOT_CONNECTED } ) or 
+( $ANY$NA62OnlineMonitorBasic in_state { NOT_CONNECTED } ) ) move_to NOT_CONNECTED
+
+when ( ( $ANY$NA62RunManagerBasic in_state { NOT_READY } ) or 
+( $ANY$NA62L0TPTorino in_state { IDLE } ) or 
+( $ANY$NA62 in_state { IDLE } ) or 
+( $ANY$NA62PCNodeGroup in_state { IDLE } ) or 
+( $ANY$NA62OnlineMonitorBasic in_state { IDLE } ) or 
+( $ANY$NA62TriggerAlgoBasic in_state { IDLE } ) ) move_to IDLE
+
+when ( ( $ANY$NA62L0TPTorino in_state { INITIALIZED } ) or 
+( $ANY$NA62 in_state { INITIALIZED } ) or 
+( $ANY$NA62PCNodeGroup in_state { IDLE } ) or 
+( $ANY$NA62OnlineMonitorBasic in_state { INITIALIZED } ) or 
+( $ANY$NA62TriggerAlgoBasic in_state { INITIALIZED } ) ) move_to INITIALIZED
+
+when ( ( $ANY$NA62RunManagerBasic in_state { READY } ) or 
+( $ANY$NA62L0TPTorino in_state { READY } ) or 
+( $ANY$NA62 in_state { READY } ) or 
+( $ANY$NA62PCNodeGroup in_state { READY } ) or 
+( $ANY$NA62OnlineMonitorBasic in_state { READY } ) or 
+( $ANY$NA62DimDBConnectorBasic in_state { READY } ) or 
+( $ANY$NA62TriggerAlgoBasic in_state { READY } ) ) move_to READY
+
+
