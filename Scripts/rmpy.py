@@ -1,4 +1,4 @@
-#!/usr/bin/python2.6
+#!/bin/env python
 import os
 import sys
 import curses
